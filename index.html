@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRTJKQH 系统首页</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+  <!-- 顶部红色渐变 + LOGO -->
+  <header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center">
+    <img src="bom/assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain">
+    <h1 class="text-3xl font-bold tracking-wide">TRTJKQH 系统首页</h1>
+    <p class="text-sm mt-1">内部查询系统导航页</p>
+  </header>
+
+  <main class="max-w-5xl mx-auto mt-10 px-4">
+    <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
+      <h2 class="text-xl font-semibold mb-4">功能导航</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- 已有功能 -->
+        <a href="unit-price/index.html" class="block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition">单价查询</a>
+        <a href="bom/index.html" class="block bg-green-600 text-white p-4 rounded-lg text-center font-medium hover:bg-green-700 transition">BOM 查询</a>
+        <!-- 占位符功能，指向 placeholder.html -->
+        <a href="feature3/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 3</a>
+        <a href="feature4/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 4</a>
+        <a href="feature5/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 5</a>
+        <a href="feature6/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 6</a>
+        <a href="feature7/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 7</a>
+        <a href="feature8/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 8</a>
+        <a href="feature9/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 9</a>
+        <a href="feature10/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 10</a>
+        <a href="feature11/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 11</a>
+        <a href="feature12/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 12</a>
+        <a href="feature13/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 13</a>
+        <a href="feature14/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 14</a>
+        <a href="feature15/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 15</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center text-gray-500 text-sm mt-10 mb-4">
+    © 2025 TRTJKQH 内部系统
+  </footer>
+
+</body>
+</html>
