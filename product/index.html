@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>产品展示</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 左侧折叠样式 */
+    .sidebar {
+      transition: all 0.3s ease;
+    }
+    .sidebar.collapsed {
+      width: 3rem;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+<div class="flex h-screen">
+
+  <!-- 左侧系列栏 -->
+  <div id="sidebar" class="sidebar bg-white shadow-md w-64 p-4 flex flex-col transition-all
+                          md:w-64 md:flex md:flex-col md:relative absolute z-20 left-0 top-0 h-full">
+    <button id="toggleBtn" class="mb-4 p-2 bg-blue-500 text-white rounded md:hidden">☰</button>
+    <div id="seriesList" class="flex flex-col gap-2 overflow-auto">
+      <!-- 系列按钮由 JS 动态生成 -->
+    </div>
+  </div>
+
+  <!-- 右侧产品展示区 -->
+  <div class="flex-1 p-6 overflow-auto ml-0 md:ml-64">
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- 产品卡片由 JS 动态生成 -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const seriesList = document.getElementById('seriesList');
+  const productGrid = document.getElementById('productGrid');
+
+  // 左侧折叠按钮
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    seriesList.classList.toggle('hidden');
+  });
+
+  // 加载产品数据
+  fetch('data.json')
+    .then(response => response.json())
+    .then(data => {
+      // 生成系列按钮
+      for (const seriesName in data) {
+        const btn = document.createElement('button');
+        btn.textContent = seriesName;
+        btn.className = 'text-left p-2 bg-gray-200 hover:bg-gray-300 rounded';
+        btn.addEventListener('click', () => showProducts(seriesName));
+        seriesList.appendChild(btn);
+      }
+
+      // 默认显示第一个系列
+      const firstSeries = Object.keys(data)[0];
+      if(firstSeries) showProducts(firstSeries);
+
+      function showProducts(seriesName) {
+        productGrid.innerHTML = ''; // 清空
+        const products = data[seriesName];
+        products.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded shadow p-4 flex flex-col items-center hover:scale-105 transition-transform';
+
+          const img = document.createElement('img');
+          img.src = `../assets/product/${p.image}`;
+          img.alt = p.name;
+          img.className = 'w-32 h-32 object-contain mb-2';
+          card.appendChild(img);
+
+          const name = document.createElement('h3');
+          name.textContent = p.name;
+          name.className = 'font-bold text-center mb-1';
+          card.appendChild(name);
+
+          const project = document.createElement('p');
+          project.textContent = `项目号: ${p.project}`;
+          project.className = 'text-sm text-gray-600 mb-1';
+          card.appendChild(project);
+
+          const spec = document.createElement('p');
+          spec.textContent = `规格: ${p.spec}`;
+          spec.className = 'text-sm text-gray-600 mb-1';
+          card.appendChild(spec);
+
+          const price = document.createElement('p');
+          price.textContent = `零售价: ${p.price}`;
+          price.className = 'text-red-500 font-semibold';
+          card.appendChild(price);
+
+          productGrid.appendChild(card);
+        });
+      }
+    })
+    .catch(err => {
+      console.error('加载产品数据失败:', err);
+      productGrid.innerHTML = '<p class="text-red-500">产品数据加载失败</p>';
+    });
+</script>
+
+</body>
+</html>
