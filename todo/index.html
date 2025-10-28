@@ -3,143 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>每日待办 - 卡片化版</title>
+<title>每日待办 - 列表版</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50 text-gray-800 min-h-screen">
 
 <header class="text-center py-6 bg-white shadow">
   <h1 class="text-3xl font-bold mb-2">每日待办</h1>
   <p class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
 </header>
 
-<div id="todo-container" class="max-w-6xl mx-auto space-y-6 mt-8"></div>
+<div class="max-w-6xl mx-auto mt-8 space-y-8">
 
-<footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
-  <hr class="my-6">
-  <div class="mt-4 flex justify-center gap-4">
-    <button class="bg-gray-300 text-gray-800 px-3 py-1 rounded" onclick="clearAll()">清空全部数据</button>
-    <a href="export.html" target="_blank" class="bg-green-500 text-white px-3 py-1 rounded">导出全部Excel</a>
-  </div>
-</footer>
-
+<!-- === 四大板块表格 === -->
 <script>
-// === 配置板块 ===
-const blocks = [
+const blocks=[
   {name:'合同', id:'contract', keys:['物料名','供应商','3方比价','备注','进展']},
   {name:'物料跟踪', id:'transit', keys:['物料名','供应商','备注','发货日','到达日']},
   {name:'打样', id:'sample', keys:['物料名','供应商','备注','出样日']},
   {name:'应付', id:'payment', keys:['供应商','备注']}
 ];
+
 const priorityColors={高:'text-red-600',中:'text-yellow-500',低:'text-green-600'};
 
-// 初始化数据
 blocks.forEach(b=>{
   if(!localStorage.getItem(b.id+'Data')) localStorage.setItem(b.id+'Data',JSON.stringify([]));
 });
 
-// 获取和保存
-function getData(id){ return JSON.parse(localStorage.getItem(id+'Data'));}
+function getData(id){ return JSON.parse(localStorage.getItem(id+'Data')); }
 function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id))); }
 
-// === 渲染板块 ===
-function renderBlocks(){
-  const container=document.getElementById('todo-container');
-  container.innerHTML='';
-  blocks.forEach(block=>{
-    const div=document.createElement('section');
-    div.className='bg-gray-50 rounded-2xl shadow p-6';
-    div.innerHTML=`
-      <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">📌 ${block.name} <span class="text-gray-500 text-sm" id="${block.id}-count"></span></h2>
-      <div class="flex gap-2 mb-4">
-        <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addCard('${block.id}')">新增${block.name}</button>
-        <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('${block.id}')">删除选中</button>
-      </div>
-      <div id="${block.id}-cards" class="space-y-3"></div>
-    `;
-    container.appendChild(div);
-    renderCards(block.id);
-    Sortable.create(document.getElementById(`${block.id}-cards`),{
-      animation:150,
-      onEnd:()=>saveOrder(block.id)
+function renderTable(id){
+  const block=blocks.find(b=>b.id===id);
+  const data=getData(id);
+  let html=`
+  <section class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-2xl font-semibold mb-4">📌 ${block.name} (${data.length}条)</h2>
+    <div class="flex gap-2 mb-4">
+      <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('${id}')">新增</button>
+      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('${id}')">删除选中</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full border text-sm">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'${id}')"></th>
+            <th class="border px-2 py-1">序号</th>
+            ${block.keys.map(k=>`<th class="border px-2 py-1">${k}</th>`).join('')}
+            <th class="border px-2 py-1">优先级</th>
+            <th class="border px-2 py-1">操作</th>
+          </tr>
+        </thead>
+        <tbody id="${id}-table-body" class="cursor-move"></tbody>
+      </table>
+    </div>
+  </section>`;
+  document.write(html);
+
+  const tbody=document.getElementById(id+'-table-body');
+  function renderRows(){
+    tbody.innerHTML='';
+    data.forEach((row,index)=>{
+      const tr=document.createElement('tr');
+      tr.className='hover:bg-gray-50';
+      tr.innerHTML=`
+        <td class="border px-2 py-1 text-center"><input type="checkbox"></td>
+        <td class="border px-2 py-1 text-center">${index+1}</td>
+        ${block.keys.map(k=>`<td class="border px-2 py-1" contenteditable="true">${row[k]||''}</td>`).join('')}
+        <td class="border px-2 py-1 text-center">
+          <select onchange="updatePriority('${id}',${index},this.value)" class="${priorityColors[row.priority||'中']} border-none px-1 py-0.5 rounded">
+            <option value="高" ${row.priority==='高'?'selected':''}>高</option>
+            <option value="中" ${row.priority==='中'?'selected':''}>中</option>
+            <option value="低" ${row.priority==='低'?'selected':''}>低</option>
+          </select>
+        </td>
+        <td class="border px-2 py-1 text-center">
+          <button class="bg-green-400 text-white px-1 rounded" onclick="saveRow('${id}',${index})">保存</button>
+          <button class="bg-red-400 text-white px-1 rounded" onclick="deleteRow('${id}',${index})">删除</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
-  });
+  }
+
+  renderRows();
+
+  // 拖拽排序
+  Sortable.create(tbody,{animation:150, onEnd:()=>saveOrder(id)});
 }
 
-// === 渲染卡片 ===
-function renderCards(id){
-  const container=document.getElementById(id+'-cards');
+// === 行操作 ===
+function addRow(id){
+  const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  container.innerHTML='';
-  data.forEach((row,index)=>{
-    const card=document.createElement('div');
-    card.className='bg-white rounded-lg shadow p-3 flex flex-col md:flex-row md:items-center gap-3 hover:bg-gray-50';
-    card.innerHTML=`
-      <input type="checkbox" class="select-card self-start md:self-auto">
-      <div class="flex-1 grid grid-cols-${row.length} gap-2">
-        ${blocks.find(b=>b.id===id).keys.map((k,i)=>`<input type="text" value="${row[k]||''}" placeholder="${k}" class="border rounded px-1 py-0.5 w-full" onchange="updateCard('${id}',${index},'${k}',this.value)">`).join('')}
-      </div>
-      <div class="flex gap-1 mt-2 md:mt-0">
-        <select onchange="updatePriority('${id}',${index},this.value)" class="${priorityColors[row.priority||'中']} border-none px-1 py-0.5 rounded">
-          <option value="高" ${row.priority==='高'?'selected':''}>高</option>
-          <option value="中" ${row.priority==='中'?'selected':''}>中</option>
-          <option value="低" ${row.priority==='低'?'selected':''}>低</option>
-        </select>
-        <button class="bg-green-400 text-white px-2 py-0.5 rounded" onclick="saveCard('${id}',${index})">保存</button>
-        <button class="bg-red-400 text-white px-2 py-0.5 rounded" onclick="deleteCard('${id}',${index})">删除</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-  document.getElementById(id+'-count').innerText=`(${data.length}条)`;
-}
-
-// === 卡片操作 ===
-function addCard(id){
-  const data=getData(id);
-  const keys=blocks.find(b=>b.id===id).keys;
   const newRow={};
-  keys.forEach(k=>newRow[k]='');
+  block.keys.forEach(k=>newRow[k]='');
   newRow.priority='中';
-  data.push(newRow);
-  saveData(id); renderCards(id);
+  data.push(newRow); saveData(id); renderTable(id);
 }
-function updateCard(id,index,key,value){ const data=getData(id); data[index][key]=value; saveData(id); }
-function updatePriority(id,index,value){ const data=getData(id); data[index].priority=value; saveData(id); renderCards(id); }
-function saveCard(id,index){ saveData(id); alert('已保存'); }
-function deleteCard(id,index){ const data=getData(id); data.splice(index,1); saveData(id); renderCards(id); }
-function deleteSelected(id){
-  const container=document.getElementById(id+'-cards');
+function saveRow(id,index){
+  const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  Array.from(container.querySelectorAll('.select-card')).reverse().forEach((cb,i)=>{if(cb.checked) data.splice(i,1);});
-  saveData(id); renderCards(id);
+  const tr=document.getElementById(id+'-table-body').children[index];
+  block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
+  saveData(id);
+  alert('已保存');
+}
+function deleteRow(id,index){
+  const data=getData(id); data.splice(index,1); saveData(id); renderTable(id);
+}
+function deleteSelected(id){
+  const data=getData(id);
+  const tbody=document.getElementById(id+'-table-body');
+  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{if(cb.checked) data.splice(i,1);});
+  saveData(id); renderTable(id);
+}
+function toggleAll(master,id){
+  const tbody=document.getElementById(id+'-table-body');
+  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
+}
+function updatePriority(id,index,value){
+  const data=getData(id); data[index].priority=value; saveData(id); renderTable(id);
 }
 function saveOrder(id){
-  const container=document.getElementById(id+'-cards');
-  const oldData=getData(id);
+  const tbody=document.getElementById(id+'-table-body');
+  const data=getData(id);
   const newData=[];
-  Array.from(container.children).forEach(card=>{
-    const inputs=card.querySelectorAll('input[type="text"]');
+  Array.from(tbody.children).forEach(tr=>{
     const row={};
-    inputs.forEach((input,i)=>{ row[blocks.find(b=>b.id===id).keys[i]]=input.value });
-    row.priority=card.querySelector('select').value;
+    const block=blocks.find(b=>b.id===id);
+    block.keys.forEach((k,i)=>row[k]=tr.children[i+2].innerText);
+    row.priority=tr.querySelector('select').value;
     newData.push(row);
   });
   localStorage.setItem(id+'Data',JSON.stringify(newData));
-  renderCards(id);
+  renderTable(id);
 }
 
 // === 清空全部 ===
 function clearAll(){
-  if(confirm('确认清空所有数据吗？')){
-    blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); });
-    renderBlocks();
+  if(confirm('确认清空全部数据吗？')){
+    blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); renderTable(b.id); });
   }
 }
 
-// 初始渲染
-renderBlocks();
+// === 初始化渲染 ===
+blocks.forEach(b=>renderTable(b.id));
 </script>
+</div>
 </body>
 </html>
