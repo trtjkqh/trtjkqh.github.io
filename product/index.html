@@ -6,90 +6,107 @@
   <title>产品系列展示</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .fade-in {
-      animation: fadeIn 0.4s ease-in;
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
+
+    /* 左侧导航隐藏和滑出 */
+    #sidebar {
+      transition: transform 0.3s;
+      z-index: 50;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    #sidebar.hidden { transform: translateX(-100%); }
+    #sidebar.show { transform: translateX(0); }
+
+    /* 悬浮按钮 */
+    #toggleBtn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      background-color: #f59e0b; /* 黄色 */
     }
-    .hidden-left { transform: translateX(-100%); transition: transform 0.3s; }
-    .show-left { transform: translateX(0); transition: transform 0.3s; }
   </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
-  <header class="bg-red-600 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold">产品系列展示</h1>
-  </header>
+  <!-- 悬浮导航按钮 -->
+  <button id="toggleBtn" class="p-2 rounded-full shadow text-white hover:bg-yellow-600">
+    ☰
+  </button>
 
   <div class="flex h-screen overflow-hidden">
-    <!-- 左侧系列按钮 -->
-    <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto transition-transform show-left">
+    <!-- 左侧导航 -->
+    <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block">
       <h2 class="text-xl font-semibold mb-4">产品系列</h2>
-      <div id="series-list" class="flex flex-col gap-2">
-        <!-- 系列按钮由 JS 生成 -->
-      </div>
+      <div id="series-list" class="flex flex-col gap-2"></div>
     </div>
 
-    <!-- 右侧产品展示 -->
-    <div class="flex-1 p-6 overflow-y-auto">
-      <button id="backBtn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 hidden">
-        返回系列
-      </button>
+    <!-- 右侧产品区 -->
+    <div class="flex-1 p-6 overflow-y-auto md:ml-64">
       <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <!-- 产品由 JS 生成 -->
+        <!-- 产品卡片生成 -->
       </div>
     </div>
   </div>
 
   <script>
-    // 加载 data.json
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const seriesList = document.getElementById('series-list');
+    const productsDiv = document.getElementById('products');
+
+    // 悬浮按钮切换导航栏
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('show');
+    });
+
+    // 默认导航栏在手机端收起
+    sidebar.classList.add('hidden');
+
+    // 读取 data.json
     fetch('data.json')
       .then(res => res.json())
       .then(data => {
-        const seriesList = document.getElementById('series-list');
-        const productsDiv = document.getElementById('products');
-        const sidebar = document.getElementById('sidebar');
-        const backBtn = document.getElementById('backBtn');
+        const seriesNames = Object.keys(data);
+        let currentSeries = seriesNames[0]; // 默认显示第一个系列
 
-        // 创建系列按钮
-        Object.keys(data).forEach(series => {
+        // 生成系列按钮
+        seriesNames.forEach(series => {
           const btn = document.createElement('button');
           btn.textContent = series;
           btn.className = 'px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-left';
           btn.addEventListener('click', () => {
-            // 点击按钮，收起左侧并显示产品
-            sidebar.classList.remove('show-left');
-            sidebar.classList.add('hidden-left');
-            backBtn.classList.remove('hidden');
-
-            // 清空产品区
-            productsDiv.innerHTML = '';
-
-            data[series].forEach(product => {
-              const card = document.createElement('div');
-              card.className = 'bg-white rounded shadow p-4 fade-in flex flex-col items-center';
-              card.innerHTML = `
-                <img src="../assets/product/${product.image}" alt="${product.name}" class="w-32 h-32 object-cover mb-2">
-                <h3 class="font-semibold text-lg">${product.name}</h3>
-                <p>项目号: ${product.project}</p>
-                <p>规格: ${product.spec}</p>
-                <p>零售价: ${product.price}</p>
-              `;
-              productsDiv.appendChild(card);
-            });
+            currentSeries = series;
+            renderProducts(series);
+            // 手机端点击后收起导航
+            if (window.innerWidth < 768) {
+              sidebar.classList.remove('show');
+              sidebar.classList.add('hidden');
+            }
           });
           seriesList.appendChild(btn);
         });
 
-        // 返回按钮
-        backBtn.addEventListener('click', () => {
-          sidebar.classList.remove('hidden-left');
-          sidebar.classList.add('show-left');
-          backBtn.classList.add('hidden');
+        // 渲染产品函数
+        function renderProducts(series) {
           productsDiv.innerHTML = '';
-        });
+          data[series].forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center hover:shadow-lg transition';
+            card.innerHTML = `
+              <img src="../assets/product/${product.image}" alt="${product.name}" class="w-32 h-32 object-cover mb-3 rounded-lg">
+              <h3 class="font-semibold text-lg text-center">${product.name}</h3>
+              <p class="text-gray-600 text-sm">项目号: ${product.project}</p>
+              <p class="text-gray-600 text-sm">规格: ${product.spec}</p>
+              <p class="text-red-500 font-semibold mt-1">零售价: ${product.price}</p>
+            `;
+            productsDiv.appendChild(card);
+          });
+        }
+
+        // 初始渲染
+        renderProducts(currentSeries);
       })
       .catch(err => console.error('读取 data.json 出错:', err));
   </script>
