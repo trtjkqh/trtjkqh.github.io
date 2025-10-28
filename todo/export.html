@@ -22,15 +22,18 @@
   wb.SheetNames.push("打样");
   wb.SheetNames.push("应付");
 
+  // 将 JSON 数据转换为 Excel Sheet
   wb.Sheets["合同"] = XLSX.utils.json_to_sheet(contractData);
   wb.Sheets["物料跟踪"] = XLSX.utils.json_to_sheet(transitData);
   wb.Sheets["打样"] = XLSX.utils.json_to_sheet(sampleData);
   wb.Sheets["应付"] = XLSX.utils.json_to_sheet(paymentData);
 
-  XLSX.writeFile(wb, `每日待办_${new Date().toLocaleDateString()}.xlsx`);
+  // 导出文件
+  const filename = `每日待办_${new Date().toLocaleDateString().replace(/\//g,'-')}.xlsx`;
+  XLSX.writeFile(wb, filename);
 
-  // 自动关闭导出页面
-  setTimeout(()=>{window.close()},500);
+  // 自动关闭页面
+  setTimeout(()=>{ window.close(); }, 500);
 </script>
 </body>
 </html>
