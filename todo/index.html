@@ -64,7 +64,6 @@ function renderTable(id){
             <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'${id}')"></th>
             <th class="border px-2 py-1">序号</th>
             ${block.keys.map(k=>`<th class="border px-2 py-1">${k}</th>`).join('')}
-            <th class="border px-2 py-1">截止日期</th>
             <th class="border px-2 py-1">优先级</th>
             <th class="border px-2 py-1">操作</th>
           </tr>
@@ -81,23 +80,12 @@ function renderTable(id){
     data.forEach((row,index)=>{
       const tr=document.createElement('tr');
 
-      // === 行背景逻辑 ===
-      let rowClass='hover:bg-gray-50'; 
-      const today=new Date(); today.setHours(0,0,0,0);
-      if(row.deadline){
-        const ddl=new Date(row.deadline); ddl.setHours(0,0,0,0);
-        if(ddl<today) rowClass='bg-red-400 text-white'; // 过期
-        else if(ddl.getTime()===today.getTime()) rowClass='bg-yellow-300';
-        else {
-          if(row.priority==='高') rowClass='bg-red-200';
-          else if(row.priority==='中') rowClass='bg-yellow-100';
-          else if(row.priority==='低') rowClass='bg-gray-200';
-        }
-      } else {
-        if(row.priority==='高') rowClass='bg-red-200';
-        else if(row.priority==='中') rowClass='bg-yellow-100';
-        else if(row.priority==='低') rowClass='bg-gray-200';
-      }
+      // === 行背景逻辑（根据优先级） ===
+      let rowClass='hover:bg-gray-50';
+      if(row.priority==='高') rowClass='bg-red-400 text-white';
+      else if(row.priority==='中') rowClass='bg-yellow-300';
+      else if(row.priority==='低') rowClass='bg-gray-200';
+
       tr.className=rowClass;
 
       tr.innerHTML=`
@@ -105,10 +93,7 @@ function renderTable(id){
         <td class="border px-2 py-1 text-center">${index+1}</td>
         ${block.keys.map(k=>`<td class="border px-2 py-1" contenteditable="true">${row[k]||''}</td>`).join('')}
         <td class="border px-2 py-1 text-center">
-          <input type="date" value="${row.deadline||''}" onchange="updateDeadline('${id}',${index},this.value)" class="border-none text-center w-full">
-        </td>
-        <td class="border px-2 py-1 text-center">
-          <select onchange="updatePriority('${id}',${index},this.value')" class="border-none px-1 py-0.5 rounded w-full">
+          <select onchange="updatePriority('${id}',${index},this.value)" class="border-none px-1 py-0.5 rounded w-full">
             <option value="高" ${row.priority==='高'?'selected':''}>高</option>
             <option value="中" ${row.priority==='中'?'selected':''}>中</option>
             <option value="低" ${row.priority==='低'?'selected':''}>低</option>
@@ -132,7 +117,7 @@ function addRow(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
   const newRow={}; block.keys.forEach(k=>newRow[k]=''); 
-  newRow.priority='中'; newRow.deadline='';
+  newRow.priority='中';
   data.push(newRow); saveData(id); renderTable(id);
 }
 
@@ -141,7 +126,6 @@ function saveRow(id,index){
   const data=getData(id);
   const tr=document.getElementById(id+'-table-body').children[index];
   block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
-  data[index].deadline=tr.querySelector('input[type="date"]').value;
   data[index].priority=tr.querySelector('select').value;
   saveData(id); alert('已保存');
 }
@@ -161,7 +145,6 @@ function toggleAll(master,id){
 }
 
 function updatePriority(id,index,value){ const data=getData(id); data[index].priority=value; saveData(id); renderTable(id); }
-function updateDeadline(id,index,value){ const data=getData(id); data[index].deadline=value; saveData(id); }
 
 function saveOrder(id){
   const tbody=document.getElementById(id+'-table-body');
@@ -171,7 +154,6 @@ function saveOrder(id){
     const row={};
     const block=blocks.find(b=>b.id===id);
     block.keys.forEach((k,i)=>row[k]=tr.children[i+2].innerText);
-    row.deadline=tr.querySelector('input[type="date"]').value;
     row.priority=tr.querySelector('select').value;
     newData.push(row);
   });
