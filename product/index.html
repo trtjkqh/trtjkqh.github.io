@@ -37,19 +37,26 @@
   <!-- 悬浮导航按钮 -->
   <button id="toggleBtn" class="p-2 rounded-full shadow text-white hover:bg-red-600">☰</button>
 
-  <div class="flex h-screen overflow-hidden">
-    <!-- 左侧导航 -->
-    <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block">
-      <h2 class="text-xl font-semibold mb-4">产品系列</h2>
-      <div id="series-list" class="flex flex-col gap-2"></div>
-    </div>
+  <div class="flex flex-col min-h-screen">
+    <div class="flex flex-1 overflow-hidden">
+      <!-- 左侧导航 -->
+      <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block">
+        <h2 class="text-xl font-semibold mb-4">产品系列</h2>
+        <div id="series-list" class="flex flex-col gap-2"></div>
+      </div>
 
-    <!-- 右侧产品区 -->
-    <div class="flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center">
-      <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl">
-        <!-- 产品卡片生成 -->
+      <!-- 右侧产品区 -->
+      <div class="flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center">
+        <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl">
+          <!-- 产品卡片生成 -->
+        </div>
       </div>
     </div>
+
+    <!-- 底部版权信息 -->
+    <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
+      © 2025 德令哈采购管理部提供技术和数据支持
+    </footer>
   </div>
 
   <!-- 图片放大遮罩 -->
