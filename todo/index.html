@@ -1,118 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>每日待办</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日待办 - 卡片化版</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen">
+<body class="bg-gray-100 min-h-screen">
 
 <header class="text-center py-6 bg-white shadow">
   <h1 class="text-3xl font-bold mb-2">每日待办</h1>
-  <p id="currentDate" class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
+  <p class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
 </header>
 
-<!-- 合同板块 -->
-<section id="contract-section" class="max-w-6xl mx-auto bg-white rounded-2xl shadow p-6 mt-8">
-  <h2 class="text-2xl font-semibold mb-4">📄 合同</h2>
-  <div class="flex gap-2 mb-4">
-    <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('contract')">新增合同</button>
-    <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('contract')">删除选中</button>
-  </div>
-  <div class="overflow-x-auto">
-    <table class="min-w-full border text-sm">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'contract')"></th>
-          <th class="border px-2 py-1">序号</th>
-          <th class="border px-2 py-1">物料名</th>
-          <th class="border px-2 py-1">供应商</th>
-          <th class="border px-2 py-1">3方比价</th>
-          <th class="border px-2 py-1">备注</th>
-          <th class="border px-2 py-1">进展</th>
-          <th class="border px-2 py-1">操作</th>
-        </tr>
-      </thead>
-      <tbody id="contract-table-body"></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 物料跟踪 -->
-<section id="transit-section" class="max-w-6xl mx-auto bg-white rounded-2xl shadow p-6 mt-8">
-  <h2 class="text-2xl font-semibold mb-4">🚚 物料跟踪</h2>
-  <div class="flex gap-2 mb-4">
-    <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('transit')">新增物料</button>
-    <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('transit')">删除选中</button>
-  </div>
-  <div class="overflow-x-auto">
-    <table class="min-w-full border text-sm">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'transit')"></th>
-          <th class="border px-2 py-1">序号</th>
-          <th class="border px-2 py-1">物料名</th>
-          <th class="border px-2 py-1">供应商</th>
-          <th class="border px-2 py-1">备注</th>
-          <th class="border px-2 py-1">发货日</th>
-          <th class="border px-2 py-1">到达日</th>
-          <th class="border px-2 py-1">操作</th>
-        </tr>
-      </thead>
-      <tbody id="transit-table-body"></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 打样板块 -->
-<section id="sample-section" class="max-w-6xl mx-auto bg-white rounded-2xl shadow p-6 mt-8">
-  <h2 class="text-2xl font-semibold mb-4">🧪 打样</h2>
-  <div class="flex gap-2 mb-4">
-    <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('sample')">新增打样</button>
-    <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('sample')">删除选中</button>
-  </div>
-  <div class="overflow-x-auto">
-    <table class="min-w-full border text-sm">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'sample')"></th>
-          <th class="border px-2 py-1">序号</th>
-          <th class="border px-2 py-1">物料名</th>
-          <th class="border px-2 py-1">供应商</th>
-          <th class="border px-2 py-1">备注</th>
-          <th class="border px-2 py-1">出样日</th>
-          <th class="border px-2 py-1">操作</th>
-        </tr>
-      </thead>
-      <tbody id="sample-table-body"></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 应付板块 -->
-<section id="payment-section" class="max-w-6xl mx-auto bg-white rounded-2xl shadow p-6 mt-8">
-  <h2 class="text-2xl font-semibold mb-4">💰 应付</h2>
-  <div class="flex gap-2 mb-4">
-    <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('payment')">新增应付</button>
-    <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('payment')">删除选中</button>
-  </div>
-  <div class="overflow-x-auto">
-    <table class="min-w-full border text-sm">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'payment')"></th>
-          <th class="border px-2 py-1">序号</th>
-          <th class="border px-2 py-1">供应商</th>
-          <th class="border px-2 py-1">备注</th>
-          <th class="border px-2 py-1">操作</th>
-        </tr>
-      </thead>
-      <tbody id="payment-table-body"></tbody>
-    </table>
-  </div>
-</section>
+<div id="todo-container" class="max-w-6xl mx-auto space-y-6 mt-8"></div>
 
 <footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
   <hr class="my-6">
@@ -123,79 +25,121 @@
 </footer>
 
 <script>
-let contractData = JSON.parse(localStorage.getItem('contractData'))||[];
-let transitData  = JSON.parse(localStorage.getItem('transitData'))||[];
-let sampleData   = JSON.parse(localStorage.getItem('sampleData'))||[];
-let paymentData  = JSON.parse(localStorage.getItem('paymentData'))||[];
+// === 配置板块 ===
+const blocks = [
+  {name:'合同', id:'contract', keys:['物料名','供应商','3方比价','备注','进展']},
+  {name:'物料跟踪', id:'transit', keys:['物料名','供应商','备注','发货日','到达日']},
+  {name:'打样', id:'sample', keys:['物料名','供应商','备注','出样日']},
+  {name:'应付', id:'payment', keys:['供应商','备注']}
+];
+const priorityColors={高:'text-red-600',中:'text-yellow-500',低:'text-green-600'};
 
-function renderTable(sectionId,dataArray,showAction=true){
-  const tbody=document.getElementById(sectionId+'-table-body');
-  tbody.innerHTML='';
-  dataArray.forEach((row,index)=>{
-    const tr=document.createElement('tr');
-    let cols=Object.keys(row).map(k=>`<td class="border px-2 py-1" contenteditable="true">${row[k]}</td>`).join('');
-    let action=showAction?`<td class="border px-2 py-1 text-center">
-      <button class="save-btn bg-green-400 px-1 rounded text-white">保存</button>
-      <button class="del-btn bg-red-400 px-1 rounded text-white">删除</button>
-    </td>`:'';
-    tr.innerHTML=`<td class="border px-2 py-1 text-center"><input type="checkbox"></td>
-                  <td class="border px-2 py-1 text-center">${index+1}</td>
-                  ${cols}${action}`;
-    tbody.appendChild(tr);
-    if(showAction){
-      tr.querySelector('.save-btn').onclick=()=>{Object.keys(row).forEach((k,i)=>row[k]=tr.children[i+2].innerText); saveData(sectionId);}
-      tr.querySelector('.del-btn').onclick=()=>{dataArray.splice(index,1); saveData(sectionId); renderAll();}
-    }
+// 初始化数据
+blocks.forEach(b=>{
+  if(!localStorage.getItem(b.id+'Data')) localStorage.setItem(b.id+'Data',JSON.stringify([]));
+});
+
+// 获取和保存
+function getData(id){ return JSON.parse(localStorage.getItem(id+'Data'));}
+function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id))); }
+
+// === 渲染板块 ===
+function renderBlocks(){
+  const container=document.getElementById('todo-container');
+  container.innerHTML='';
+  blocks.forEach(block=>{
+    const div=document.createElement('section');
+    div.className='bg-gray-50 rounded-2xl shadow p-6';
+    div.innerHTML=`
+      <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">📌 ${block.name} <span class="text-gray-500 text-sm" id="${block.id}-count"></span></h2>
+      <div class="flex gap-2 mb-4">
+        <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addCard('${block.id}')">新增${block.name}</button>
+        <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('${block.id}')">删除选中</button>
+      </div>
+      <div id="${block.id}-cards" class="space-y-3"></div>
+    `;
+    container.appendChild(div);
+    renderCards(block.id);
+    Sortable.create(document.getElementById(`${block.id}-cards`),{
+      animation:150,
+      onEnd:()=>saveOrder(block.id)
+    });
   });
 }
 
-function saveData(sectionId){
-  if(sectionId==='contract') localStorage.setItem('contractData',JSON.stringify(contractData));
-  if(sectionId==='transit')  localStorage.setItem('transitData',JSON.stringify(transitData));
-  if(sectionId==='sample')   localStorage.setItem('sampleData',JSON.stringify(sampleData));
-  if(sectionId==='payment')  localStorage.setItem('paymentData',JSON.stringify(paymentData));
+// === 渲染卡片 ===
+function renderCards(id){
+  const container=document.getElementById(id+'-cards');
+  const data=getData(id);
+  container.innerHTML='';
+  data.forEach((row,index)=>{
+    const card=document.createElement('div');
+    card.className='bg-white rounded-lg shadow p-3 flex flex-col md:flex-row md:items-center gap-3 hover:bg-gray-50';
+    card.innerHTML=`
+      <input type="checkbox" class="select-card self-start md:self-auto">
+      <div class="flex-1 grid grid-cols-${row.length} gap-2">
+        ${blocks.find(b=>b.id===id).keys.map((k,i)=>`<input type="text" value="${row[k]||''}" placeholder="${k}" class="border rounded px-1 py-0.5 w-full" onchange="updateCard('${id}',${index},'${k}',this.value)">`).join('')}
+      </div>
+      <div class="flex gap-1 mt-2 md:mt-0">
+        <select onchange="updatePriority('${id}',${index},this.value)" class="${priorityColors[row.priority||'中']} border-none px-1 py-0.5 rounded">
+          <option value="高" ${row.priority==='高'?'selected':''}>高</option>
+          <option value="中" ${row.priority==='中'?'selected':''}>中</option>
+          <option value="低" ${row.priority==='低'?'selected':''}>低</option>
+        </select>
+        <button class="bg-green-400 text-white px-2 py-0.5 rounded" onclick="saveCard('${id}',${index})">保存</button>
+        <button class="bg-red-400 text-white px-2 py-0.5 rounded" onclick="deleteCard('${id}',${index})">删除</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+  document.getElementById(id+'-count').innerText=`(${data.length}条)`;
 }
 
-function renderAll(){
-  renderTable('contract',contractData,true);
-  renderTable('transit',transitData,true);
-  renderTable('sample',sampleData,true);
-  renderTable('payment',paymentData,true);
+// === 卡片操作 ===
+function addCard(id){
+  const data=getData(id);
+  const keys=blocks.find(b=>b.id===id).keys;
+  const newRow={};
+  keys.forEach(k=>newRow[k]='');
+  newRow.priority='中';
+  data.push(newRow);
+  saveData(id); renderCards(id);
+}
+function updateCard(id,index,key,value){ const data=getData(id); data[index][key]=value; saveData(id); }
+function updatePriority(id,index,value){ const data=getData(id); data[index].priority=value; saveData(id); renderCards(id); }
+function saveCard(id,index){ saveData(id); alert('已保存'); }
+function deleteCard(id,index){ const data=getData(id); data.splice(index,1); saveData(id); renderCards(id); }
+function deleteSelected(id){
+  const container=document.getElementById(id+'-cards');
+  const data=getData(id);
+  Array.from(container.querySelectorAll('.select-card')).reverse().forEach((cb,i)=>{if(cb.checked) data.splice(i,1);});
+  saveData(id); renderCards(id);
+}
+function saveOrder(id){
+  const container=document.getElementById(id+'-cards');
+  const oldData=getData(id);
+  const newData=[];
+  Array.from(container.children).forEach(card=>{
+    const inputs=card.querySelectorAll('input[type="text"]');
+    const row={};
+    inputs.forEach((input,i)=>{ row[blocks.find(b=>b.id===id).keys[i]]=input.value });
+    row.priority=card.querySelector('select').value;
+    newData.push(row);
+  });
+  localStorage.setItem(id+'Data',JSON.stringify(newData));
+  renderCards(id);
 }
 
-function addRow(sectionId){
-  let arr, keys;
-  if(sectionId==='contract'){ arr=contractData; keys=['物料名','供应商','3方比价','备注','进展']; }
-  if(sectionId==='transit') { arr=transitData; keys=['物料名','供应商','备注','发货日','到达日']; }
-  if(sectionId==='sample')  { arr=sampleData; keys=['物料名','供应商','备注','出样日']; }
-  if(sectionId==='payment') { arr=paymentData; keys=['供应商','备注']; }
-  let newRow={}; keys.forEach(k=>newRow[k]=''); arr.push(newRow); saveData(sectionId); renderAll();
-}
-
-function deleteSelected(sectionId){
-  let arr, tbody;
-  if(sectionId==='contract'){ arr=contractData; tbody=document.getElementById('contract-table-body'); }
-  if(sectionId==='transit') { arr=transitData; tbody=document.getElementById('transit-table-body'); }
-  if(sectionId==='sample')  { arr=sampleData; tbody=document.getElementById('sample-table-body'); }
-  if(sectionId==='payment') { arr=paymentData; tbody=document.getElementById('payment-table-body'); }
-  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach((cb,i)=>{if(cb.checked) arr.splice(i,1);});
-  saveData(sectionId); renderAll();
-}
-
-function toggleAll(master,sectionId){
-  const tbody=document.getElementById(sectionId+'-table-body');
-  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
-}
-
+// === 清空全部 ===
 function clearAll(){
   if(confirm('确认清空所有数据吗？')){
-    contractData=[]; transitData=[]; sampleData=[]; paymentData=[];
-    saveData('contract'); saveData('transit'); saveData('sample'); saveData('payment');
-    renderAll();
+    blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); });
+    renderBlocks();
   }
 }
 
-renderAll();
+// 初始渲染
+renderBlocks();
 </script>
 </body>
 </html>
