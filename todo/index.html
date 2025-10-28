@@ -38,7 +38,7 @@ const blocks=[
   {name:'应付', id:'payment', keys:['供应商','备注']}
 ];
 
-// 初始化数据，补齐 priority
+// 初始化数据
 blocks.forEach(b=>{
   let data=JSON.parse(localStorage.getItem(b.id+'Data')||'[]');
   let updated=false;
@@ -51,9 +51,81 @@ blocks.forEach(b=>{
   if(updated) localStorage.setItem(b.id+'Data',JSON.stringify(data));
 });
 
-// 获取/保存数据
+// === 数据操作函数（全局作用域） ===
 function getData(id){ return JSON.parse(localStorage.getItem(id+'Data')); }
-function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id))); }
+function saveData(id,data){ localStorage.setItem(id+'Data',JSON.stringify(data)); }
+
+window.addRow=function(id){
+  const block=blocks.find(b=>b.id===id);
+  const data=getData(id);
+  const newRow={}; block.keys.forEach(k=>newRow[k]=''); newRow.priority='中';
+  data.push(newRow);
+  saveData(id,data);
+  renderTable(id);
+}
+
+window.saveRow=function(id,index){
+  const tbody=document.getElementById(id+'-table-body');
+  const tr=tbody.children[index];
+  const data=getData(id);
+  const block=blocks.find(b=>b.id===id);
+  block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
+  data[index].priority=tr.querySelector('select').value;
+  saveData(id,data);
+  renderTable(id);
+}
+
+window.deleteRow=function(id,index){
+  const data=getData(id);
+  data.splice(index,1);
+  saveData(id,data);
+  renderTable(id);
+}
+
+window.deleteSelected=function(id){
+  const data=getData(id);
+  const tbody=document.getElementById(id+'-table-body');
+  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{
+    if(cb.checked) data.splice(i,1);
+  });
+  saveData(id,data);
+  renderTable(id);
+}
+
+window.toggleAll=function(master,id){
+  const tbody=document.getElementById(id+'-table-body');
+  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
+}
+
+window.updatePriority=function(id,index,value){
+  const data=getData(id);
+  data[index].priority=value;
+  saveData(id,data);
+}
+
+window.saveOrder=function(id){
+  const tbody=document.getElementById(id+'-table-body');
+  const data=getData(id);
+  const newData=[];
+  Array.from(tbody.children).forEach(tr=>{
+    const row={};
+    const block=blocks.find(b=>b.id===id);
+    block.keys.forEach((k,i)=>row[k]=tr.children[i+2].innerText);
+    row.priority=tr.querySelector('select').value;
+    newData.push(row);
+  });
+  saveData(id,newData);
+  renderTable(id);
+}
+
+window.clearAll=function(){
+  if(confirm('确认清空全部数据吗？')){
+    blocks.forEach(b=>{
+      saveData(b.id,[]);
+      renderTable(b.id);
+    });
+  }
+}
 
 // === 渲染表格 ===
 function renderTable(id){
@@ -85,7 +157,6 @@ function renderTable(id){
       </div>
     `;
     container.dataset.inited=true;
-    // 初始化拖拽
     Sortable.create(document.getElementById(id+'-table-body'),{
       animation:150,
       onEnd:()=>saveOrder(id)
@@ -94,7 +165,6 @@ function renderTable(id){
 
   const tbody=document.getElementById(id+'-table-body');
   tbody.innerHTML='';
-
   data.forEach((row,index)=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`
@@ -117,79 +187,6 @@ function renderTable(id){
   });
 
   document.getElementById(id+'-count').innerText = data.length;
-}
-
-// === 新增/删除/保存/排序 ===
-function addRow(id){
-  const block=blocks.find(b=>b.id===id);
-  const data=getData(id);
-  const newRow={}; block.keys.forEach(k=>newRow[k]=''); newRow.priority='中';
-  data.push(newRow);
-  saveData(id);
-  renderTable(id);
-}
-
-function saveRow(id,index){
-  const tbody=document.getElementById(id+'-table-body');
-  const tr=tbody.children[index];
-  const data=getData(id);
-  const block=blocks.find(b=>b.id===id);
-  block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
-  data[index].priority=tr.querySelector('select').value;
-  saveData(id);
-  renderTable(id);
-}
-
-function deleteRow(id,index){
-  const data=getData(id);
-  data.splice(index,1);
-  saveData(id);
-  renderTable(id);
-}
-
-function deleteSelected(id){
-  const data=getData(id);
-  const tbody=document.getElementById(id+'-table-body');
-  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{
-    if(cb.checked) data.splice(i,1);
-  });
-  saveData(id);
-  renderTable(id);
-}
-
-function toggleAll(master,id){
-  const tbody=document.getElementById(id+'-table-body');
-  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
-}
-
-function updatePriority(id,index,value){
-  const data=getData(id);
-  data[index].priority=value;
-  saveData(id);
-}
-
-function saveOrder(id){
-  const tbody=document.getElementById(id+'-table-body');
-  const data=getData(id);
-  const newData=[];
-  Array.from(tbody.children).forEach(tr=>{
-    const row={};
-    const block=blocks.find(b=>b.id===id);
-    block.keys.forEach((k,i)=>row[k]=tr.children[i+2].innerText);
-    row.priority=tr.querySelector('select').value;
-    newData.push(row);
-  });
-  localStorage.setItem(id+'Data',JSON.stringify(newData));
-  renderTable(id);
-}
-
-function clearAll(){
-  if(confirm('确认清空全部数据吗？')){
-    blocks.forEach(b=>{
-      localStorage.setItem(b.id+'Data',JSON.stringify([]));
-      renderTable(b.id);
-    });
-  }
 }
 
 // === 初始化渲染 ===
