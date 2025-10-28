@@ -6,20 +6,9 @@
   <title>产品BOM查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background-color: #f9fafb;
-      font-family: "Microsoft YaHei", sans-serif;
-    }
-    .card {
-      background-color: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-    }
-    .child-row {
-      background-color: #f3f4f6;
-    }
+    body { background-color: #f9fafb; font-family: "Microsoft YaHei", sans-serif; }
+    .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; margin-top: 1.5rem; }
+    .child-row { background-color: #f3f4f6; }
   </style>
 </head>
 <body class="p-6">
@@ -29,11 +18,9 @@
     <!-- 搜索栏 -->
     <div class="card">
       <div class="flex flex-col md:flex-row gap-4 items-center">
-        <input id="nameSearch" type="text" placeholder="输入品名（支持模糊搜索）"
-          class="border rounded-lg p-2 flex-1 w-full" />
-        <input id="projectSearch" type="text" placeholder="输入项目号（精准搜索）"
-          class="border rounded-lg p-2 flex-1 w-full" />
-        <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400">查询</button>
+        <input id="nameSearch" type="text" placeholder="输入品名（模糊搜索）" class="border rounded-lg p-2 flex-1 w-full" />
+        <input id="projectSearch" type="text" placeholder="输入项目号（精准搜索）" class="border rounded-lg p-2 flex-1 w-full" />
+        <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400" disabled>查询</button>
         <button id="resetBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">重置</button>
       </div>
     </div>
@@ -63,19 +50,16 @@
     let bomData = [];
 
     // 加载数据
-    fetch('bom_data.json')
+    fetch("bom_data.json?_v=" + Date.now()) // 防缓存
       .then(res => {
         if (!res.ok) throw new Error("文件加载失败");
         return res.json();
       })
       .then(data => {
-        if (Array.isArray(data)) {
-          bomData = data;
-          console.log("✅ 数据加载成功", bomData.length);
-          document.getElementById("searchBtn").disabled = false;
-        } else {
-          throw new Error("数据格式错误，必须为数组");
-        }
+        if (!Array.isArray(data)) throw new Error("数据格式错误，必须为数组");
+        bomData = data;
+        console.log("✅ 数据加载成功", bomData.length);
+        document.getElementById("searchBtn").disabled = false;
       })
       .catch(err => {
         console.error("❌ 加载出错:", err);
