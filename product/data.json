@@ -1,20 +1,82 @@
 {
   "鲜虫草系列": [
-    {
-      "name": "鲜虫草1号",
-      "project": "SC2025-01",
-      "spec": "50g/瓶",
-      "price": "￥299",
-      "image": "xunchongcao1.jpg"
-    }
+    {"name":"鲜虫草1号","project":"XC2025-01","spec":"50g/瓶","price":"￥299","image":"Z1.jpg"},
+    {"name":"鲜虫草2号","project":"XC2025-02","spec":"50g/瓶","price":"￥319","image":"Z1.jpg"},
+    {"name":"鲜虫草3号","project":"XC2025-03","spec":"100g/瓶","price":"￥589","image":"Z1.jpg"},
+    {"name":"鲜虫草4号","project":"XC2025-04","spec":"100g/瓶","price":"￥599","image":"Z1.jpg"},
+    {"name":"鲜虫草5号","project":"XC2025-05","spec":"150g/瓶","price":"￥899","image":"Z1.jpg"},
+    {"name":"鲜虫草6号","project":"XC2025-06","spec":"150g/瓶","price":"￥929","image":"Z1.jpg"}
   ],
   "燕窝系列": [
-    {
-      "name": "燕窝A",
-      "project": "YW2025-01",
-      "spec": "20g/瓶",
-      "price": "￥399",
-      "image": "yanwo1.jpg"
-    }
+    {"name":"燕窝A","project":"YW2025-01","spec":"20g/瓶","price":"￥399","image":"Z1.jpg"},
+    {"name":"燕窝B","project":"YW2025-02","spec":"20g/瓶","price":"￥419","image":"Z1.jpg"},
+    {"name":"燕窝C","project":"YW2025-03","spec":"50g/瓶","price":"￥799","image":"Z1.jpg"},
+    {"name":"燕窝D","project":"YW2025-04","spec":"50g/瓶","price":"￥829","image":"Z1.jpg"},
+    {"name":"燕窝E","project":"YW2025-05","spec":"100g/瓶","price":"￥1499","image":"Z1.jpg"},
+    {"name":"燕窝F","project":"YW2025-06","spec":"100g/瓶","price":"￥1529","image":"Z1.jpg"}
+  ],
+  "黑果枸杞系列": [
+    {"name":"黑枸杞1号","project":"HG2025-01","spec":"50g/袋","price":"￥199","image":"Z1.jpg"},
+    {"name":"黑枸杞2号","project":"HG2025-02","spec":"50g/袋","price":"￥209","image":"Z1.jpg"},
+    {"name":"黑枸杞3号","project":"HG2025-03","spec":"100g/袋","price":"￥399","image":"Z1.jpg"},
+    {"name":"黑枸杞4号","project":"HG2025-04","spec":"100g/袋","price":"￥419","image":"Z1.jpg"},
+    {"name":"黑枸杞5号","project":"HG2025-05","spec":"150g/袋","price":"￥599","image":"Z1.jpg"},
+    {"name":"黑枸杞6号","project":"HG2025-06","spec":"150g/袋","price":"￥629","image":"Z1.jpg"}
+  ],
+  "藜麦系列": [
+    {"name":"藜麦1号","project":"LM2025-01","spec":"500g/袋","price":"￥89","image":"Z1.jpg"},
+    {"name":"藜麦2号","project":"LM2025-02","spec":"500g/袋","price":"￥95","image":"Z1.jpg"},
+    {"name":"藜麦3号","project":"LM2025-03","spec":"1kg/袋","price":"￥179","image":"Z1.jpg"},
+    {"name":"藜麦4号","project":"LM2025-04","spec":"1kg/袋","price":"￥189","image":"Z1.jpg"},
+    {"name":"藜麦5号","project":"LM2025-05","spec":"1.5kg/袋","price":"￥269","image":"Z1.jpg"},
+    {"name":"藜麦6号","project":"LM2025-06","spec":"1.5kg/袋","price":"￥289","image":"Z1.jpg"}
+  ],
+  "冻干枸杞系列": [
+    {"name":"冻干枸杞1号","project":"DG2025-01","spec":"50g/袋","price":"￥129","image":"Z1.jpg"},
+    {"name":"冻干枸杞2号","project":"DG2025-02","spec":"50g/袋","price":"￥139","image":"Z1.jpg"},
+    {"name":"冻干枸杞3号","project":"DG2025-03","spec":"100g/袋","price":"￥259","image":"Z1.jpg"},
+    {"name":"冻干枸杞4号","project":"DG2025-04","spec":"100g/袋","price":"￥269","image":"Z1.jpg"},
+    {"name":"冻干枸杞5号","project":"DG2025-05","spec":"150g/袋","price":"￥399","image":"Z1.jpg"},
+    {"name":"冻干枸杞6号","project":"DG2025-06","spec":"150g/袋","price":"￥419","image":"Z1.jpg"}
+  ],
+  "深加工系列": [
+    {"name":"深加工1号","project":"SCG2025-01","spec":"200g/瓶","price":"￥129","image":"Z1.jpg"},
+    {"name":"深加工2号","project":"SCG2025-02","spec":"200g/瓶","price":"￥139","image":"Z1.jpg"},
+    {"name":"深加工3号","project":"SCG2025-03","spec":"500g/瓶","price":"￥299","image":"Z1.jpg"},
+    {"name":"深加工4号","project":"SCG2025-04","spec":"500g/瓶","price":"￥319","image":"Z1.jpg"},
+    {"name":"深加工5号","project":"SCG2025-05","spec":"1kg/瓶","price":"￥599","image":"Z1.jpg"},
+    {"name":"深加工6号","project":"SCG2025-06","spec":"1kg/瓶","price":"￥629","image":"Z1.jpg"}
+  ],
+  "电商原浆系列": [
+    {"name":"原浆1号","project":"DS2025-01","spec":"500ml/瓶","price":"￥129","image":"Z1.jpg"},
+    {"name":"原浆2号","project":"DS2025-02","spec":"500ml/瓶","price":"￥139","image":"Z1.jpg"},
+    {"name":"原浆3号","project":"DS2025-03","spec":"1L/瓶","price":"￥249","image":"Z1.jpg"},
+    {"name":"原浆4号","project":"DS2025-04","spec":"1L/瓶","price":"￥269","image":"Z1.jpg"},
+    {"name":"原浆5号","project":"DS2025-05","spec":"1.5L/瓶","price":"￥399","image":"Z1.jpg"},
+    {"name":"原浆6号","project":"DS2025-06","spec":"1.5L/瓶","price":"￥419","image":"Z1.jpg"}
+  ],
+  "其他系列": [
+    {"name":"其他1号","project":"QT2025-01","spec":"100g/袋","price":"￥49","image":"Z1.jpg"},
+    {"name":"其他2号","project":"QT2025-02","spec":"100g/袋","price":"￥59","image":"Z1.jpg"},
+    {"name":"其他3号","project":"QT2025-03","spec":"200g/袋","price":"￥99","image":"Z1.jpg"},
+    {"name":"其他4号","project":"QT2025-04","spec":"200g/袋","price":"￥109","image":"Z1.jpg"},
+    {"name":"其他5号","project":"QT2025-05","spec":"300g/袋","price":"￥149","image":"Z1.jpg"},
+    {"name":"其他6号","project":"QT2025-06","spec":"300g/袋","price":"￥159","image":"Z1.jpg"}
+  ],
+  "代工系列": [
+    {"name":"代工1号","project":"DG2025-01","spec":"按单报价","price":"￥100","image":"Z1.jpg"},
+    {"name":"代工2号","project":"DG2025-02","spec":"按单报价","price":"￥110","image":"Z1.jpg"},
+    {"name":"代工3号","project":"DG2025-03","spec":"按单报价","price":"￥120","image":"Z1.jpg"},
+    {"name":"代工4号","project":"DG2025-04","spec":"按单报价","price":"￥130","image":"Z1.jpg"},
+    {"name":"代工5号","project":"DG2025-05","spec":"按单报价","price":"￥140","image":"Z1.jpg"},
+    {"name":"代工6号","project":"DG2025-06","spec":"按单报价","price":"￥150","image":"Z1.jpg"}
+  ],
+  "礼盒系列": [
+    {"name":"礼盒1号","project":"LH2025-01","spec":"1套","price":"￥399","image":"Z1.jpg"},
+    {"name":"礼盒2号","project":"LH2025-02","spec":"1套","price":"￥419","image":"Z1.jpg"},
+    {"name":"礼盒3号","project":"LH2025-03","spec":"1套","price":"￥439","image":"Z1.jpg"},
+    {"name":"礼盒4号","project":"LH2025-04","spec":"1套","price":"￥459","image":"Z1.jpg"},
+    {"name":"礼盒5号","project":"LH2025-05","spec":"1套","price":"￥479","image":"Z1.jpg"},
+    {"name":"礼盒6号","project":"LH2025-06","spec":"1套","price":"￥499","image":"Z1.jpg"}
   ]
 }
