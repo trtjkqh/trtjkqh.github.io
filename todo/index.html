@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>每日待办 - 列表版</title>
+<title>Todolist</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
 <header class="text-center py-6 bg-white shadow">
-  <h1 class="text-3xl font-bold mb-2">每日待办</h1>
+  <h1 class="text-3xl font-bold mb-2">纪委每日待办</h1>
   <p class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
 </header>
 
 <div class="max-w-6xl mx-auto mt-8 space-y-8">
 
-<!-- === 四大板块表格 === -->
 <script>
+// === 配置板块 ===
 const blocks=[
   {name:'合同', id:'contract', keys:['物料名','供应商','3方比价','备注','进展']},
   {name:'物料跟踪', id:'transit', keys:['物料名','供应商','备注','发货日','到达日']},
@@ -27,13 +27,16 @@ const blocks=[
 
 const priorityColors={高:'text-red-600',中:'text-yellow-500',低:'text-green-600'};
 
+// 初始化数据
 blocks.forEach(b=>{
   if(!localStorage.getItem(b.id+'Data')) localStorage.setItem(b.id+'Data',JSON.stringify([]));
 });
 
+// 获取和保存
 function getData(id){ return JSON.parse(localStorage.getItem(id+'Data')); }
 function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id))); }
 
+// === 渲染表格 ===
 function renderTable(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
@@ -51,6 +54,7 @@ function renderTable(id){
             <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'${id}')"></th>
             <th class="border px-2 py-1">序号</th>
             ${block.keys.map(k=>`<th class="border px-2 py-1">${k}</th>`).join('')}
+            <th class="border px-2 py-1">截止日期</th>
             <th class="border px-2 py-1">优先级</th>
             <th class="border px-2 py-1">操作</th>
           </tr>
@@ -72,6 +76,9 @@ function renderTable(id){
         <td class="border px-2 py-1 text-center">${index+1}</td>
         ${block.keys.map(k=>`<td class="border px-2 py-1" contenteditable="true">${row[k]||''}</td>`).join('')}
         <td class="border px-2 py-1 text-center">
+          <input type="date" value="${row.deadline||''}" onchange="updateDeadline('${id}',${index},this.value)" class="border-none text-center w-full">
+        </td>
+        <td class="border px-2 py-1 text-center">
           <select onchange="updatePriority('${id}',${index},this.value)" class="${priorityColors[row.priority||'中']} border-none px-1 py-0.5 rounded">
             <option value="高" ${row.priority==='高'?'selected':''}>高</option>
             <option value="中" ${row.priority==='中'?'selected':''}>中</option>
@@ -89,7 +96,6 @@ function renderTable(id){
 
   renderRows();
 
-  // 拖拽排序
   Sortable.create(tbody,{animation:150, onEnd:()=>saveOrder(id)});
 }
 
@@ -100,6 +106,7 @@ function addRow(id){
   const newRow={};
   block.keys.forEach(k=>newRow[k]='');
   newRow.priority='中';
+  newRow.deadline='';
   data.push(newRow); saveData(id); renderTable(id);
 }
 function saveRow(id,index){
@@ -107,6 +114,8 @@ function saveRow(id,index){
   const data=getData(id);
   const tr=document.getElementById(id+'-table-body').children[index];
   block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
+  data[index].deadline=tr.querySelector('input[type="date"]').value;
+  data[index].priority=tr.querySelector('select').value;
   saveData(id);
   alert('已保存');
 }
@@ -126,6 +135,9 @@ function toggleAll(master,id){
 function updatePriority(id,index,value){
   const data=getData(id); data[index].priority=value; saveData(id); renderTable(id);
 }
+function updateDeadline(id,index,value){
+  const data=getData(id); data[index].deadline=value; saveData(id);
+}
 function saveOrder(id){
   const tbody=document.getElementById(id+'-table-body');
   const data=getData(id);
@@ -134,6 +146,7 @@ function saveOrder(id){
     const row={};
     const block=blocks.find(b=>b.id===id);
     block.keys.forEach((k,i)=>row[k]=tr.children[i+2].innerText);
+    row.deadline=tr.querySelector('input[type="date"]').value;
     row.priority=tr.querySelector('select').value;
     newData.push(row);
   });
@@ -143,7 +156,7 @@ function saveOrder(id){
 
 // === 清空全部 ===
 function clearAll(){
-  if(confirm('确认清空全部数据吗？')){
+  if(confirm('确认清空所有数据吗？')){
     blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); renderTable(b.id); });
   }
 }
@@ -152,5 +165,14 @@ function clearAll(){
 blocks.forEach(b=>renderTable(b.id));
 </script>
 </div>
+
+<footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
+  <hr class="my-6">
+  <div class="mt-4 flex justify-center gap-4">
+    <button class="bg-gray-300 text-gray-800 px-3 py-1 rounded" onclick="clearAll()">清空全部数据</button>
+    <a href="export.html" target="_blank" class="bg-green-500 text-white px-3 py-1 rounded">导出全部Excel</a>
+  </div>
+</footer>
+
 </body>
 </html>
