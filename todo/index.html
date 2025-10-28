@@ -3,18 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todolist</title>
+<title>每日待办 - 列表版</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
 <header class="text-center py-6 bg-white shadow">
-  <h1 class="text-3xl font-bold mb-2">纪委每日待办</h1>
+  <h1 class="text-3xl font-bold mb-2">每日待办</h1>
   <p class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
 </header>
 
 <div class="max-w-6xl mx-auto mt-8 space-y-8">
+  <section id="contract-section"></section>
+  <section id="transit-section"></section>
+  <section id="sample-section"></section>
+  <section id="payment-section"></section>
+</div>
+
+<footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
+  <hr class="my-6">
+  <div class="mt-4 flex justify-center gap-4">
+    <button class="bg-gray-300 text-gray-800 px-3 py-1 rounded" onclick="clearAll()">清空全部数据</button>
+    <a href="export.html" target="_blank" class="bg-green-500 text-white px-3 py-1 rounded">导出全部Excel</a>
+  </div>
+</footer>
 
 <script>
 // === 配置板块 ===
@@ -25,14 +38,11 @@ const blocks=[
   {name:'应付', id:'payment', keys:['供应商','备注']}
 ];
 
-const priorityColors={高:'text-red-600',中:'text-yellow-500',低:'text-green-600'};
-
 // 初始化数据
 blocks.forEach(b=>{
   if(!localStorage.getItem(b.id+'Data')) localStorage.setItem(b.id+'Data',JSON.stringify([]));
 });
 
-// 获取和保存
 function getData(id){ return JSON.parse(localStorage.getItem(id+'Data')); }
 function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id))); }
 
@@ -40,8 +50,8 @@ function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id)
 function renderTable(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  let html=`
-  <section class="bg-white rounded-2xl shadow p-6">
+  const container=document.getElementById(id+'-section');
+  container.innerHTML=`<div class="bg-white rounded-2xl shadow p-6">
     <h2 class="text-2xl font-semibold mb-4">📌 ${block.name} (${data.length}条)</h2>
     <div class="flex gap-2 mb-4">
       <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('${id}')">新增</button>
@@ -62,15 +72,34 @@ function renderTable(id){
         <tbody id="${id}-table-body" class="cursor-move"></tbody>
       </table>
     </div>
-  </section>`;
-  document.write(html);
+  </div>`;
 
   const tbody=document.getElementById(id+'-table-body');
+
   function renderRows(){
     tbody.innerHTML='';
     data.forEach((row,index)=>{
       const tr=document.createElement('tr');
-      tr.className='hover:bg-gray-50';
+
+      // === 行背景逻辑 ===
+      let rowClass='hover:bg-gray-50'; 
+      const today=new Date(); today.setHours(0,0,0,0);
+      if(row.deadline){
+        const ddl=new Date(row.deadline); ddl.setHours(0,0,0,0);
+        if(ddl<today) rowClass='bg-red-400 text-white'; // 过期
+        else if(ddl.getTime()===today.getTime()) rowClass='bg-yellow-300';
+        else {
+          if(row.priority==='高') rowClass='bg-red-200';
+          else if(row.priority==='中') rowClass='bg-yellow-100';
+          else if(row.priority==='低') rowClass='bg-gray-200';
+        }
+      } else {
+        if(row.priority==='高') rowClass='bg-red-200';
+        else if(row.priority==='中') rowClass='bg-yellow-100';
+        else if(row.priority==='低') rowClass='bg-gray-200';
+      }
+      tr.className=rowClass;
+
       tr.innerHTML=`
         <td class="border px-2 py-1 text-center"><input type="checkbox"></td>
         <td class="border px-2 py-1 text-center">${index+1}</td>
@@ -79,7 +108,7 @@ function renderTable(id){
           <input type="date" value="${row.deadline||''}" onchange="updateDeadline('${id}',${index},this.value)" class="border-none text-center w-full">
         </td>
         <td class="border px-2 py-1 text-center">
-          <select onchange="updatePriority('${id}',${index},this.value)" class="${priorityColors[row.priority||'中']} border-none px-1 py-0.5 rounded">
+          <select onchange="updatePriority('${id}',${index},this.value')" class="border-none px-1 py-0.5 rounded w-full">
             <option value="高" ${row.priority==='高'?'selected':''}>高</option>
             <option value="中" ${row.priority==='中'?'selected':''}>中</option>
             <option value="低" ${row.priority==='低'?'selected':''}>低</option>
@@ -95,7 +124,6 @@ function renderTable(id){
   }
 
   renderRows();
-
   Sortable.create(tbody,{animation:150, onEnd:()=>saveOrder(id)});
 }
 
@@ -103,12 +131,11 @@ function renderTable(id){
 function addRow(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  const newRow={};
-  block.keys.forEach(k=>newRow[k]='');
-  newRow.priority='中';
-  newRow.deadline='';
+  const newRow={}; block.keys.forEach(k=>newRow[k]=''); 
+  newRow.priority='中'; newRow.deadline='';
   data.push(newRow); saveData(id); renderTable(id);
 }
+
 function saveRow(id,index){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
@@ -116,28 +143,26 @@ function saveRow(id,index){
   block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
   data[index].deadline=tr.querySelector('input[type="date"]').value;
   data[index].priority=tr.querySelector('select').value;
-  saveData(id);
-  alert('已保存');
+  saveData(id); alert('已保存');
 }
-function deleteRow(id,index){
-  const data=getData(id); data.splice(index,1); saveData(id); renderTable(id);
-}
+
+function deleteRow(id,index){ const data=getData(id); data.splice(index,1); saveData(id); renderTable(id); }
+
 function deleteSelected(id){
   const data=getData(id);
   const tbody=document.getElementById(id+'-table-body');
   Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{if(cb.checked) data.splice(i,1);});
   saveData(id); renderTable(id);
 }
+
 function toggleAll(master,id){
   const tbody=document.getElementById(id+'-table-body');
   Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
 }
-function updatePriority(id,index,value){
-  const data=getData(id); data[index].priority=value; saveData(id); renderTable(id);
-}
-function updateDeadline(id,index,value){
-  const data=getData(id); data[index].deadline=value; saveData(id);
-}
+
+function updatePriority(id,index,value){ const data=getData(id); data[index].priority=value; saveData(id); renderTable(id); }
+function updateDeadline(id,index,value){ const data=getData(id); data[index].deadline=value; saveData(id); }
+
 function saveOrder(id){
   const tbody=document.getElementById(id+'-table-body');
   const data=getData(id);
@@ -154,9 +179,9 @@ function saveOrder(id){
   renderTable(id);
 }
 
-// === 清空全部 ===
-function clearAll(){
-  if(confirm('确认清空所有数据吗？')){
+// 清空全部
+function clearAll(){ 
+  if(confirm('确认清空全部数据吗？')){
     blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); renderTable(b.id); });
   }
 }
@@ -164,15 +189,6 @@ function clearAll(){
 // === 初始化渲染 ===
 blocks.forEach(b=>renderTable(b.id));
 </script>
-</div>
-
-<footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
-  <hr class="my-6">
-  <div class="mt-4 flex justify-center gap-4">
-    <button class="bg-gray-300 text-gray-800 px-3 py-1 rounded" onclick="clearAll()">清空全部数据</button>
-    <a href="export.html" target="_blank" class="bg-green-500 text-white px-3 py-1 rounded">导出全部Excel</a>
-  </div>
-</footer>
 
 </body>
 </html>
