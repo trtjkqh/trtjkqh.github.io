@@ -1,39 +1,48 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>产品BOM查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .fade-in { animation: fadeIn 0.4s ease-in; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
+    body {
+      background-color: #f9fafb;
+      font-family: "Microsoft YaHei", sans-serif;
     }
-    .parent-row { background-color: #f1f5f9; font-weight: bold; cursor: pointer; }
-    .child-row { background-color: #fff; }
-    .hidden { display: none; }
+    .card {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .child-row {
+      background-color: #f3f4f6;
+    }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow fade-in">
+<body class="p-6">
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-center">📦 产品BOM查询</h1>
 
     <!-- 搜索栏 -->
-    <h2 class="text-2xl font-bold mb-4 text-gray-800">产品BOM查询</h2>
-    <div class="flex flex-wrap gap-2 mb-4">
-      <input id="searchName" type="text" placeholder="按品名模糊搜索"
-             class="border border-gray-300 rounded px-3 py-2 flex-1 min-w-[180px]">
-      <input id="searchProject" type="text" placeholder="按项目号精准搜索"
-             class="border border-gray-300 rounded px-3 py-2 flex-1 min-w-[180px]">
-      <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">查询</button>
-      <button id="resetBtn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">重置</button>
+    <div class="card">
+      <div class="flex flex-col md:flex-row gap-4 items-center">
+        <input id="nameSearch" type="text" placeholder="输入品名（支持模糊搜索）"
+          class="border rounded-lg p-2 flex-1 w-full" />
+        <input id="projectSearch" type="text" placeholder="输入项目号（精准搜索）"
+          class="border rounded-lg p-2 flex-1 w-full" />
+        <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400">查询</button>
+        <button id="resetBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">重置</button>
+      </div>
     </div>
 
-    <!-- 结果表格 -->
-    <div id="resultArea" class="hidden overflow-x-auto">
-      <table class="min-w-full border border-gray-300">
-        <thead class="bg-gray-200">
+    <!-- 结果列表 -->
+    <div id="resultArea" class="card hidden">
+      <h2 class="text-lg font-semibold mb-4">查询结果</h2>
+      <table class="min-w-full border-collapse border border-gray-300 text-sm">
+        <thead class="bg-gray-100">
           <tr>
             <th class="border p-2">项目号</th>
             <th class="border p-2">品名</th>
@@ -45,102 +54,111 @@
             <th class="border p-2">计量单位</th>
           </tr>
         </thead>
-        <tbody id="resultTable" class="text-sm"></tbody>
+        <tbody id="resultBody"></tbody>
       </table>
     </div>
-
   </div>
 
   <script>
     let bomData = [];
 
-    // 页面初始化加载JSON数据
+    // 加载数据
     fetch('bom_data.json')
-      .then(res => res.json())
-      .then(data => bomData = data)
-      .catch(err => console.error('数据加载失败:', err));
+      .then(res => {
+        if (!res.ok) throw new Error("文件加载失败");
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) {
+          bomData = data;
+          console.log("✅ 数据加载成功", bomData.length);
+          document.getElementById("searchBtn").disabled = false;
+        } else {
+          throw new Error("数据格式错误，必须为数组");
+        }
+      })
+      .catch(err => {
+        console.error("❌ 加载出错:", err);
+        alert("数据加载失败，请检查路径或格式");
+      });
 
-    const searchBtn = document.getElementById('searchBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const resultArea = document.getElementById('resultArea');
-    const resultTable = document.getElementById('resultTable');
+    // 查询按钮
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const nameKeyword = document.getElementById("nameSearch").value.trim();
+      const projectID = document.getElementById("projectSearch").value.trim();
 
-    // 查询按钮点击
-    searchBtn.addEventListener('click', () => {
-      const name = document.getElementById('searchName').value.trim();
-      const project = document.getElementById('searchProject').value.trim();
-
-      if (!name && !project) {
-        resultArea.classList.add('hidden');
+      if (!nameKeyword && !projectID) {
+        alert("请输入至少一个查询条件！");
         return;
       }
 
-      // 模糊匹配品名，精准匹配项目号
-      let filtered = bomData.filter(item =>
-        (!name || item.品名.includes(name)) &&
-        (!project || item.项目号 === project)
+      const filtered = bomData.filter(item =>
+        (!nameKeyword || item.品名.includes(nameKeyword)) &&
+        (!projectID || item.项目号 === projectID)
       );
 
-      // 分组：按项目号
+      renderResult(filtered);
+    });
+
+    // 重置按钮
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("nameSearch").value = "";
+      document.getElementById("projectSearch").value = "";
+      document.getElementById("resultArea").classList.add("hidden");
+      document.getElementById("resultBody").innerHTML = "";
+    });
+
+    // 渲染结果（父子结构）
+    function renderResult(data) {
+      const resultArea = document.getElementById("resultArea");
+      const resultBody = document.getElementById("resultBody");
+      resultBody.innerHTML = "";
+
+      if (data.length === 0) {
+        resultArea.classList.remove("hidden");
+        resultBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-500">无匹配结果</td></tr>`;
+        return;
+      }
+
+      // 按项目号分组
       const grouped = {};
-      filtered.forEach(item => {
+      data.forEach(item => {
         if (!grouped[item.项目号]) grouped[item.项目号] = [];
         grouped[item.项目号].push(item);
       });
 
-      // 清空旧结果
-      resultTable.innerHTML = '';
-
-      Object.keys(grouped).forEach(project => {
-        const groupItems = grouped[project];
-        const parent = groupItems[0];
-
-        // 父项行
-        const parentRow = document.createElement('tr');
-        parentRow.className = 'parent-row';
-        parentRow.innerHTML = `
-          <td class="border p-2">${parent.项目号}</td>
-          <td class="border p-2">${parent.品名}</td>
-          <td class="border p-2">${parent.规格}</td>
-          <td class="border p-2">${parent.零售价}</td>
-          <td colspan="4" class="border p-2 text-gray-500 text-sm">点击展开物料明细</td>
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        const parentRow = `
+          <tr class="bg-blue-50 font-semibold">
+            <td class="border p-2">${parent.项目号}</td>
+            <td class="border p-2">${parent.品名}</td>
+            <td class="border p-2">${parent.规格}</td>
+            <td class="border p-2">${parent["零售价（元）"] ?? parent.零售价 ?? ""}</td>
+            <td class="border p-2 text-center" colspan="4">物料明细如下 ↓</td>
+          </tr>
         `;
-        resultTable.appendChild(parentRow);
+        resultBody.insertAdjacentHTML("beforeend", parentRow);
 
-        // 子项行
-        groupItems.forEach(child => {
-          const childRow = document.createElement('tr');
-          childRow.className = 'child-row hidden';
-          childRow.innerHTML = `
-            <td colspan="4" class="border p-2"></td>
-            <td class="border p-2">${child.物料项目号}</td>
-            <td class="border p-2">${child.物料名称}</td>
-            <td class="border p-2">${child.数量}</td>
-            <td class="border p-2">${child.计量单位}</td>
+        items.forEach(child => {
+          const childRow = `
+            <tr class="child-row">
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2">${child.物料项目号}</td>
+              <td class="border p-2">${child.物料名称}</td>
+              <td class="border p-2">${child.数量}</td>
+              <td class="border p-2">${child.计量单位}</td>
+            </tr>
           `;
-          resultTable.appendChild(childRow);
+          resultBody.insertAdjacentHTML("beforeend", childRow);
         });
+      }
 
-        // 点击展开/收起
-        parentRow.addEventListener('click', () => {
-          groupItems.forEach((_, i) => {
-            const childRow = resultTable.children[
-              Array.from(resultTable.children).indexOf(parentRow) + 1 + i
-            ];
-            childRow.classList.toggle('hidden');
-          });
-        });
-      });
-
-      resultArea.classList.remove('hidden');
-    });
-
-    // 重置按钮
-    resetBtn.addEventListener('click', () => {
-      document.getElementById('searchName').value = '';
-      document.getElementById('searchProject').value = '';
-      resultArea.classList.add('hidden');
-    });
+      resultArea.classList.remove("hidden");
+    }
   </script>
 </body>
 </html>
