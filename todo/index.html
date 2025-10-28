@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>每日待办</title>
+<title>每日待办 - 列表版</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
 <header class="text-center py-6 bg-white shadow">
-  <h1 class="text-2xl font-bold mb-2">纪委每日待办</h1>
+  <h1 class="text-3xl font-bold mb-2">每日待办</h1>
   <p class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
 </header>
 
@@ -38,11 +38,20 @@ const blocks=[
   {name:'应付', id:'payment', keys:['供应商','备注']}
 ];
 
-// 初始化数据
+// 初始化数据，补齐 priority
 blocks.forEach(b=>{
-  if(!localStorage.getItem(b.id+'Data')) localStorage.setItem(b.id+'Data',JSON.stringify([]));
+  let data=JSON.parse(localStorage.getItem(b.id+'Data')||'[]');
+  let updated=false;
+  data.forEach(row=>{
+    if(!row.hasOwnProperty('priority')){
+      row.priority='中'; 
+      updated=true;
+    }
+  });
+  if(updated) localStorage.setItem(b.id+'Data',JSON.stringify(data));
 });
 
+// 获取/保存数据
 function getData(id){ return JSON.parse(localStorage.getItem(id+'Data')); }
 function saveData(id){ localStorage.setItem(id+'Data',JSON.stringify(getData(id))); }
 
@@ -80,7 +89,7 @@ function renderTable(id){
     data.forEach((row,index)=>{
       const tr=document.createElement('tr');
 
-      // 设置背景颜色
+      // 根据 priority 设置背景
       if(row.priority==='高') tr.className='bg-red-400 text-white';
       else if(row.priority==='中') tr.className='bg-yellow-300';
       else tr.className='bg-gray-200';
@@ -113,7 +122,7 @@ function renderTable(id){
     const data=getData(id);
     data[index].priority=value;
     saveData(id);
-    renderRows(); // 优先级变化立即更新背景
+    renderRows();
   }
 
   window.saveRow=(id,index)=>{
@@ -130,7 +139,9 @@ function renderTable(id){
 function addRow(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  const newRow={}; block.keys.forEach(k=>newRow[k]=''); newRow.priority='中';
+  const newRow={}; 
+  block.keys.forEach(k=>newRow[k]='');
+  newRow.priority='中';
   data.push(newRow);
   saveData(id);
   renderTable(id);
@@ -146,7 +157,9 @@ function deleteRow(id,index){
 function deleteSelected(id){
   const data=getData(id);
   const tbody=document.getElementById(id+'-table-body');
-  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{if(cb.checked) data.splice(i,1);});
+  Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{
+    if(cb.checked) data.splice(i,1);
+  });
   saveData(id);
   renderTable(id);
 }
@@ -173,7 +186,10 @@ function saveOrder(id){
 
 function clearAll(){
   if(confirm('确认清空全部数据吗？')){
-    blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); renderTable(b.id); });
+    blocks.forEach(b=>{
+      localStorage.setItem(b.id+'Data',JSON.stringify([]));
+      renderTable(b.id);
+    });
   }
 }
 
