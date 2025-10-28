@@ -97,23 +97,23 @@
 
       if (!nameKeyword && !projectID && !materialID && !materialName) return;
 
-      let filtered = bomData;
-
-      filtered = filtered.filter(item =>
-        (!nameKeyword || item.品名.includes(nameKeyword)) &&
-        (!projectID || item.项目号 === projectID)
+      // 先按品名和项目号筛选
+      let filtered = bomData.filter(item =>
+        (!nameKeyword || (item.品名 && item.品名.trim().includes(nameKeyword))) &&
+        (!projectID || String(item.项目号).trim() === projectID)
       );
 
+      // 物料匹配逻辑，筛选出使用匹配物料的产品
       if (materialID || materialName) {
         const matchedProjects = new Set(
           bomData
             .filter(item =>
-              (!materialID || item.物料项目号 === materialID) &&
-              (!materialName || (item.物料名称 && item.物料名称.includes(materialName)))
+              (!materialID || String(item.物料项目号).trim() === materialID) &&
+              (!materialName || (item.物料名称 && item.物料名称.trim().includes(materialName)))
             )
             .map(item => item.项目号)
         );
-        filtered = filtered.filter(item => matchedProjects.has(item.项目号));
+        filtered = filtered.filter(item => matchedProjects.has(String(item.项目号).trim()));
       }
 
       if (filtered.length === 0) {
@@ -121,10 +121,12 @@
         return;
       }
 
+      // 按项目号分组
       const grouped = {};
       filtered.forEach(item => {
-        if (!grouped[item.项目号]) grouped[item.项目号] = [];
-        grouped[item.项目号].push(item);
+        const key = String(item.项目号).trim();
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(item);
       });
 
       let tableHTML = `
