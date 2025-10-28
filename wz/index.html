@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工厂地理位置</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .cta-button {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .cta-button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <div class="max-w-4xl mx-auto p-4">
+
+    <h1 class="text-3xl font-bold text-center mb-6">🗺️ 工厂地理位置</h1>
+
+    <div style="background: #e8f5e8; padding: 2rem; border-radius: 8px; text-align: center;">
+      <h3 style="margin-top: 0;">工厂位置</h3>
+      <p><strong>地址：</strong>青海德令哈市（示例）</p>
+
+      <!-- 百度地图容器 -->
+      <div id="baidu-map" style="height: 300px; width: 100%; margin: 1rem 0; border-radius: 8px; overflow: hidden;"></div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 百度地图API -->
+  <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=MhTYdGeVAWodsIQjscfDkPKl5dYoYgz8"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var map = new BMap.Map("baidu-map");
+      var point = new BMap.Point(97.354474,37.342089); // 青海德令哈市坐标
+      map.centerAndZoom(point, 15);
+
+      var marker = new BMap.Marker(point);
+      map.addOverlay(marker);
+
+      var label = new BMap.Label("北京同仁堂健康药业（青海）有限公司", { offset: new BMap.Size(20, -10) });
+      marker.setLabel(label);
+
+      map.enableScrollWheelZoom(true);
+    });
+  </script>
+
+</body>
+</html>
