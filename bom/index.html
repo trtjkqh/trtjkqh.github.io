@@ -3,159 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>产品BOM查询系统</title>
+  <title>BOM 查询系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in { animation: fadeIn 0.4s ease-in; }
-    table th { position: sticky; top: 0; background-color: #f87171; z-index: 10; }
-  </style>
 </head>
-<body class="bg-gray-100 font-sans leading-relaxed text-gray-800">
+<body class="bg-gray-50 min-h-screen font-sans">
 
-  <!-- 页头：红色渐变 + LOGO -->
+  <!-- 页头 -->
   <header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center">
     <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain">
-    <h1 class="text-3xl font-bold tracking-wide">产品BOM查询系统</h1>
+    <h1 class="text-3xl font-bold tracking-wide">产品 BOM 查询系统</h1>
   </header>
 
-  <main class="max-w-7xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in">
+  <!-- 主体 -->
+  <main class="max-w-7xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-xl">
 
-    <!-- 信息提示 -->
-    <div class="bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6">
-      <p class="flex flex-wrap justify-center gap-2">
-        <span class="px-2">📊 数据来源：生产/采购部门</span> |
-        <span class="px-2">🔍 查询范围：产品BOM及物料信息</span> |
-        <span class="px-2 text-red-600 font-semibold">⚠️ 保密声明：请注意，所有数据均属内部信息，严禁泄露。</span>
-      </p>
+    <!-- 查询区 -->
+    <div class="flex flex-col sm:flex-row gap-4 items-center mb-6">
+      <input id="search" type="text" placeholder="🔍 输入关键词（产品名、项目号、物料名等）..." 
+             class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-400" />
+      <button id="searchBtn" 
+              class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg shadow transition transform hover:scale-105">
+        查询
+      </button>
     </div>
 
-    <!-- 查询区域 -->
-    <div class="flex flex-wrap gap-3 mb-6 items-center">
-      <input id="prodNo" type="text" placeholder="产品项目号" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="prodName" type="text" placeholder="产品名称" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="spec" type="text" placeholder="规格" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="brand" type="text" placeholder="品牌" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="series" type="text" placeholder="系列" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="materialNo" type="text" placeholder="物料项目号" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="materialName" type="text" placeholder="物料名称" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <input id="quantity" type="text" placeholder="数量" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400"/>
-      <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">查询</button>
-      <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">重置</button>
-      <button onclick="exportTableToExcel('BOM查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">导出Excel</button>
-    </div>
-
-    <!-- 汇总区 -->
-    <div id="summary" class="hidden mb-4 fade-in flex gap-4">
-      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 font-semibold">匹配结果：<span id="count"></span> 条</div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-green-700 font-semibold">物料种类总计：<span id="total"></span> 个</div>
-    </div>
-
-    <!-- 查询结果 -->
-    <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
-    <div id="result" class="fade-in overflow-x-auto"></div>
-  </main>
-
-  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈生产/采购部门</footer>
-
-  <script>
-    let dataCache = [];
-
-    fetch('data.json')
-      .then(res => res.json())
-      .then(data => {
-        dataCache = data;
-        document.getElementById("loading").style.display = "none";
-        console.log("✅ 数据已加载:", dataCache.length, "条");
-      })
-      .catch(err => {
-        console.error("❌ 数据加载失败:", err);
-        document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
-      });
-
-    function searchData() {
-      const prodNo = document.getElementById("prodNo").value.trim();
-      const prodName = document.getElementById("prodName").value.trim();
-      const spec = document.getElementById("spec").value.trim();
-      const brand = document.getElementById("brand").value.trim();
-      const series = document.getElementById("series").value.trim();
-      const materialNo = document.getElementById("materialNo").value.trim();
-      const materialName = document.getElementById("materialName").value.trim();
-      const quantity = document.getElementById("quantity").value.trim();
-
-      if (!prodNo && !prodName && !spec && !brand && !series && !materialNo && !materialName && !quantity) {
-        alert("请输入至少一项查询条件！");
-        return;
-      }
-
-      let filtered = dataCache.filter(item => {
-        return (!prodNo || String(item["产品项目号"] || "").includes(prodNo))
-            && (!prodName || String(item["产品名称"] || "").includes(prodName))
-            && (!spec || String(item["规格"] || "").includes(spec))
-            && (!brand || String(item["品牌"] || "").includes(brand))
-            && (!series || String(item["系列"] || "").includes(series))
-            && (!materialNo || String(item["物料项目号"] || "").includes(materialNo))
-            && (!materialName || String(item["物料名称"] || "").includes(materialName))
-            && (!quantity || String(item["数量"] || "").includes(quantity));
-      });
-
-      filtered.sort((a, b) => {
-        const keyA = `${a["产品项目号"]}|${a["产品名称"]}|${a["规格"]}|${a["品牌"]}|${a["系列"]}`;
-        const keyB = `${b["产品项目号"]}|${b["产品名称"]}|${b["规格"]}|${b["品牌"]}|${b["系列"]}`;
-        return keyA.localeCompare(keyB);
-      });
-
-      // 汇总物料去重数量
-      let materialSet = new Set();
-      filtered.forEach(item => { if(item["物料名称"]) materialSet.add(item["物料名称"]); });
-
-      document.getElementById("summary").classList.remove("hidden");
-      document.getElementById("count").textContent = filtered.length;
-      document.getElementById("total").textContent = materialSet.size;
-
-      document.getElementById("result").innerHTML = buildMergedTable(filtered);
-    }
-
-    function buildMergedTable(filtered) {
-      if (filtered.length === 0) return "<p class='text-center text-gray-500'>未找到匹配的数据。</p>";
-
-      let html = `<table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
-        <thead class="bg-red-600 text-white">
+    <!-- 表格区 -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <table class="min-w-full text-sm text-gray-700">
+        <thead class="bg-gray-100 text-gray-800">
           <tr>
-            <th class="p-2">产品项目号</th>
-            <th class="p-2">产品名称</th>
-            <th class="p-2">规格</th>
-            <th class="p-2">品牌</th>
-            <th class="p-2">系列</th>
-            <th class="p-2">物料项目号</th>
-            <th class="p-2">物料名称</th>
-            <th class="p-2">数量</th>
+            <th class="py-3 px-3 border-b">产品项目号</th>
+            <th class="py-3 px-3 border-b">产品名称</th>
+            <th class="py-3 px-3 border-b">规格</th>
+            <th class="py-3 px-3 border-b">品牌</th>
+            <th class="py-3 px-3 border-b">系列</th>
+            <th class="py-3 px-3 border-b">物料项目号</th>
+            <th class="py-3 px-3 border-b">物料名称</th>
+            <th class="py-3 px-3 border-b">数量</th>
           </tr>
         </thead>
-        <tbody>`;
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="8" class="text-center text-gray-400 py-6">⏳ 数据加载中...</td>
+          </tr>
+        </tbody>
+        <tfoot class="bg-gray-50 font-semibold text-gray-700">
+          <tr>
+            <td colspan="7" class="text-right py-2 px-3 border-t">数量汇总：</td>
+            <td id="totalQty" class="text-right py-2 px-3 border-t">0</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </main>
 
-      let i = 0;
-      while(i < filtered.length){
-        const current = filtered[i];
-        const key = `${current["产品项目号"]}|${current["产品名称"]}|${current["规格"]}|${current["品牌"]}|${current["系列"]}`;
+  <!-- 页脚 -->
+  <footer class="text-center text-gray-400 text-sm py-6">
+    © 2025 TRT 数据系统 | 技术支持：王维
+  </footer>
 
-        // 找出相同产品行数
-        let rowspan = 1;
-        for(let j=i+1;j<filtered.length;j++){
-          const next = filtered[j];
-          const nextKey = `${next["产品项目号"]}|${next["产品名称"]}|${next["规格"]}|${next["品牌"]}|${next["系列"]}`;
-          if(nextKey === key) rowspan++;
-          else break;
+  <!-- JS -->
+  <script>
+    async function searchData() {
+      const query = document.getElementById('search').value.trim();
+      const tableBody = document.getElementById('tableBody');
+      const totalQty = document.getElementById('totalQty');
+      tableBody.innerHTML = "<tr><td colspan='8' class='text-center text-gray-400 py-6'>⏳ 数据加载中...</td></tr>";
+      totalQty.textContent = "0";
+
+      try {
+        const response = await fetch('data.json');
+        const data = await response.json();
+        const results = data.filter(item =>
+          Object.values(item).some(v => String(v).includes(query))
+        );
+
+        if (results.length === 0) {
+          tableBody.innerHTML = "<tr><td colspan='8' class='text-center text-gray-400 py-6'>未找到匹配项</td></tr>";
+          return;
         }
 
-        // 输出合并行
-        for(let k=0;k<rowspan;k++){
-          const row = filtered[i+k];
-          html += `<tr class="${(i+k)%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">`;
-          if(k===0){
-            html += `<td class="p-2" rowspan="${rowspan}">${row["产品项目号"]||""}</td>`;
-            html += `<td class="p-2" rowspan="${rowspan}">${row["产品名称"]||""}</td>`;
-            html += `<td class="p-2"
+        // 计算汇总数量
+        const sum = results.reduce((acc, cur) => acc + Number(cur.数量 || 0), 0);
+        totalQty.textContent = sum;
+
+        // 渲染表格
+        tableBody.innerHTML = results.map(r => `
+          <tr class="border-b hover:bg-red-50 transition">
+            <td class="py-2 px-3">${r.产品项目号}</td>
+            <td class="py-2 px-3">${r.产品名称}</td>
+            <td class="py-2 px-3">${r.规格}</td>
+            <td class="py-2 px-3">${r.品牌}</td>
+            <td class="py-2 px-3">${r.系列}</td>
+            <td class="py-2 px-3">${r.物料项目号}</td>
+            <td class="py-2 px-3">${r.物料名称}</td>
+            <td class="py-2 px-3 text-right">${r.数量}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tableBody.innerHTML = "<tr><td colspan='8' class='text-center text-red-500 py-6'>❌ 数据加载失败</td></tr>";
+        console.error(e);
+      }
+    }
+
+    // 按钮事件绑定
+    document.getElementById('searchBtn').addEventListener('click', searchData);
+    window.addEventListener('load', searchData);
+  </script>
+</body>
+</html>
