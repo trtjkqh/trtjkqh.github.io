@@ -15,10 +15,10 @@
 </header>
 
 <div class="max-w-6xl mx-auto mt-8 space-y-8">
-  <section id="contract-section"></section>
-  <section id="transit-section"></section>
-  <section id="sample-section"></section>
-  <section id="payment-section"></section>
+  <section id="contract-section" class="bg-white rounded-2xl shadow p-6"></section>
+  <section id="transit-section" class="bg-white rounded-2xl shadow p-6"></section>
+  <section id="sample-section" class="bg-white rounded-2xl shadow p-6"></section>
+  <section id="payment-section" class="bg-white rounded-2xl shadow p-6"></section>
 </div>
 
 <footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
@@ -60,84 +60,82 @@ function renderTable(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
   const container=document.getElementById(id+'-section');
-  container.innerHTML=`<div class="bg-white rounded-2xl shadow p-6">
-    <h2 class="text-2xl font-semibold mb-4">📌 ${block.name} (${data.length}条)</h2>
-    <div class="flex gap-2 mb-4">
-      <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('${id}')">新增</button>
-      <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('${id}')">删除选中</button>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full border text-sm">
-        <thead class="bg-gray-100 text-gray-700">
-          <tr>
-            <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'${id}')"></th>
-            <th class="border px-2 py-1">序号</th>
-            ${block.keys.map(k=>`<th class="border px-2 py-1">${k}</th>`).join('')}
-            <th class="border px-2 py-1">优先级</th>
-            <th class="border px-2 py-1">操作</th>
-          </tr>
-        </thead>
-        <tbody id="${id}-table-body" class="cursor-move"></tbody>
-      </table>
-    </div>
-  </div>`;
 
-  const tbody=document.getElementById(id+'-table-body');
-
-  function renderRows(){
-    tbody.innerHTML='';
-    data.forEach((row,index)=>{
-      const tr=document.createElement('tr');
-
-      tr.innerHTML=`
-        <td class="border px-2 py-1 text-center"><input type="checkbox"></td>
-        <td class="border px-2 py-1 text-center">${index+1}</td>
-        ${block.keys.map(k=>`<td class="border px-2 py-1" contenteditable="true">${row[k]||''}</td>`).join('')}
-        <td class="border px-2 py-1 text-center">
-          <select onchange="updatePriority('${id}',${index},this.value)" class="border-none px-1 py-0.5 rounded w-full">
-            <option value="高" ${row.priority==='高'?'selected':''}>高</option>
-            <option value="中" ${row.priority==='中'?'selected':''}>中</option>
-            <option value="低" ${row.priority==='低'?'selected':''}>低</option>
-          </select>
-        </td>
-        <td class="border px-2 py-1 text-center">
-          <button class="bg-green-400 text-white px-1 rounded" onclick="saveRow('${id}',${index})">保存</button>
-          <button class="bg-red-400 text-white px-1 rounded" onclick="deleteRow('${id}',${index})">删除</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+  // 如果第一次渲染，加入标题和按钮
+  if(!container.dataset.inited){
+    container.innerHTML=`
+      <h2 class="text-2xl font-semibold mb-4">📌 ${block.name} (<span id="${id}-count">${data.length}</span>条)</h2>
+      <div class="flex gap-2 mb-4">
+        <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="addRow('${id}')">新增</button>
+        <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="deleteSelected('${id}')">删除选中</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border text-sm">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="border px-2 py-1"><input type="checkbox" onclick="toggleAll(this,'${id}')"></th>
+              <th class="border px-2 py-1">序号</th>
+              ${block.keys.map(k=>`<th class="border px-2 py-1">${k}</th>`).join('')}
+              <th class="border px-2 py-1">优先级</th>
+              <th class="border px-2 py-1">操作</th>
+            </tr>
+          </thead>
+          <tbody id="${id}-table-body" class="cursor-move"></tbody>
+        </table>
+      </div>
+    `;
+    container.dataset.inited=true;
+    // 初始化拖拽
+    Sortable.create(document.getElementById(id+'-table-body'),{
+      animation:150,
+      onEnd:()=>saveOrder(id)
     });
   }
 
-  renderRows();
+  const tbody=document.getElementById(id+'-table-body');
+  tbody.innerHTML='';
 
-  Sortable.create(tbody,{animation:150, onEnd:()=>saveOrder(id)});
+  data.forEach((row,index)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="border px-2 py-1 text-center"><input type="checkbox"></td>
+      <td class="border px-2 py-1 text-center">${index+1}</td>
+      ${block.keys.map(k=>`<td class="border px-2 py-1" contenteditable="true">${row[k]||''}</td>`).join('')}
+      <td class="border px-2 py-1 text-center">
+        <select onchange="updatePriority('${id}',${index},this.value)" class="border-none px-1 py-0.5 rounded w-full">
+          <option value="高" ${row.priority==='高'?'selected':''}>高</option>
+          <option value="中" ${row.priority==='中'?'selected':''}>中</option>
+          <option value="低" ${row.priority==='低'?'selected':''}>低</option>
+        </select>
+      </td>
+      <td class="border px-2 py-1 text-center">
+        <button class="bg-green-400 text-white px-1 rounded" onclick="saveRow('${id}',${index})">保存</button>
+        <button class="bg-red-400 text-white px-1 rounded" onclick="deleteRow('${id}',${index})">删除</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-  window.updatePriority=(id,index,value)=>{
-    const data=getData(id);
-    data[index].priority=value;
-    saveData(id);
-    renderRows();
-  }
-
-  window.saveRow=(id,index)=>{
-    const tr=document.getElementById(id+'-table-body').children[index];
-    const data=getData(id);
-    block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
-    data[index].priority=tr.querySelector('select').value;
-    saveData(id);
-    renderRows();
-  }
+  document.getElementById(id+'-count').innerText = data.length;
 }
 
-// === 新增/删除/批量/排序 ===
+// === 新增/删除/保存/排序 ===
 function addRow(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  const newRow={}; 
-  block.keys.forEach(k=>newRow[k]='');
-  newRow.priority='中';
+  const newRow={}; block.keys.forEach(k=>newRow[k]=''); newRow.priority='中';
   data.push(newRow);
+  saveData(id);
+  renderTable(id);
+}
+
+function saveRow(id,index){
+  const tbody=document.getElementById(id+'-table-body');
+  const tr=tbody.children[index];
+  const data=getData(id);
+  const block=blocks.find(b=>b.id===id);
+  block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
+  data[index].priority=tr.querySelector('select').value;
   saveData(id);
   renderTable(id);
 }
@@ -162,6 +160,12 @@ function deleteSelected(id){
 function toggleAll(master,id){
   const tbody=document.getElementById(id+'-table-body');
   Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
+}
+
+function updatePriority(id,index,value){
+  const data=getData(id);
+  data[index].priority=value;
+  saveData(id);
 }
 
 function saveOrder(id){
