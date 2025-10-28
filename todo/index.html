@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todolist</title>
+<title>每日待办</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
 <header class="text-center py-6 bg-white shadow">
-  <h1 class="text-3xl font-bold mb-2">纪委每日待办</h1>
+  <h1 class="text-2xl font-bold mb-2">纪委每日待办</h1>
   <p class="text-gray-500">📅 <script>document.write(new Date().toLocaleDateString());</script></p>
 </header>
 
@@ -80,13 +80,10 @@ function renderTable(id){
     data.forEach((row,index)=>{
       const tr=document.createElement('tr');
 
-      // === 行背景逻辑（根据优先级） ===
-      let rowClass='hover:bg-gray-50';
-      if(row.priority==='高') rowClass='bg-red-400 text-white';
-      else if(row.priority==='中') rowClass='bg-yellow-300';
-      else if(row.priority==='低') rowClass='bg-gray-200';
-
-      tr.className=rowClass;
+      // 设置背景颜色
+      if(row.priority==='高') tr.className='bg-red-400 text-white';
+      else if(row.priority==='中') tr.className='bg-yellow-300';
+      else tr.className='bg-gray-200';
 
       tr.innerHTML=`
         <td class="border px-2 py-1 text-center"><input type="checkbox"></td>
@@ -109,42 +106,55 @@ function renderTable(id){
   }
 
   renderRows();
+
   Sortable.create(tbody,{animation:150, onEnd:()=>saveOrder(id)});
+
+  window.updatePriority=(id,index,value)=>{
+    const data=getData(id);
+    data[index].priority=value;
+    saveData(id);
+    renderRows(); // 优先级变化立即更新背景
+  }
+
+  window.saveRow=(id,index)=>{
+    const tr=document.getElementById(id+'-table-body').children[index];
+    const data=getData(id);
+    block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
+    data[index].priority=tr.querySelector('select').value;
+    saveData(id);
+    renderRows();
+  }
 }
 
-// === 行操作 ===
+// === 新增/删除/批量/排序 ===
 function addRow(id){
   const block=blocks.find(b=>b.id===id);
   const data=getData(id);
-  const newRow={}; block.keys.forEach(k=>newRow[k]=''); 
-  newRow.priority='中';
-  data.push(newRow); saveData(id); renderTable(id);
+  const newRow={}; block.keys.forEach(k=>newRow[k]=''); newRow.priority='中';
+  data.push(newRow);
+  saveData(id);
+  renderTable(id);
 }
 
-function saveRow(id,index){
-  const block=blocks.find(b=>b.id===id);
+function deleteRow(id,index){
   const data=getData(id);
-  const tr=document.getElementById(id+'-table-body').children[index];
-  block.keys.forEach((k,i)=>{ data[index][k]=tr.children[i+2].innerText; });
-  data[index].priority=tr.querySelector('select').value;
-  saveData(id); alert('已保存');
+  data.splice(index,1);
+  saveData(id);
+  renderTable(id);
 }
-
-function deleteRow(id,index){ const data=getData(id); data.splice(index,1); saveData(id); renderTable(id); }
 
 function deleteSelected(id){
   const data=getData(id);
   const tbody=document.getElementById(id+'-table-body');
   Array.from(tbody.querySelectorAll('input[type="checkbox"]')).reverse().forEach((cb,i)=>{if(cb.checked) data.splice(i,1);});
-  saveData(id); renderTable(id);
+  saveData(id);
+  renderTable(id);
 }
 
 function toggleAll(master,id){
   const tbody=document.getElementById(id+'-table-body');
   Array.from(tbody.querySelectorAll('input[type="checkbox"]')).forEach(cb=>cb.checked=master.checked);
 }
-
-function updatePriority(id,index,value){ const data=getData(id); data[index].priority=value; saveData(id); renderTable(id); }
 
 function saveOrder(id){
   const tbody=document.getElementById(id+'-table-body');
@@ -161,8 +171,7 @@ function saveOrder(id){
   renderTable(id);
 }
 
-// 清空全部
-function clearAll(){ 
+function clearAll(){
   if(confirm('确认清空全部数据吗？')){
     blocks.forEach(b=>{ localStorage.setItem(b.id+'Data',JSON.stringify([])); renderTable(b.id); });
   }
