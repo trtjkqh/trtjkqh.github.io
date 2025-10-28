@@ -60,7 +60,7 @@
     <div id="result" class="fade-in overflow-x-auto"></div>
   </main>
 
-  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部提供技术支持</footer>
+  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部</footer>
 
   <script>
     let bomData = [];
@@ -69,7 +69,17 @@
       .then(res => res.json())
       .then(data => {
         if(!Array.isArray(data)) throw new Error("数据格式错误，必须为数组");
-        bomData = data;
+        // 统一转字符串，去掉空格
+        bomData = data.map(item => ({
+          项目号: String(item.项目号 || "").trim(),
+          品名: String(item.品名 || "").trim(),
+          规格: String(item.规格 || "").trim(),
+          零售价: String(item["零售价（元）"] ?? item.零售价 ?? "").trim(),
+          物料项目号: String(item.物料项目号 || "").trim(),
+          物料名称: String(item.物料名称 || "").trim(),
+          数量: String(item.数量 || "").trim(),
+          计量单位: String(item.计量单位 || "").trim()
+        }));
         document.getElementById("loading").style.display = "none";
         console.log("✅ 数据加载成功", bomData.length, "条");
       })
@@ -99,8 +109,8 @@
 
       // 先按品名和项目号筛选
       let filtered = bomData.filter(item =>
-        (!nameKeyword || (item.品名 && item.品名.trim().includes(nameKeyword))) &&
-        (!projectID || String(item.项目号).trim() === projectID)
+        (!nameKeyword || item.品名.includes(nameKeyword)) &&
+        (!projectID || item.项目号 === projectID)
       );
 
       // 物料匹配逻辑，筛选出使用匹配物料的产品
@@ -108,12 +118,12 @@
         const matchedProjects = new Set(
           bomData
             .filter(item =>
-              (!materialID || String(item.物料项目号).trim() === materialID) &&
-              (!materialName || (item.物料名称 && item.物料名称.trim().includes(materialName)))
+              (!materialID || item.物料项目号 === materialID) &&
+              (!materialName || item.物料名称.includes(materialName))
             )
             .map(item => item.项目号)
         );
-        filtered = filtered.filter(item => matchedProjects.has(String(item.项目号).trim()));
+        filtered = filtered.filter(item => matchedProjects.has(item.项目号));
       }
 
       if (filtered.length === 0) {
@@ -124,9 +134,8 @@
       // 按项目号分组
       const grouped = {};
       filtered.forEach(item => {
-        const key = String(item.项目号).trim();
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(item);
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
       });
 
       let tableHTML = `
@@ -153,7 +162,7 @@
             <td class="border p-2">${highlight(parent.项目号, projectID)}</td>
             <td class="border p-2">${highlight(parent.品名, nameKeyword)}</td>
             <td class="border p-2">${highlight(parent.规格, "")}</td>
-            <td class="border p-2">${highlight(parent["零售价（元）"] ?? parent.零售价 ?? "", "")}</td>
+            <td class="border p-2">${highlight(parent.零售价, "")}</td>
             <td class="border p-2 text-center" colspan="4">物料明细如下 ↓</td>
           </tr>
         `;
