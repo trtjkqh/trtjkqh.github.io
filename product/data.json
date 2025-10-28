@@ -1,0 +1,20 @@
+{
+  "鲜虫草系列": [
+    {
+      "name": "鲜虫草1号",
+      "project": "SC2025-01",
+      "spec": "50g/瓶",
+      "price": "￥299",
+      "image": "xunchongcao1.jpg"
+    }
+  ],
+  "燕窝系列": [
+    {
+      "name": "燕窝A",
+      "project": "YW2025-01",
+      "spec": "20g/瓶",
+      "price": "￥399",
+      "image": "yanwo1.jpg"
+    }
+  ]
+}
