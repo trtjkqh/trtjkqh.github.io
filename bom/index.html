@@ -11,8 +11,29 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .fade-in { animation: fadeIn 0.4s ease-in; }
-    table th { position: sticky; top: 0; background-color: #fef2f2; }
-    .child-row { background-color: #fef3c7; }
+    table th { position: sticky; top: 0; }
+
+    /* 父表格标题渐变背景和文字 */
+    .parent-header {
+      background: linear-gradient(90deg, #fbbfbc, #f87171);
+      color: #ffffff;
+    }
+
+    /* 父表格每行渐变背景，浅粉色 */
+    .parent-row {
+      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
+      font-weight: 600;
+    }
+
+    /* 子表格行淡黄色背景 */
+    .child-row {
+      background: linear-gradient(90deg, #fff8dc, #fffad1);
+    }
+
+    /* 鼠标悬停效果 */
+    tbody tr:hover {
+      background-color: #fce4e4;
+    }
   </style>
 </head>
 
@@ -109,7 +130,7 @@
 
       let tableHTML = `
         <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
-          <thead class="bg-red-600 text-white">
+          <thead class="parent-header">
             <tr>
               <th class="p-2">项目号</th>
               <th class="p-2">品名</th>
@@ -127,7 +148,7 @@
       for (const [proj, items] of Object.entries(grouped)) {
         const parent = items[0];
         tableHTML += `
-          <tr class="bg-red-50 font-semibold">
+          <tr class="parent-row">
             <td class="border p-2">${parent.项目号}</td>
             <td class="border p-2">${parent.品名}</td>
             <td class="border p-2">${parent.规格}</td>
