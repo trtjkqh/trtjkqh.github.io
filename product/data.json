@@ -72,11 +72,9 @@
     {"name":"代工6号","project":"DG2025-06","spec":"按单报价","price":"￥150","image":"Z1.jpg"}
   ],
   "礼盒系列": [
-    {"name":"礼盒1号","project":"LH2025-01","spec":"1套","price":"￥399","image":"Z1.jpg"},
-    {"name":"礼盒2号","project":"LH2025-02","spec":"1套","price":"￥419","image":"Z1.jpg"},
-    {"name":"礼盒3号","project":"LH2025-03","spec":"1套","price":"￥439","image":"Z1.jpg"},
-    {"name":"礼盒4号","project":"LH2025-04","spec":"1套","price":"￥459","image":"Z1.jpg"},
-    {"name":"礼盒5号","project":"LH2025-05","spec":"1套","price":"￥479","image":"Z1.jpg"},
-    {"name":"礼盒6号","project":"LH2025-06","spec":"1套","price":"￥499","image":"Z1.jpg"}
+    {"name":"黑 果 枸 杞 A 款 礼 盒","project":"null","spec":"黑 果 枸 杞 金 标 7 0 g × 2","price":"￥1536","image":"LH01.jpg"},
+    {"name":"黑 果 枸 杞 B 款 礼 盒","project":"null","spec":"黑果枸杞180克（90克×2）","price":"￥796","image":"LH02.jpg"},
+    {"name":"黑 果 枸 杞 C 款 礼 盒","project":"null","spec":"黑 果 枸 杞 金 标 6 0 g × 2","price":"￥436","image":"LH03.jpg"},
+    {"name":"藜 麦 四 彩 礼 包","project":"null","spec":"2 8 0 0 g（ 7 0 0 g × 4 盒 ）","price":"￥472","image":"LH04.jpg"}
   ]
 }
