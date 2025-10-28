@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>城市天气展示</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: sans-serif; background-color: #f0f4f8; }
+    .weather-card { 
+      background-color: #fff; 
+      padding: 1rem; 
+      border-radius: 0.5rem; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin: 1rem 0;
+      text-align: center;
+    }
+    h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .temp { font-size: 2rem; font-weight: bold; margin: 0.5rem 0; }
+  </style>
+</head>
+<body class="p-4">
+  <h1 class="text-3xl font-bold text-center mb-6">城市天气展示</h1>
+
+  <div id="weather-container"></div>
+
+  <script>
+    const cities = ['德令哈', '杭州', '北京'];
+    const container = document.getElementById('weather-container');
+
+    cities.forEach(city => {
+      const card = document.createElement('div');
+      card.className = 'weather-card';
+      card.innerHTML = `<h2>${city}</h2><p>加载中...</p>`;
+      container.appendChild(card);
+
+      // 使用 wttr.in 获取天气
+      fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`)
+        .then(res => res.json())
+        .then(data => {
+          const temp = data.current_condition[0].temp_C;
+          const desc = data.current_condition[0].weatherDesc[0].value;
+          const humidity = data.current_condition[0].humidity;
+          card.innerHTML = `
+            <h2>${city}</h2>
+            <p class="temp">${temp}°C</p>
+            <p>${desc}</p>
+            <p>湿度: ${humidity}%</p>
+          `;
+        })
+        .catch(err => {
+          card.innerHTML = `<h2>${city}</h2><p>获取天气失败</p>`;
+          console.error(err);
+        });
+    });
+  </script>
+</body>
+</html>
