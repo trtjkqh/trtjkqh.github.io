@@ -89,11 +89,6 @@ function renderTable(id){
     data.forEach((row,index)=>{
       const tr=document.createElement('tr');
 
-      // 根据 priority 设置背景
-      if(row.priority==='高') tr.className='bg-red-400 text-white';
-      else if(row.priority==='中') tr.className='bg-yellow-300';
-      else tr.className='bg-gray-200';
-
       tr.innerHTML=`
         <td class="border px-2 py-1 text-center"><input type="checkbox"></td>
         <td class="border px-2 py-1 text-center">${index+1}</td>
