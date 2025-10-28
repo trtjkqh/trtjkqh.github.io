@@ -33,22 +33,22 @@
             <th class="border px-2 py-1">物料名</th>
             <th class="border px-2 py-1">供应商</th>
             <th class="border px-2 py-1">3方比价</th>
+            <th class="border px-2 py-1">备注</th>
             <th class="border px-2 py-1">进展</th>
             <th class="border px-2 py-1">操作</th>
           </tr>
         </thead>
         <tbody id="contract-table-body"></tbody>
       </table>
-      <p class="text-gray-400 text-center py-3">暂无合同数据，请点击“新增合同”</p>
     </div>
   </section>
 
-  <!-- 在途物料 -->
+  <!-- 物料跟踪 -->
   <section id="transit-section" class="max-w-6xl mx-auto bg-white rounded-2xl shadow p-6 mt-8">
-    <h2 class="text-2xl font-semibold mb-4">🚚 在途物料跟踪</h2>
+    <h2 class="text-2xl font-semibold mb-4">🚚 物料跟踪</h2>
     <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
       <div class="flex gap-2">
-        <button class="bg-blue-500 text-white px-3 py-1 rounded">新增在途</button>
+        <button class="bg-blue-500 text-white px-3 py-1 rounded">新增物料</button>
         <button class="bg-red-500 text-white px-3 py-1 rounded">删除选中</button>
       </div>
       <input type="text" placeholder="搜索物料 / 供应商 / 日期..." class="border px-3 py-1 rounded w-64">
@@ -61,6 +61,7 @@
             <th class="border px-2 py-1">序号</th>
             <th class="border px-2 py-1">物料名</th>
             <th class="border px-2 py-1">供应商</th>
+            <th class="border px-2 py-1">备注</th>
             <th class="border px-2 py-1">发货日</th>
             <th class="border px-2 py-1">到达日</th>
             <th class="border px-2 py-1">操作</th>
@@ -68,7 +69,6 @@
         </thead>
         <tbody id="transit-table-body"></tbody>
       </table>
-      <p class="text-gray-400 text-center py-3">暂无在途物料，请点击“新增在途”</p>
     </div>
   </section>
 
@@ -80,7 +80,7 @@
         <button class="bg-blue-500 text-white px-3 py-1 rounded">新增打样</button>
         <button class="bg-red-500 text-white px-3 py-1 rounded">删除选中</button>
       </div>
-      <input type="text" placeholder="搜索物料 / 供应商 / 进展..." class="border px-3 py-1 rounded w-64">
+      <input type="text" placeholder="搜索物料 / 供应商 / 出样日..." class="border px-3 py-1 rounded w-64">
     </div>
     <div class="overflow-x-auto">
       <table class="min-w-full border text-sm">
@@ -90,13 +90,13 @@
             <th class="border px-2 py-1">序号</th>
             <th class="border px-2 py-1">物料名</th>
             <th class="border px-2 py-1">供应商</th>
-            <th class="border px-2 py-1">进展</th>
+            <th class="border px-2 py-1">备注</th>
+            <th class="border px-2 py-1">出样日</th>
             <th class="border px-2 py-1">操作</th>
           </tr>
         </thead>
         <tbody id="sample-table-body"></tbody>
       </table>
-      <p class="text-gray-400 text-center py-3">暂无打样数据，请点击“新增打样”</p>
     </div>
   </section>
 
@@ -108,7 +108,7 @@
         <button class="bg-blue-500 text-white px-3 py-1 rounded">新增应付</button>
         <button class="bg-red-500 text-white px-3 py-1 rounded">删除选中</button>
       </div>
-      <input type="text" placeholder="搜索供应商 / 状态..." class="border px-3 py-1 rounded w-64">
+      <input type="text" placeholder="搜索供应商..." class="border px-3 py-1 rounded w-64">
     </div>
     <div class="overflow-x-auto">
       <table class="min-w-full border text-sm">
@@ -116,16 +116,13 @@
           <tr>
             <th class="border px-2 py-1"><input type="checkbox"></th>
             <th class="border px-2 py-1">序号</th>
-            <th class="border px-2 py-1">供应商名称</th>
-            <th class="border px-2 py-1">金额</th>
-            <th class="border px-2 py-1">预计付款日</th>
-            <th class="border px-2 py-1">状态</th>
+            <th class="border px-2 py-1">供应商</th>
+            <th class="border px-2 py-1">备注</th>
             <th class="border px-2 py-1">操作</th>
           </tr>
         </thead>
         <tbody id="payment-table-body"></tbody>
       </table>
-      <p class="text-gray-400 text-center py-3">暂无应付数据，请点击“新增应付”</p>
     </div>
   </section>
 
@@ -133,7 +130,7 @@
   <footer class="max-w-6xl mx-auto mt-10 text-center text-gray-600 pb-10">
     <hr class="my-6">
     <p>📊 合同数：<span id="contract-count">0</span>　
-       在途数：<span id="transit-count">0</span>　
+       物料数：<span id="transit-count">0</span>　
        打样数：<span id="sample-count">0</span>　
        应付数：<span id="payment-count">0</span></p>
     <div class="mt-4 flex justify-center gap-4">
@@ -143,7 +140,6 @@
   </footer>
 
   <script>
-    // 数据存储
     let contractData = JSON.parse(localStorage.getItem('contractData')) || [];
     let transitData  = JSON.parse(localStorage.getItem('transitData')) || [];
     let sampleData   = JSON.parse(localStorage.getItem('sampleData')) || [];
@@ -186,10 +182,10 @@
 
     function addRow(sectionId){
       let arr, keys;
-      if(sectionId==='contract'){ arr=contractData; keys=['物料名','供应商','3方比价','进展']; }
-      if(sectionId==='transit') { arr=transitData; keys=['物料名','供应商','发货日','到达日']; }
-      if(sectionId==='sample')  { arr=sampleData; keys=['物料名','供应商','进展']; }
-      if(sectionId==='payment') { arr=paymentData; keys=['供应商名称','金额','预计付款日','状态']; }
+      if(sectionId==='contract'){ arr=contractData; keys=['物料名','供应商','3方比价','备注','进展']; }
+      if(sectionId==='transit') { arr=transitData; keys=['物料名','供应商','备注','发货日','到达日']; }
+      if(sectionId==='sample')  { arr=sampleData; keys=['物料名','供应商','备注','出样日']; }
+      if(sectionId==='payment') { arr=paymentData; keys=['供应商','备注']; }
       let newRow={}; keys.forEach(k=>newRow[k]=''); arr.push(newRow); saveData(sectionId); renderAll();
     }
 
@@ -200,11 +196,16 @@
       if(sectionId==='sample')   arr=sampleData;
       if(sectionId==='payment')  arr=paymentData;
       const tbody=document.getElementById(sectionId+'-table-body');
-      const keyword=input.value.trim().toLowerCase();
-      Array.from(tbody.children).forEach((tr,rowIndex)=>{
-        let rowData=Object.values(arr[rowIndex]).join(' ').toLowerCase();
-        tr.style.display=rowData.includes(keyword)?'':'none';
+      Array.from(tbody.children).forEach((tr,index)=>{
+        tr.style.display=Object.values(arr[index]).some(v=>v.includes(input.value))?'':'none';
       });
+    }
+
+    function clearAll(){
+      if(confirm('确认清空所有数据吗？')) {
+        contractData=[]; transitData=[]; sampleData=[]; paymentData=[];
+        saveData('contract'); saveData('transit'); saveData('sample'); saveData('payment'); renderAll();
+      }
     }
 
     function renderAll(){
@@ -214,33 +215,36 @@
       renderTable('payment',paymentData);
     }
 
-    function exportAllExcel(){
-      if(contractData.length===0 && transitData.length===0 && sampleData.length===0 && paymentData.length===0){
-        alert('暂无数据可导出'); return;
-      }
+    document.querySelectorAll('#contract-section button:first-child')[0].onclick=()=>addRow('contract');
+    document.querySelectorAll('#transit-section button:first-child')[0].onclick=()=>addRow('transit');
+    document.querySelectorAll('#sample-section button:first-child')[0].onclick=()=>addRow('sample');
+    document.querySelectorAll('#payment-section button:first-child')[0].onclick=()=>addRow('payment');
+
+    document.querySelectorAll('#contract-section input')[0].oninput=(e)=>searchTable('contract',e.target);
+    document.querySelectorAll('#transit-section input')[0].oninput=(e)=>searchTable('transit',e.target);
+    document.querySelectorAll('#sample-section input')[0].oninput=(e)=>searchTable('sample',e.target);
+    document.querySelectorAll('#payment-section input')[0].oninput=(e)=>searchTable('payment',e.target);
+
+    document.getElementById('clearAllBtn').onclick=clearAll;
+
+    // 导出 Excel
+    document.getElementById('exportAllBtn').onclick=()=>{
       const wb=XLSX.utils.book_new();
-      if(contractData.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(contractData),'合同');
-      if(transitData.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(transitData),'在途物料');
-      if(sampleData.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sampleData),'打样');
-      if(paymentData.length>0) XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(paymentData),'应付');
-      XLSX.writeFile(wb,`每日待办_${new Date().toISOString().slice(0,10)}.xlsx`);
+      wb.Props={Title:'每日待办',CreatedDate:new Date()};
+      wb.SheetNames.push('合同');
+      wb.SheetNames.push('物料跟踪');
+      wb.SheetNames.push('打样');
+      wb.SheetNames.push('应付');
+
+      wb.Sheets['合同']=XLSX.utils.json_to_sheet(contractData);
+      wb.Sheets['物料跟踪']=XLSX.utils.json_to_sheet(transitData);
+      wb.Sheets['打样']=XLSX.utils.json_to_sheet(sampleData);
+      wb.Sheets['应付']=XLSX.utils.json_to_sheet(paymentData);
+
+      XLSX.writeFile(wb, `每日待办_${new Date().toLocaleDateString()}.xlsx`);
     }
 
-    document.addEventListener('DOMContentLoaded',()=>{
-      renderAll(); updateStats();
-      ['contract','transit','sample','payment'].forEach(id=>{
-        document.querySelector(`#${id}-section button.bg-blue-500`).onclick=()=>addRow(id);
-        document.querySelector(`#${id}-section input[type=text]`).addEventListener('input', e=>searchTable(id,e.target));
-      });
-      document.getElementById('exportAllBtn').onclick=exportAllExcel;
-      document.getElementById('clearAllBtn').onclick=()=>{
-        if(confirm('确定要清空全部数据吗？')){
-          contractData=[]; transitData=[]; sampleData=[]; paymentData=[];
-          ['contract','transit','sample','payment'].forEach(id=>saveData(id)); renderAll();
-        }
-      };
-    });
+    renderAll();
   </script>
-
 </body>
 </html>
