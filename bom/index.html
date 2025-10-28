@@ -55,6 +55,7 @@
       <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">重置</button>
     </div>
 
+    <!-- 查询结果 -->
     <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
     <div id="result" class="fade-in overflow-x-auto"></div>
   </main>
@@ -71,7 +72,6 @@
         bomData = data;
         document.getElementById("loading").style.display = "none";
         console.log("✅ 数据加载成功", bomData.length, "条");
-        renderResult(bomData); // 默认显示全部
       })
       .catch(err => {
         console.error("❌ 数据加载失败:", err);
@@ -86,53 +86,43 @@
       return (text || "").replace(reg, "<mark>$1</mark>");
     }
 
-    // 实时监听输入
-    inputs.forEach(input => {
-      input.addEventListener("input", () => {
-        const nameKeyword = document.getElementById("nameSearch").value.trim();
-        const projectID = document.getElementById("projectSearch").value.trim();
-        const materialID = document.getElementById("materialIDSearch").value.trim();
-        const materialName = document.getElementById("materialNameSearch").value.trim();
+    function renderFiltered() {
+      const nameKeyword = document.getElementById("nameSearch").value.trim();
+      const projectID = document.getElementById("projectSearch").value.trim();
+      const materialID = document.getElementById("materialIDSearch").value.trim();
+      const materialName = document.getElementById("materialNameSearch").value.trim();
 
-        let filtered = bomData;
-
-        filtered = filtered.filter(item =>
-          (!nameKeyword || item.品名.includes(nameKeyword)) &&
-          (!projectID || item.项目号 === projectID)
-        );
-
-        if (materialID || materialName) {
-          const matchedProjects = new Set(
-            bomData
-              .filter(item =>
-                (!materialID || item.物料项目号 === materialID) &&
-                (!materialName || (item.物料名称 && item.物料名称.includes(materialName)))
-              )
-              .map(item => item.项目号)
-          );
-          filtered = filtered.filter(item => matchedProjects.has(item.项目号));
-        }
-
-        renderResult(filtered, {nameKeyword, projectID, materialID, materialName});
-      });
-    });
-
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      inputs.forEach(i => i.value = "");
-      renderResult(bomData, {});
-    });
-
-    function renderResult(data, keywords={}) {
       const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "";
+      resultDiv.innerHTML = ""; // 默认空白
 
-      if (data.length === 0) {
+      if (!nameKeyword && !projectID && !materialID && !materialName) return;
+
+      let filtered = bomData;
+
+      filtered = filtered.filter(item =>
+        (!nameKeyword || item.品名.includes(nameKeyword)) &&
+        (!projectID || item.项目号 === projectID)
+      );
+
+      if (materialID || materialName) {
+        const matchedProjects = new Set(
+          bomData
+            .filter(item =>
+              (!materialID || item.物料项目号 === materialID) &&
+              (!materialName || (item.物料名称 && item.物料名称.includes(materialName)))
+            )
+            .map(item => item.项目号)
+        );
+        filtered = filtered.filter(item => matchedProjects.has(item.项目号));
+      }
+
+      if (filtered.length === 0) {
         resultDiv.innerHTML = "<p class='text-center text-gray-500'>未找到匹配结果。</p>";
         return;
       }
 
       const grouped = {};
-      data.forEach(item => {
+      filtered.forEach(item => {
         if (!grouped[item.项目号]) grouped[item.项目号] = [];
         grouped[item.项目号].push(item);
       });
@@ -158,8 +148,8 @@
         const parent = items[0];
         tableHTML += `
           <tr class="parent-row">
-            <td class="border p-2">${highlight(parent.项目号, keywords.projectID)}</td>
-            <td class="border p-2">${highlight(parent.品名, keywords.nameKeyword)}</td>
+            <td class="border p-2">${highlight(parent.项目号, projectID)}</td>
+            <td class="border p-2">${highlight(parent.品名, nameKeyword)}</td>
             <td class="border p-2">${highlight(parent.规格, "")}</td>
             <td class="border p-2">${highlight(parent["零售价（元）"] ?? parent.零售价 ?? "", "")}</td>
             <td class="border p-2 text-center" colspan="4">物料明细如下 ↓</td>
@@ -172,8 +162,8 @@
               <td class="border p-2"></td>
               <td class="border p-2"></td>
               <td class="border p-2"></td>
-              <td class="border p-2">${highlight(child.物料项目号, keywords.materialID)}</td>
-              <td class="border p-2">${highlight(child.物料名称, keywords.materialName)}</td>
+              <td class="border p-2">${highlight(child.物料项目号, materialID)}</td>
+              <td class="border p-2">${highlight(child.物料名称, materialName)}</td>
               <td class="border p-2">${highlight(child.数量, "")}</td>
               <td class="border p-2">${highlight(child.计量单位, "")}</td>
             </tr>
@@ -184,6 +174,13 @@
       tableHTML += `</tbody></table>`;
       resultDiv.innerHTML = tableHTML;
     }
+
+    inputs.forEach(input => input.addEventListener("input", renderFiltered));
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      inputs.forEach(i => i.value = "");
+      document.getElementById("result").innerHTML = "";
+    });
   </script>
 </body>
 </html>
