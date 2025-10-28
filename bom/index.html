@@ -12,25 +12,19 @@
     }
     .fade-in { animation: fadeIn 0.4s ease-in; }
     table th { position: sticky; top: 0; }
+    mark { background-color: #fff59d; color: inherit; padding: 0; }
 
-    /* 父表格标题渐变背景和文字 */
     .parent-header {
       background: linear-gradient(90deg, #fbbfbc, #f87171);
       color: #ffffff;
     }
-
-    /* 父表格每行渐变背景，浅粉色 */
     .parent-row {
       background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
       font-weight: 600;
     }
-
-    /* 子表格行淡黄色背景 */
     .child-row {
       background: linear-gradient(90deg, #fff8dc, #fffad1);
     }
-
-    /* 鼠标悬停效果 */
     tbody tr:hover {
       background-color: #fce4e4;
     }
@@ -38,14 +32,12 @@
 </head>
 
 <body class="bg-gray-100 font-sans leading-relaxed text-gray-800">
-  <!-- 页头：红色渐变 + LOGO -->
   <header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center">
     <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain">
     <h1 class="text-2xl font-bold tracking-wide">产品BOM查询系统</h1>
   </header>
 
   <main class="max-w-6xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in">
-    <!-- 信息提示 -->
     <div class="bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6">
       <p class="flex flex-wrap justify-center gap-2">
         <span class="px-2 text-red-600 font-semibold">⚠️ 保密声明：所有数据均属内部信息，严禁泄露。</span>
@@ -58,11 +50,11 @@
     <div class="flex flex-wrap gap-3 mb-6 items-center">
       <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
       <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-      <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition" disabled>查询</button>
+      <input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+      <input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
       <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">重置</button>
     </div>
 
-    <!-- 查询结果 -->
     <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
     <div id="result" class="fade-in overflow-x-auto"></div>
   </main>
@@ -72,48 +64,65 @@
   <script>
     let bomData = [];
 
-    // 加载数据
     fetch('bom_data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
         if(!Array.isArray(data)) throw new Error("数据格式错误，必须为数组");
         bomData = data;
         document.getElementById("loading").style.display = "none";
-        document.getElementById("searchBtn").disabled = false;
         console.log("✅ 数据加载成功", bomData.length, "条");
+        renderResult(bomData); // 默认显示全部
       })
       .catch(err => {
         console.error("❌ 数据加载失败:", err);
         document.getElementById("loading").textContent = "❌ 数据加载失败，请检查路径或格式";
       });
 
-    // 查询按钮
-    document.getElementById("searchBtn").addEventListener("click", () => {
-      const nameKeyword = document.getElementById("nameSearch").value.trim();
-      const projectID = document.getElementById("projectSearch").value.trim();
+    const inputs = ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].map(id => document.getElementById(id));
 
-      if (!nameKeyword && !projectID) {
-        alert("请输入至少一个查询条件！");
-        return;
-      }
+    function highlight(text, keyword) {
+      if (!keyword) return text || "";
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
+      return (text || "").replace(reg, "<mark>$1</mark>");
+    }
 
-      const filtered = bomData.filter(item =>
-        (!nameKeyword || item.品名.includes(nameKeyword)) &&
-        (!projectID || item.项目号 === projectID)
-      );
+    // 实时监听输入
+    inputs.forEach(input => {
+      input.addEventListener("input", () => {
+        const nameKeyword = document.getElementById("nameSearch").value.trim();
+        const projectID = document.getElementById("projectSearch").value.trim();
+        const materialID = document.getElementById("materialIDSearch").value.trim();
+        const materialName = document.getElementById("materialNameSearch").value.trim();
 
-      renderResult(filtered);
+        let filtered = bomData;
+
+        filtered = filtered.filter(item =>
+          (!nameKeyword || item.品名.includes(nameKeyword)) &&
+          (!projectID || item.项目号 === projectID)
+        );
+
+        if (materialID || materialName) {
+          const matchedProjects = new Set(
+            bomData
+              .filter(item =>
+                (!materialID || item.物料项目号 === materialID) &&
+                (!materialName || (item.物料名称 && item.物料名称.includes(materialName)))
+              )
+              .map(item => item.项目号)
+          );
+          filtered = filtered.filter(item => matchedProjects.has(item.项目号));
+        }
+
+        renderResult(filtered, {nameKeyword, projectID, materialID, materialName});
+      });
     });
 
-    // 重置按钮
     document.getElementById("resetBtn").addEventListener("click", () => {
-      document.getElementById("nameSearch").value = "";
-      document.getElementById("projectSearch").value = "";
-      document.getElementById("result").innerHTML = "";
+      inputs.forEach(i => i.value = "");
+      renderResult(bomData, {});
     });
 
-    // 渲染结果（父子结构）
-    function renderResult(data) {
+    function renderResult(data, keywords={}) {
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "";
 
@@ -122,7 +131,6 @@
         return;
       }
 
-      // 按项目号分组
       const grouped = {};
       data.forEach(item => {
         if (!grouped[item.项目号]) grouped[item.项目号] = [];
@@ -150,10 +158,10 @@
         const parent = items[0];
         tableHTML += `
           <tr class="parent-row">
-            <td class="border p-2">${parent.项目号}</td>
-            <td class="border p-2">${parent.品名}</td>
-            <td class="border p-2">${parent.规格}</td>
-            <td class="border p-2">${parent["零售价（元）"] ?? parent.零售价 ?? ""}</td>
+            <td class="border p-2">${highlight(parent.项目号, keywords.projectID)}</td>
+            <td class="border p-2">${highlight(parent.品名, keywords.nameKeyword)}</td>
+            <td class="border p-2">${highlight(parent.规格, "")}</td>
+            <td class="border p-2">${highlight(parent["零售价（元）"] ?? parent.零售价 ?? "", "")}</td>
             <td class="border p-2 text-center" colspan="4">物料明细如下 ↓</td>
           </tr>
         `;
@@ -164,10 +172,10 @@
               <td class="border p-2"></td>
               <td class="border p-2"></td>
               <td class="border p-2"></td>
-              <td class="border p-2">${child.物料项目号}</td>
-              <td class="border p-2">${child.物料名称}</td>
-              <td class="border p-2">${child.数量}</td>
-              <td class="border p-2">${child.计量单位}</td>
+              <td class="border p-2">${highlight(child.物料项目号, keywords.materialID)}</td>
+              <td class="border p-2">${highlight(child.物料名称, keywords.materialName)}</td>
+              <td class="border p-2">${highlight(child.数量, "")}</td>
+              <td class="border p-2">${highlight(child.计量单位, "")}</td>
             </tr>
           `;
         });
