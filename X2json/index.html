@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 台账批量转 JSON</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; background:#f0f2f5; margin:0; padding:0;}
+  .container { max-width: 800px; margin: 40px auto; background:#fff; padding:30px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  h1 { text-align:center; color:#333;}
+  input[type="file"] { display:block; margin:20px 0; }
+  .sheet-select { margin:10px 0; padding:10px; border:1px solid #ccc; border-radius:5px; background:#fafafa;}
+  .sheet-select label { margin-right:10px; }
+  button { background-color:#4CAF50; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; font-size:16px; margin-right:10px;}
+  button:hover { background-color:#45a049; }
+  #downloadBtn { background-color:#2196F3;}
+  #downloadBtn:hover { background-color:#0b7dda; }
+  textarea { width:100%; height:300px; margin-top:20px; padding:10px; font-family: monospace; font-size:14px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Excel 台账批量转 JSON</h1>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" multiple>
+  <div id="sheetContainer"></div>
+  <button onclick="convertExcel()">生成 JSON</button>
+  <button id="downloadBtn" onclick="downloadJSON()" disabled>下载 JSON</button>
+  <textarea id="jsonOutput" placeholder="转换结果将在这里显示..." readonly></textarea>
+</div>
+
+<script>
+let uploadedFiles = [];
+let selectedSheets = {};
+let currentJSON = null;
+
+// 当文件选择变化时，读取每个文件的 sheet 信息
+document.getElementById('fileInput').addEventListener('change', function(e){
+  uploadedFiles = Array.from(e.target.files);
+  const container = document.getElementById('sheetContainer');
+  container.innerHTML = '';
+  selectedSheets = {};
+
+  uploadedFiles.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type:'array'});
+      selectedSheets[file.name] = workbook.SheetNames.slice(); // 默认全选
+
+      const div = document.createElement('div');
+      div.className = 'sheet-select';
+      div.innerHTML = `<strong>${file.name}</strong><br>`;
+      workbook.SheetNames.forEach(sheet => {
+        const id = `file${idx}_sheet_${sheet}`;
+        div.innerHTML += `<label><input type="checkbox" checked data-file="${file.name}" value="${sheet}" id="${id}"> ${sheet}</label>`;
+      });
+      container.appendChild(div);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+});
+
+// 监听 sheet 选择变化
+document.addEventListener('change', function(e){
+  if(e.target.matches('.sheet-select input[type="checkbox"]')){
+    const file = e.target.dataset.file;
+    const sheet = e.target.value;
+    if(!selectedSheets[file]) selectedSheets[file] = [];
+    if(e.target.checked){
+      if(!selectedSheets[file].includes(sheet)) selectedSheets[file].push(sheet);
+    } else {
+      selectedSheets[file] = selectedSheets[file].filter(s => s!==sheet);
+    }
+  }
+});
+
+function convertExcel(){
+  if(uploadedFiles.length===0){
+    alert('请先选择 Excel 文件');
+    return;
+  }
+
+  const promises = uploadedFiles.map(file => {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type:'array'});
+        const result = {};
+        (selectedSheets[file.name] || []).forEach(sheetName => {
+          const roa = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {defval:null});
+          if(roa.length) result[sheetName] = roa;
+        });
+        resolve({fileName:file.name, data:result});
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  });
+
+  Promise.all(promises).then(allData => {
+    const merged = {};
+    allData.forEach(fileData => {
+      Object.keys(fileData.data).forEach(sheet => {
+        merged[`${fileData.fileName} - ${sheet}`] = fileData.data[sheet];
+      });
+    });
+    currentJSON = JSON.stringify(merged, null, 2);
+    document.getElementById('jsonOutput').value = currentJSON;
+    document.getElementById('downloadBtn').disabled = false;
+  });
+}
+
+function downloadJSON(){
+  if(!currentJSON) return;
+  const blob = new Blob([currentJSON], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'merged_data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
