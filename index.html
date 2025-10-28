@@ -11,61 +11,56 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .fade-in { animation: fadeIn 0.4s ease-in; }
+
+    /* 卡片悬浮效果 */
+    .card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .transition-smooth { transition: all 0.3s ease-in-out; }
   </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
-  <!-- 顶部红色渐变 + LOGO -->
+  <!-- Header -->
   <header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center">
     <img src="assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain">
     <h1 class="text-3xl font-bold tracking-wide">首页</h1>
     <p class="text-sm mt-1">内部查询系统导航页</p>
   </header>
 
-  <main class="max-w-5xl mx-auto mt-10 px-4">
-    <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
-      <h2 class="text-xl font-semibold mb-4">功能导航</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto mt-10 px-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 fade-in">
+      <h2 class="text-2xl font-bold mb-6 text-center">功能导航</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-        <!-- 已有功能，新标签页打开 -->
-        <a href="tz/index.html" target="_blank" class="block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition">
+        <!-- 主功能入口（红色） -->
+        <a href="tz/index.html" target="_blank" class="card transition-smooth block bg-red-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-red-600">
           物料单价查询
         </a>
-        <a href="bom/index.html" target="_blank" class="block bg-green-600 text-white p-4 rounded-lg text-center font-medium hover:bg-green-700 transition">
+
+        <a href="bom/index.html" target="_blank" class="card transition-smooth block bg-red-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-red-600">
           产品BOM 查询
         </a>
-        <a href="todo/index.html" target="_blank" class="block bg-blue-600 text-white p-4 rounded-lg text-center font-medium hover:bg-blue-700 transition">
+
+        <a href="todo/index.html" target="_blank" class="card transition-smooth block bg-red-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-red-600">
           每日待办
         </a>
 
-        <!-- 新增功能：产品系列 -->
-        <a href="product/index.html" target="_blank" class="block bg-yellow-600 text-white p-4 rounded-lg text-center font-medium hover:bg-yellow-700 transition">
+        <!-- 产品系列（黄色） -->
+        <a href="product/index.html" target="_blank" class="card transition-smooth block bg-yellow-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-yellow-600">
           产品系列
         </a>
 
-        <!-- 占位符功能 -->
-        <a href="feature4/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 4</a>
-        <a href="feature5/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 5</a>
-        <a href="feature6/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 6</a>
-        <a href="feature7/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 7</a>
-        <a href="feature8/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 8</a>
-        <a href="feature9/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 9</a>
-        <a href="feature10/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 10</a>
-        <a href="feature11/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 11</a>
-        <a href="feature12/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 12</a>
-        <a href="feature13/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 13</a>
-        <a href="feature14/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 14</a>
-        <a href="feature15/placeholder.html" class="block bg-gray-400 text-white p-4 rounded-lg text-center font-medium cursor-not-allowed opacity-70">功能 15</a>
-
-        <!-- 新增功能：Excel 转 JSON 放最后 -->
-        <a href="X2json/index.html" target="_blank" class="block bg-purple-600 text-white p-4 rounded-lg text-center font-medium hover:bg-purple-700 transition">
-          Excel 转 JSON
-        </a>
+        <!-- 占位功能（灰色） -->
+        <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 4</a>
+        <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 5</a>
+        <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 6</a>
+        <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 7</a>
 
       </div>
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="text-center text-gray-500 text-sm mt-10 mb-4">
     © 2025 TRTJKQH 内部系统
   </footer>
