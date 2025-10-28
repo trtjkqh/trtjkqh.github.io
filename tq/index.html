@@ -8,30 +8,48 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
+      background-color: #eef2f7;
       margin: 0;
       padding: 0;
     }
     header {
-      background-color: #4CAF50;
+      background-color: #3b82f6;
       color: white;
       text-align: center;
       padding: 1rem;
     }
+    .city-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 1rem;
+    }
+    .city-column {
+      flex: 1 1 400px;
+      max-width: 600px;
+      margin: 0.5rem;
+    }
     .weather-card {
       background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin: 0.5rem 0;
       padding: 1rem;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .weather-card h3 {
+    .weather-info {
+      flex: 1;
+      padding-left: 1rem;
+    }
+    .weather-date {
+      font-weight: bold;
       margin-bottom: 0.5rem;
     }
-    .weather-card p {
-      margin: 0.2rem 0;
+    img.weather-icon {
+      width: 50px;
+      height: 50px;
     }
   </style>
 </head>
@@ -39,7 +57,8 @@
   <header>
     <h1 class="text-2xl font-bold">德令哈与杭州未来15天天气预报</h1>
   </header>
-  <div id="weather-container" class="flex flex-wrap justify-center mt-4"></div>
+
+  <div id="weather-container" class="city-container"></div>
 
   <script>
     const cityCodes = {
@@ -49,40 +68,61 @@
 
     const container = document.getElementById('weather-container');
 
-    Object.keys(cityCodes).forEach(city => {
-      const cityCode = cityCodes[city];
-      fetch(`https://t.weather.itboy.net/api/weather/city/${cityCode}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === 200) {
-            const forecast = data.data.forecast;
-            const cityContainer = document.createElement('div');
-            cityContainer.classList.add('w-full', 'md:w-1/2', 'p-2');
-            const cityTitle = document.createElement('h2');
-            cityTitle.classList.add('text-xl', 'font-semibold');
-            cityTitle.textContent = city;
-            cityContainer.appendChild(cityTitle);
+    function fetchWeather() {
+      container.innerHTML = ''; // 清空容器
+      Object.keys(cityCodes).forEach(city => {
+        const cityCode = cityCodes[city];
+        fetch(`https://t.weather.itboy.net/api/weather/city/${cityCode}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 200) {
+              const forecast = data.data.forecast;
+              const cityColumn = document.createElement('div');
+              cityColumn.className = 'city-column';
+              const cityTitle = document.createElement('h2');
+              cityTitle.className = 'text-xl font-semibold text-center mb-2';
+              cityTitle.textContent = city;
+              cityColumn.appendChild(cityTitle);
 
-            forecast.forEach(day => {
-              const card = document.createElement('div');
-              card.classList.add('weather-card');
-              card.innerHTML = `
-                <h3>${day.date}</h3>
-                <p>白天：${day.type}</p>
-                <p>高温：${day.high}</p>
-                <p>低温：${day.low}</p>
-                <p>夜间：${day.fengxiang} ${day.fengli}</p>
-              `;
-              cityContainer.appendChild(card);
-            });
+              forecast.forEach(day => {
+                const card = document.createElement('div');
+                card.className = 'weather-card';
 
-            container.appendChild(cityContainer);
-          } else {
-            console.error('天气数据加载失败');
-          }
-        })
-        .catch(error => console.error('获取天气数据失败:', error));
-    });
+                // 天气图标
+                const icon = document.createElement('img');
+                icon.className = 'weather-icon';
+                // 使用 type 映射到图标，可用本地图标或在线图标
+                icon.src = `https://weather.com.cn/m/pic/${day.type}.png`; 
+                icon.alt = day.type;
+
+                const info = document.createElement('div');
+                info.className = 'weather-info';
+                info.innerHTML = `
+                  <div class="weather-date">${day.date}</div>
+                  <div>白天: ${day.type}</div>
+                  <div>高温: ${day.high}</div>
+                  <div>低温: ${day.low}</div>
+                  <div>风向: ${day.fengxiang} 风力: ${day.fengli}</div>
+                `;
+
+                card.appendChild(icon);
+                card.appendChild(info);
+                cityColumn.appendChild(card);
+              });
+
+              container.appendChild(cityColumn);
+            } else {
+              console.error('天气数据加载失败');
+            }
+          })
+          .catch(err => console.error('获取天气数据失败:', err));
+      });
+    }
+
+    fetchWeather();
+
+    // 每30分钟自动刷新
+    setInterval(fetchWeather, 30 * 60 * 1000);
   </script>
 </body>
 </html>
