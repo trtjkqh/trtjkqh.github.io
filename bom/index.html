@@ -27,8 +27,8 @@
       </button>
     </div>
 
-    <!-- 表格区 -->
-    <div class="overflow-x-auto rounded-lg border border-gray-200">
+    <!-- 表格区（默认隐藏） -->
+    <div id="tableContainer" class="overflow-x-auto rounded-lg border border-gray-200 hidden">
       <table class="min-w-full text-sm text-gray-700">
         <thead class="bg-gray-100 text-gray-800">
           <tr>
@@ -43,9 +43,6 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr>
-            <td colspan="8" class="text-center text-gray-400 py-6">⏳ 数据加载中...</td>
-          </tr>
         </tbody>
         <tfoot class="bg-gray-50 font-semibold text-gray-700">
           <tr>
@@ -55,6 +52,9 @@
         </tfoot>
       </table>
     </div>
+
+    <!-- 提示文字 -->
+    <p id="message" class="text-center text-gray-400 mt-8">请输入查询条件后点击“查询”</p>
   </main>
 
   <!-- 页脚 -->
@@ -66,10 +66,19 @@
   <script>
     async function searchData() {
       const query = document.getElementById('search').value.trim();
+      const tableContainer = document.getElementById('tableContainer');
       const tableBody = document.getElementById('tableBody');
       const totalQty = document.getElementById('totalQty');
+      const message = document.getElementById('message');
+
+      if (!query) {
+        alert("请输入查询条件！");
+        return;
+      }
+
+      tableContainer.classList.remove("hidden");
       tableBody.innerHTML = "<tr><td colspan='8' class='text-center text-gray-400 py-6'>⏳ 数据加载中...</td></tr>";
-      totalQty.textContent = "0";
+      message.textContent = "";
 
       try {
         const response = await fetch('data.json');
@@ -80,24 +89,23 @@
 
         if (results.length === 0) {
           tableBody.innerHTML = "<tr><td colspan='8' class='text-center text-gray-400 py-6'>未找到匹配项</td></tr>";
+          totalQty.textContent = "0";
           return;
         }
 
-        // 计算汇总数量
         const sum = results.reduce((acc, cur) => acc + Number(cur.数量 || 0), 0);
         totalQty.textContent = sum;
 
-        // 渲染表格
         tableBody.innerHTML = results.map(r => `
           <tr class="border-b hover:bg-red-50 transition">
-            <td class="py-2 px-3">${r.产品项目号}</td>
-            <td class="py-2 px-3">${r.产品名称}</td>
-            <td class="py-2 px-3">${r.规格}</td>
-            <td class="py-2 px-3">${r.品牌}</td>
-            <td class="py-2 px-3">${r.系列}</td>
-            <td class="py-2 px-3">${r.物料项目号}</td>
-            <td class="py-2 px-3">${r.物料名称}</td>
-            <td class="py-2 px-3 text-right">${r.数量}</td>
+            <td class="py-2 px-3">${r.产品项目号 || ""}</td>
+            <td class="py-2 px-3">${r.产品名称 || ""}</td>
+            <td class="py-2 px-3">${r.规格 || ""}</td>
+            <td class="py-2 px-3">${r.品牌 || ""}</td>
+            <td class="py-2 px-3">${r.系列 || ""}</td>
+            <td class="py-2 px-3">${r.物料项目号 || ""}</td>
+            <td class="py-2 px-3">${r.物料名称 || ""}</td>
+            <td class="py-2 px-3 text-right">${r.数量 || ""}</td>
           </tr>
         `).join('');
       } catch (e) {
@@ -106,9 +114,7 @@
       }
     }
 
-    // 按钮事件绑定
     document.getElementById('searchBtn').addEventListener('click', searchData);
-    window.addEventListener('load', searchData);
   </script>
 </body>
 </html>
