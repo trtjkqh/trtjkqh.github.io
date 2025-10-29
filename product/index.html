@@ -9,18 +9,14 @@
     .fade-in { animation: fadeIn 0.4s ease-in; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
 
-    /* 左侧导航隐藏和滑出 */
     #sidebar { transition: transform 0.3s; z-index: 50; }
     #sidebar.hidden { transform: translateX(-100%); }
     #sidebar.show { transform: translateX(0); }
 
-    /* 悬浮按钮 */
     #toggleBtn { position: fixed; top: 1rem; left: 1rem; z-index: 60; background-color: #ef4444; }
 
-    /* 产品卡片悬浮效果 */
     .product-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-    /* 图片放大遮罩 */
     #lightbox {
       display: none; position: fixed; top:0; left:0; width:100%; height:100%;
       background: rgba(0,0,0,0.8); justify-content:center; align-items:center;
@@ -28,8 +24,8 @@
     }
     #lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
 
-    /* 电脑端卡片高度适中 */
-    .max-h-card { max-height: 380px; } /* 可根据需求微调 */
+    /* 卡片尺寸与美化 */
+    .max-h-card { max-height: 380px; }
   </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -44,15 +40,13 @@
         <div id="series-list" class="flex flex-col gap-2"></div>
       </div>
 
-      <!-- 右侧产品区 -->
+      <!-- 产品区 -->
       <div class="flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center">
         <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl">
-          <!-- 产品卡片生成 -->
         </div>
       </div>
     </div>
 
-    <!-- 底部版权信息 -->
     <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
       © 2025 德令哈采购管理部提供技术和数据支持
     </footer>
@@ -75,13 +69,14 @@
       sidebar.classList.toggle('hidden');
       sidebar.classList.toggle('show');
     });
-
     sidebar.classList.add('hidden');
 
     fetch('data.json')
       .then(res => res.json())
       .then(data => {
-        const seriesNames = Object.keys(data);
+        // 自动提取系列名
+        const seriesSet = new Set(data.map(item => item.系列));
+        const seriesNames = Array.from(seriesSet);
         let currentSeries = seriesNames[0];
 
         // 生成系列按钮
@@ -103,19 +98,20 @@
         // 渲染产品函数
         function renderProducts(series) {
           productsDiv.innerHTML = '';
-          data[series].forEach(product => {
+          const filtered = data.filter(item => item.系列 === series);
+
+          filtered.forEach(product => {
             const card = document.createElement('div');
             card.className = 'product-card bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center transition cursor-pointer w-full sm:max-w-sm md:max-w-md lg:max-w-md max-h-card';
             card.innerHTML = `
-              <img src="../assets/product/${product.image}" alt="${product.name}" class="w-full h-40 object-cover mb-3 rounded-lg">
-              <div class="flex-1 flex flex-col justify-between w-full">
-                <h3 class="font-semibold text-lg text-center truncate">${product.name}</h3>
-                <p class="text-gray-600 text-sm truncate">项目号: ${product.project}</p>
-                <p class="text-gray-600 text-sm truncate">规格: ${product.spec}</p>
-                <p class="text-red-600 font-semibold mt-1">零售价: ${product.price}</p>
+              <img src="../assets/product/Z1.jpg" alt="${product.产品名称}" class="w-full h-40 object-cover mb-3 rounded-lg">
+              <div class="flex-1 flex flex-col justify-between w-full text-center">
+                <h3 class="font-semibold text-lg truncate">${product.产品名称}</h3>
+                <p class="text-gray-600 text-sm truncate">${product.规格}</p>
+                <p class="text-red-600 font-semibold mt-1">￥${product.价格}</p>
+                ${product.说明 && product.说明 !== "null" ? `<p class="text-gray-500 text-xs mt-1">${product.说明}</p>` : ''}
               </div>
             `;
-            // 点击图片放大
             const img = card.querySelector('img');
             img.addEventListener('click', e => {
               lightboxImg.src = img.src;
@@ -126,7 +122,6 @@
           });
         }
 
-        // 初始渲染
         renderProducts(currentSeries);
       })
       .catch(err => console.error('读取 data.json 出错:', err));
