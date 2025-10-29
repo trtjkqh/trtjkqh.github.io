@@ -7,22 +7,48 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in { animation: fadeIn 0.4s ease-in; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
+    /* 左侧导航隐藏与滑出动画 */
     #sidebar { transition: transform 0.3s; z-index: 50; }
     #sidebar.hidden { transform: translateX(-100%); }
     #sidebar.show { transform: translateX(0); }
 
-    #toggleBtn { position: fixed; top: 1rem; left: 1rem; z-index: 60; background-color: #ef4444; }
+    /* 悬浮按钮 */
+    #toggleBtn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      background-color: #ef4444;
+    }
 
-    .product-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    /* 产品卡片效果 */
+    .product-card:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
 
+    /* 放大图片遮罩层 */
     #lightbox {
-      display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-      background: rgba(0,0,0,0.8); justify-content:center; align-items:center;
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
       z-index: 100;
     }
-    #lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
 
     .max-h-card { max-height: 380px; }
   </style>
@@ -39,13 +65,14 @@
         <div id="series-list" class="flex flex-col gap-2"></div>
       </div>
 
-      <!-- 右侧产品区 -->
+      <!-- 右侧内容 -->
       <div class="flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center">
         <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl">
         </div>
       </div>
     </div>
 
+    <!-- 底部版权 -->
     <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
       © 2025 德令哈采购管理部提供技术和数据支持
     </footer>
@@ -73,6 +100,7 @@
     fetch('data.json')
       .then(res => res.json())
       .then(data => {
+        // 获取所有系列名
         const seriesSet = new Set(data.map(item => item.系列));
         const seriesNames = Array.from(seriesSet);
         let currentSeries = seriesNames[0];
@@ -93,13 +121,13 @@
           seriesList.appendChild(btn);
         });
 
-        // 渲染产品
+        // 渲染产品列表
         function renderProducts(series) {
           productsDiv.innerHTML = '';
           const filtered = data.filter(item => item.系列 === series);
 
           filtered.forEach(product => {
-            const imgSrc = product.图片 ? `../assets/product/${product.图片}` : '../assets/product/Z1.jpg';
+            const imgSrc = `/assets/product/${product.图片}`;
             const card = document.createElement('div');
             card.className = 'product-card bg-white rounded-xl shadow p-4 fade-in flex flex-col items-center transition cursor-pointer w-full sm:max-w-sm md:max-w-md lg:max-w-md max-h-card';
             card.innerHTML = `
@@ -121,6 +149,7 @@
           });
         }
 
+        // 默认渲染第一个系列
         renderProducts(currentSeries);
       })
       .catch(err => console.error('读取 data.json 出错:', err));
