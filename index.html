@@ -6,64 +6,83 @@
 <title>青海厂内部小工具</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
+  body {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    font-family: sans-serif;
+  }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
   .fade-in { animation: fadeIn 0.4s ease-in; }
-  .card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-  .transition-smooth { transition: all 0.3s ease-in-out; }
+  .card {
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+  }
+  .disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="text-gray-800">
 
-<!-- 顶部卡片式标题栏（精简版，将内容居中） -->
-<div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md px-4 py-2 mb-4 fade-in">
-  <div class="flex items-center justify-center"> <!-- 改为居中 -->
-    <div class="flex items-center gap-3">
-      <img src="assets/img/trtlogo.png" alt="LOGO" class="h-10 w-auto object-contain">
-      <h1 class="text-lg md:text-2xl font-semibold text-gray-800 text-center">
-        青海厂内部查询系统
-      </h1>
-    </div>
-  </div>
+<!-- 顶部标题栏 -->
+<div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md px-6 py-4 mb-6 fade-in flex items-center justify-center gap-4">
+  <img src="assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
+  <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">青海厂内部查询系统</h1>
 </div>
 
-<!-- Main Content -->
-<main class="max-w-6xl mx-auto mt-4 px-4">
-  <div class="bg-white rounded-2xl shadow-xl p-6 fade-in">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<!-- 主内容 -->
+<main class="max-w-6xl mx-auto px-4">
+  <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 
-      <!-- 主功能入口（红色） -->
-      <a href="tz/index.html" target="_blank" class="card transition-smooth block bg-red-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-red-600">
-        物料单价查询
-      </a>
+    <!-- 主功能入口（红色渐变） -->
+    <a href="tz/index.html" target="_blank" class="card bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
+      <img src="assets/icons/currency.svg" class="mx-auto mb-2 h-10 w-10" alt="">
+      物料单价查询
+    </a>
 
-      <a href="bom/index.html" target="_blank" class="card transition-smooth block bg-red-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-red-600">
-        产品BOM 查询
-      </a>
-      
-       <a href="CP/index.html" target="_blank" class="card transition-smooth block bg-red-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-red-600">
-       成品查询
-      </a>
+    <a href="bom/index.html" target="_blank" class="card bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
+      <img src="assets/icons/bom.svg" class="mx-auto mb-2 h-10 w-10" alt="">
+      产品BOM 查询
+    </a>
+    
+    <a href="CP/index.html" target="_blank" class="card bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
+      <img src="assets/icons/product.svg" class="mx-auto mb-2 h-10 w-10" alt="">
+      成品查询
+    </a>
 
-      <!-- 产品系列展示（黄色） -->
-      <a href="product/index.html" target="_blank" class="card transition-smooth block bg-yellow-500 text-white p-6 rounded-xl text-center font-semibold hover:bg-yellow-600">
-        产品系列
-      </a>
+    <!-- 产品系列展示（黄色渐变） -->
+    <a href="product/index.html" target="_blank" class="card bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
+      <img src="assets/icons/series.svg" class="mx-auto mb-2 h-10 w-10" alt="">
+      产品系列
+    </a>
 
-      <!-- 占位功能（灰色） -->
-      <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 5</a>
-      <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 6</a>
-      <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 7</a>
-      <a href="#" class="card transition-smooth block bg-gray-300 text-white p-6 rounded-xl text-center font-semibold opacity-70 cursor-not-allowed">功能 8</a>
-
+    <!-- 禁用占位功能（灰色） -->
+    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
+      功能 5
     </div>
+    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
+      功能 6
+    </div>
+    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
+      功能 7
+    </div>
+    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
+      功能 8
+    </div>
+
   </div>
 </main>
 
 <!-- Footer -->
-<footer class="text-center text-gray-500 text-sm mt-12 mb-6">
+<footer class="bg-gray-100 text-gray-500 text-sm py-4 mt-12 rounded-t-lg text-center">
   © 2025 采购部提供数据与技术支持
 </footer>
 
