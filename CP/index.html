@@ -6,24 +6,11 @@
   <title>成品信息查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background-color: #f9fafb;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    body { background-color: #f9fafb; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
     .fade-in { animation: fadeIn 0.3s ease-in-out; }
-    table th, table td {
-      border: 1px solid #ddd;
-      text-align: center;
-      padding: 0.5rem;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      background: white;
-    }
+    table th, table td { border:1px solid #ddd; text-align:center; padding:0.5rem; }
+    table { border-collapse: collapse; width:100%; background:white; }
   </style>
 </head>
 <body class="p-6">
@@ -32,10 +19,8 @@
 
     <!-- 查询条件 -->
     <div class="flex flex-wrap items-center gap-4 mb-6">
-      <input id="projectInput" type="text" placeholder="输入项目号（需精准）"
-             class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
-      <input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）"
-             class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
+      <input id="projectInput" type="text" placeholder="输入项目号（需精准）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
+      <input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
       <select id="channelSelect" class="border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200">
         <option value="">选择渠道（可选）</option>
       </select>
@@ -51,7 +36,7 @@
             <th>品名</th>
             <th>规格</th>
             <th>单位</th>
-            <th>零售价</th>
+            <th>零售价（元）</th>
             <th>品牌</th>
             <th>渠道</th>
           </tr>
@@ -60,14 +45,12 @@
       </table>
     </div>
 
-    <!-- 无结果提示 -->
     <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到符合条件的记录。</p>
   </div>
 
   <script>
     let allData = [];
 
-    // 加载数据文件
     fetch('data.json')
       .then(res => res.json())
       .then(data => {
@@ -75,7 +58,6 @@
         populateChannels(data);
       });
 
-    // 填充渠道下拉选项
     function populateChannels(data) {
       const select = document.getElementById('channelSelect');
       const channels = [...new Set(data.map(item => item.可供应渠道).filter(Boolean))];
@@ -87,23 +69,26 @@
       });
     }
 
-    // 查询功能
     document.getElementById('searchBtn').addEventListener('click', () => {
       const project = document.getElementById('projectInput').value.trim();
       const name = document.getElementById('nameInput').value.trim();
       const channel = document.getElementById('channelSelect').value;
 
-      const filtered = allData.filter(item => {
+      let filtered = allData.filter(item => {
         const matchProject = project ? item.项目号 === project : true;
         const matchName = name ? item.品名.includes(name) : true;
         const matchChannel = channel ? item.可供应渠道 === channel : true;
         return matchProject && matchName && matchChannel;
       });
 
+      // 如果只选择渠道，显示该渠道全部产品
+      if (!project && !name && channel) {
+        filtered = allData.filter(item => item.可供应渠道 === channel);
+      }
+
       renderTable(filtered);
     });
 
-    // 渲染表格
     function renderTable(data) {
       const table = document.getElementById('resultTable');
       const tbody = document.getElementById('tableBody');
@@ -126,7 +111,7 @@
           <td>${item.品名 || ''}</td>
           <td>${item.规格 || ''}</td>
           <td>${item.单位 || ''}</td>
-          <td>${item.零售价 || ''}</td>
+          <td>${item.零售价 ?? item['零售价（元）'] ?? ''}</td>
           <td>${item.品牌 || ''}</td>
           <td>${item.可供应渠道 || ''}</td>
         `;
