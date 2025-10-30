@@ -11,7 +11,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .fade-in { animation: fadeIn 0.4s ease-in; }
-    table th { position: sticky; top: 0; }
+    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
     mark { background-color: #fff59d; color: inherit; padding: 0; }
 
     .parent-header {
@@ -31,34 +31,34 @@
   </style>
 </head>
 
-<body class="bg-gray-100 font-sans leading-relaxed text-gray-800">
-  <header class="bg-gradient-to-r from-red-600 to-red-400 text-white py-6 shadow flex flex-col items-center justify-center">
-    <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto mb-2 object-contain">
-    <h1 class="text-2xl font-bold tracking-wide">产品BOM查询系统</h1>
-  </header>
+<body class="bg-gray-50 font-sans text-gray-800">
 
-  <main class="max-w-6xl mx-auto bg-white mt-8 p-8 rounded-xl shadow-lg fade-in">
-    <div class="bg-gray-50 border border-red-200 text-center text-sm text-gray-700 py-3 rounded-lg mb-6">
-      <p class="flex flex-wrap justify-center gap-2">
-        <span class="px-2 text-red-600 font-semibold">⚠️ 保密声明：所有数据均属内部信息，严禁泄露。</span>
-        <span class="px-2">📊 数据来源：采购管理部</span>
-        <span class="px-2 text-red-600 font-semibold">如果查询不到，请联系王维添加</span>
-      </p>
+  <!-- 卡片式标题 + 保密声明 -->
+  <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
+    <div class="flex items-center gap-3">
+      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
+      <h1 class="text-xl md:text-2xl font-bold text-gray-900">产品BOM查询系统</h1>
     </div>
-
-    <!-- 查询区域 -->
-    <div class="flex flex-wrap gap-3 mb-6 items-center">
-      <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-      <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-      <input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-      <input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-      <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">重置</button>
+    <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
+      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：所有数据均属内部信息，严禁泄露</span>
+      <span class="px-2 py-1 bg-green-50 border border-green-200 rounded text-green-700">📊 数据来源：采购管理部</span>
+      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">如查询不到，请联系王维添加</span>
     </div>
+  </div>
 
-    <!-- 查询结果 -->
-    <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
-    <div id="result" class="fade-in overflow-x-auto"></div>
-  </main>
+  <!-- 查询区域 -->
+  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+    <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+    <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+  </div>
+
+  <!-- 查询结果 -->
+  <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
+  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
 
   <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部提供技术和数据支持</footer>
 
@@ -69,7 +69,6 @@
       .then(res => res.json())
       .then(data => {
         if(!Array.isArray(data)) throw new Error("数据格式错误，必须为数组");
-        // 统一转字符串，去掉空格
         bomData = data.map(item => ({
           项目号: String(item.项目号 || "").trim(),
           品名: String(item.品名 || "").trim(),
@@ -88,8 +87,6 @@
         document.getElementById("loading").textContent = "❌ 数据加载失败，请检查路径或格式";
       });
 
-    const inputs = ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].map(id => document.getElementById(id));
-
     function highlight(text, keyword) {
       if (!keyword) return text || "";
       const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
@@ -103,17 +100,18 @@
       const materialName = document.getElementById("materialNameSearch").value.trim();
 
       const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = ""; // 默认空白
+      resultDiv.innerHTML = "";
 
-      if (!nameKeyword && !projectID && !materialID && !materialName) return;
+      if (!nameKeyword && !projectID && !materialID && !materialName) {
+        alert("请输入至少一项查询条件！");
+        return;
+      }
 
-      // 先按品名和项目号筛选
       let filtered = bomData.filter(item =>
         (!nameKeyword || item.品名.includes(nameKeyword)) &&
         (!projectID || item.项目号 === projectID)
       );
 
-      // 物料匹配逻辑，筛选出使用匹配物料的产品
       if (materialID || materialName) {
         const matchedProjects = new Set(
           bomData
@@ -131,7 +129,6 @@
         return;
       }
 
-      // 按项目号分组
       const grouped = {};
       filtered.forEach(item => {
         if (!grouped[item.项目号]) grouped[item.项目号] = [];
@@ -186,10 +183,9 @@
       resultDiv.innerHTML = tableHTML;
     }
 
-    inputs.forEach(input => input.addEventListener("input", renderFiltered));
-
+    document.getElementById("searchBtn").addEventListener("click", renderFiltered);
     document.getElementById("resetBtn").addEventListener("click", () => {
-      inputs.forEach(i => i.value = "");
+      ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("result").innerHTML = "";
     });
   </script>
