@@ -6,156 +6,133 @@
   <title>成品信息查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    body {
+      background-color: #f9fafb;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .fade-in { animation: fadeIn 0.4s ease-in; }
-    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
-    mark { background-color: #fff59d; color: inherit; padding: 0; }
-
-    .header-bar {
-      background: linear-gradient(90deg, #fbbfbc, #f87171);
-      color: #fff;
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    table th, table td {
+      border: 1px solid #ddd;
+      text-align: center;
+      padding: 0.5rem;
     }
-    tbody tr:hover { background-color: #fce4e4; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
   </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="p-6">
+  <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in">
+    <h1 class="text-2xl font-bold mb-4 text-gray-700">成品信息查询</h1>
 
-  <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
-    <div class="flex items-center gap-3">
-      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
-      <h1 class="text-xl md:text-2xl font-bold text-gray-900">成品信息查询</h1>
+    <!-- 查询条件 -->
+    <div class="flex flex-wrap items-center gap-4 mb-6">
+      <input id="projectInput" type="text" placeholder="输入项目号（需精准）"
+             class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
+      <input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）"
+             class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
+      <select id="channelSelect" class="border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200">
+        <option value="">选择渠道（可选）</option>
+      </select>
+      <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">查询</button>
     </div>
-    <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
-      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：所有数据仅供内部使用，禁止外传</span>
-      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">如查询不到，请联系采购部</span>
+
+    <!-- 查询结果表格 -->
+    <div class="overflow-x-auto">
+      <table id="resultTable" class="hidden">
+        <thead class="bg-blue-100 text-gray-800">
+          <tr>
+            <th>项目号</th>
+            <th>品名</th>
+            <th>规格</th>
+            <th>单位</th>
+            <th>零售价</th>
+            <th>品牌</th>
+            <th>渠道</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
+
+    <!-- 无结果提示 -->
+    <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到符合条件的记录。</p>
   </div>
-
-  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
-    <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-    <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-    <select id="brandFilter" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
-      <option value="">全部品牌</option>
-    </select>
-    <select id="channelFilter" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
-      <option value="">全部渠道</option>
-    </select>
-    <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
-    <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
-  </div>
-
-  <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
-  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
-
-  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部提供技术与数据支持</footer>
 
   <script>
-    let productData = [];
+    let allData = [];
 
-    fetch('data.json?_v=' + Date.now())
+    // 加载数据文件
+    fetch('data.json')
       .then(res => res.json())
       .then(data => {
-        if (!Array.isArray(data)) throw new Error('数据格式错误');
-        productData = data.map(item => ({
-          项目号: String(item.项目号 || '').trim(),
-          品名: String(item.品名 || '').trim(),
-          规格: String(item.规格 || '').trim(),
-          单位: String(item.单位 || '').trim(),
-          零售价: String(item.零售价 || item['零售价（元）'] || '').trim(),
-          品牌: String(item.品牌 || '').trim(),
-          可供应渠道: String(item.可供应渠道 || '').trim()
-        }));
-
-        const brands = [...new Set(productData.map(d => d.品牌).filter(Boolean))];
-        const channels = [...new Set(productData.map(d => d.可供应渠道).filter(Boolean))];
-
-        const brandSelect = document.getElementById('brandFilter');
-        const channelSelect = document.getElementById('channelFilter');
-
-        brands.forEach(b => brandSelect.innerHTML += `<option value="${b}">${b}</option>`);
-        channels.forEach(c => channelSelect.innerHTML += `<option value="${c}">${c}</option>`);
-
-        document.getElementById('loading').style.display = 'none';
-      })
-      .catch(err => {
-        console.error('❌ 数据加载失败:', err);
-        document.getElementById('loading').textContent = '❌ 数据加载失败，请检查路径或格式';
+        allData = data;
+        populateChannels(data);
       });
 
-    function highlight(text, keyword) {
-      if (!keyword) return text || '';
-      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})`, 'gi');
-      return (text || '').replace(reg, '<mark>$1</mark>');
+    // 填充渠道下拉选项
+    function populateChannels(data) {
+      const select = document.getElementById('channelSelect');
+      const channels = [...new Set(data.map(item => item.可供应渠道).filter(Boolean))];
+      channels.forEach(ch => {
+        const option = document.createElement('option');
+        option.value = ch;
+        option.textContent = ch;
+        select.appendChild(option);
+      });
     }
 
-    function renderFiltered() {
-      const projectKeyword = document.getElementById('projectSearch').value.trim();
-      const nameKeyword = document.getElementById('nameSearch').value.trim();
-      const brandKeyword = document.getElementById('brandFilter').value.trim();
-      const channelKeyword = document.getElementById('channelFilter').value.trim();
+    // 查询功能
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const project = document.getElementById('projectInput').value.trim();
+      const name = document.getElementById('nameInput').value.trim();
+      const channel = document.getElementById('channelSelect').value;
 
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '';
+      const filtered = allData.filter(item => {
+        const matchProject = project ? item.项目号 === project : true;
+        const matchName = name ? item.品名.includes(name) : true;
+        const matchChannel = channel ? item.可供应渠道 === channel : true;
+        return matchProject && matchName && matchChannel;
+      });
 
-      let filtered = productData.filter(item =>
-        (!projectKeyword || item.项目号 === projectKeyword) &&
-        (!nameKeyword || item.品名.includes(nameKeyword)) &&
-        (!brandKeyword || item.品牌 === brandKeyword) &&
-        (!channelKeyword || item.可供应渠道 === channelKeyword)
-      );
+      renderTable(filtered);
+    });
 
-      // 若仅选择了渠道，允许展示全部该渠道产品
-      if (!projectKeyword && !nameKeyword && !brandKeyword && channelKeyword) {
-        filtered = productData.filter(item => item.可供应渠道 === channelKeyword);
-      }
+    // 渲染表格
+    function renderTable(data) {
+      const table = document.getElementById('resultTable');
+      const tbody = document.getElementById('tableBody');
+      const noResult = document.getElementById('noResult');
+      tbody.innerHTML = '';
 
-      if (filtered.length === 0) {
-        resultDiv.innerHTML = '<p class="text-center text-gray-500">未找到匹配结果。</p>';
+      if (data.length === 0) {
+        table.classList.add('hidden');
+        noResult.classList.remove('hidden');
         return;
       }
 
-      let tableHTML = `
-        <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
-          <thead class="header-bar">
-            <tr>
-              <th class="p-2">项目号</th>
-              <th class="p-2">品名</th>
-              <th class="p-2">规格</th>
-              <th class="p-2">单位</th>
-              <th class="p-2">零售价（元）</th>
-              <th class="p-2">品牌</th>
-              <th class="p-2">可供应渠道</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+      noResult.classList.add('hidden');
+      table.classList.remove('hidden');
 
-      filtered.forEach(item => {
-        tableHTML += `
-          <tr class="border-b">
-            <td class="p-2">${highlight(item.项目号, projectKeyword)}</td>
-            <td class="p-2">${highlight(item.品名, nameKeyword)}</td>
-            <td class="p-2">${item.规格}</td>
-            <td class="p-2">${item.单位}</td>
-            <td class="p-2">${item.零售价}</td>
-            <td class="p-2">${item.品牌}</td>
-            <td class="p-2">${item.可供应渠道}</td>
-          </tr>
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.项目号 || ''}</td>
+          <td>${item.品名 || ''}</td>
+          <td>${item.规格 || ''}</td>
+          <td>${item.单位 || ''}</td>
+          <td>${item.零售价 || ''}</td>
+          <td>${item.品牌 || ''}</td>
+          <td>${item.可供应渠道 || ''}</td>
         `;
+        tbody.appendChild(tr);
       });
-
-      tableHTML += '</tbody></table>';
-      resultDiv.innerHTML = tableHTML;
     }
-
-    document.getElementById('searchBtn').addEventListener('click', renderFiltered);
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      ['projectSearch', 'nameSearch', 'brandFilter', 'channelFilter'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('result').innerHTML = '';
-    });
   </script>
 </body>
 </html>
