@@ -1,140 +1,215 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>产品BOM查询</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .fade-in { animation: fadeIn 0.4s ease-in; }
-  .transition-smooth { transition: all 0.3s ease-in-out; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOM查询</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+    mark { background-color: #fff59d; color: inherit; padding: 0; }
+    .parent-header {
+      background: linear-gradient(90deg, #fbbfbc, #f87171);
+      color: #ffffff;
+    }
+    .parent-row {
+      background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
+      font-weight: 600;
+    }
+    .child-row {
+      background: linear-gradient(90deg, #fff8dc, #fffad1);
+    }
+    tbody tr:hover {
+      background-color: #fce4e4;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-800">
 
-<!-- 标题栏 -->
-<div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md px-4 py-3 mb-6 fade-in">
-  <div class="flex items-center justify-center">
-    <h1 class="text-xl font-bold text-gray-800">产品BOM查询</h1>
-  </div>
-</div>
-
-<!-- 主体内容 -->
-<main class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-6 fade-in">
-
-  <!-- 查询区 -->
-  <div class="flex flex-wrap items-center gap-3 mb-6">
-    <input id="searchInput" type="text" placeholder="输入产品名称..." class="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-400">
-    <button id="searchBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-smooth">查询</button>
-    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-smooth">导出为 Excel</button>
+  <!-- 卡片式标题 + 保密声明 -->
+  <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
+    <div class="flex items-center gap-3">
+      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
+      <h1 class="text-xl md:text-2xl font-bold text-gray-900">BOM查询</h1>
+    </div>
+    <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
+      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：所有数据均属内部信息，严禁泄露</span>
+      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">如查询不到，请联系采购部添加</span>
+    </div>
   </div>
 
-  <!-- 查询结果标题 -->
-  <h2 id="resultTitle" class="text-lg font-semibold mb-4 text-gray-700 hidden">物料明细如下：</h2>
-  <h3 id="subTitle" class="text-md font-semibold mb-2 text-gray-600 hidden">BOM 明细清单</h3>
-
-  <!-- 表格 -->
-  <div class="overflow-x-auto">
-    <table id="resultTable" class="hidden w-full border border-gray-200 text-sm">
-      <thead class="bg-blue-100 text-gray-800">
-        <tr>
-          <th class="p-2 border">序号</th>
-          <th class="p-2 border">物料名称</th>
-          <th class="p-2 border">规格</th>
-          <th class="p-2 border">用量</th>
-          <th class="p-2 border">单位</th>
-          <th class="p-2 border">单价</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <!-- 查询区域 -->
+  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+    <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+    <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow">导出为 Excel</button>
+    <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
   </div>
 
-  <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到相关产品。</p>
+  <!-- 查询结果 -->
+  <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
+  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
 
-</main>
+  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部提供技术和数据支持</footer>
 
-<!-- 保密提示 -->
-<div class="max-w-5xl mx-auto mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-700 font-semibold text-center">
-  ⚠️ 保密提醒：BOM数据及单价信息仅限内部查询，禁止外传。
-</div>
+  <script>
+    let bomData = [];
+    let priceData = [];
 
-<script>
-let bomData = [], priceData = [];
+    // 同时加载 BOM 和 单价 数据
+    Promise.all([
+      fetch('bom_data.json?_v=' + Date.now()).then(r => r.json()),
+      fetch('../tz/data.json?_v=' + Date.now()).then(r => r.json())
+    ])
+    .then(([bom, prices]) => {
+      bomData = bom.map(item => ({
+        项目号: String(item.项目号 || "").trim(),
+        品名: String(item.品名 || "").trim(),
+        规格: String(item.规格 || "").trim(),
+        零售价: String(item["零售价（元）"] ?? item.零售价 ?? "").trim(),
+        物料项目号: String(item.物料项目号 || "").trim(),
+        物料名称: String(item.物料名称 || "").trim(),
+        数量: String(item.数量 || "").trim(),
+        计量单位: String(item.计量单位 || "").trim()
+      }));
+      priceData = prices;
+      document.getElementById("loading").style.display = "none";
+      console.log("✅ 数据加载成功", bomData.length, "条");
+    })
+    .catch(err => {
+      console.error("❌ 数据加载失败:", err);
+      document.getElementById("loading").textContent = "❌ 数据加载失败，请检查路径或格式";
+    });
 
-// 加载BOM和单价数据
-async function loadData() {
-  const bomResponse = await fetch('bom.json');
-  bomData = await bomResponse.json();
-  const priceResponse = await fetch('../tz/data.json');
-  priceData = await priceResponse.json();
-}
-loadData();
+    function highlight(text, keyword) {
+      if (!keyword) return text || "";
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
+      return (text || "").replace(reg, "<mark>$1</mark>");
+    }
 
-// 查询功能
-document.getElementById('searchBtn').addEventListener('click', () => {
-  const keyword = document.getElementById('searchInput').value.trim();
-  const title = document.getElementById('resultTitle');
-  const subTitle = document.getElementById('subTitle');
-  const table = document.getElementById('resultTable');
-  const tbody = document.getElementById('tableBody');
-  const noResult = document.getElementById('noResult');
-  
-  tbody.innerHTML = '';
+    function renderFiltered() {
+      const nameKeyword = document.getElementById("nameSearch").value.trim();
+      const projectID = document.getElementById("projectSearch").value.trim();
+      const materialID = document.getElementById("materialIDSearch").value.trim();
+      const materialName = document.getElementById("materialNameSearch").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
 
-  if (!keyword) {
-    title.classList.add('hidden');
-    subTitle.classList.add('hidden');
-    table.classList.add('hidden');
-    noResult.classList.add('hidden');
-    return;
-  }
+      if (!nameKeyword && !projectID && !materialID && !materialName) {
+        alert("请输入至少一项查询条件！");
+        return;
+      }
 
-  const product = bomData.find(item => item.产品名称.includes(keyword));
-  if (!product) {
-    title.classList.add('hidden');
-    subTitle.classList.add('hidden');
-    table.classList.add('hidden');
-    noResult.classList.remove('hidden');
-    return;
-  }
+      let filtered = bomData.filter(item =>
+        (!nameKeyword || item.品名.includes(nameKeyword)) &&
+        (!projectID || item.项目号 === projectID)
+      );
 
-  noResult.classList.add('hidden');
-  title.classList.remove('hidden');
-  subTitle.classList.remove('hidden');
-  table.classList.remove('hidden');
+      if (materialID || materialName) {
+        const matchedProjects = new Set(
+          bomData
+            .filter(item =>
+              (!materialID || item.物料项目号 === materialID) &&
+              (!materialName || item.物料名称.includes(materialName))
+            )
+            .map(item => item.项目号)
+        );
+        filtered = filtered.filter(item => matchedProjects.has(item.项目号));
+      }
 
-  product.BOM.forEach((mat, index) => {
-    const priceItem = priceData.find(p => p.物料名称 === mat.物料名称);
-    const price = priceItem ? priceItem.单价 : '—';
-    const row = `
-      <tr class="hover:bg-gray-50">
-        <td class="border p-2 text-center">${index + 1}</td>
-        <td class="border p-2">${mat.物料名称}</td>
-        <td class="border p-2 text-center">${mat.规格 || '-'}</td>
-        <td class="border p-2 text-center">${mat.用量 || '-'}</td>
-        <td class="border p-2 text-center">${mat.单位 || '-'}</td>
-        <td class="border p-2 text-center text-blue-700 font-medium">${price}</td>
-      </tr>`;
-    tbody.insertAdjacentHTML('beforeend', row);
-  });
-});
+      if (filtered.length === 0) {
+        resultDiv.innerHTML = "<p class='text-center text-gray-500'>未找到匹配结果。</p>";
+        return;
+      }
 
-// 导出为 Excel
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const table = document.getElementById('resultTable');
-  if (table.classList.contains('hidden')) return alert('请先查询产品BOM后再导出！');
-  
-  const wb = XLSX.utils.table_to_book(table, {sheet: "BOM数据"});
-  XLSX.writeFile(wb, "BOM查询结果.xlsx");
-});
-</script>
+      const grouped = {};
+      filtered.forEach(item => {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
 
+      let tableHTML = `
+        <table id="bomTable" class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
+          <thead class="parent-header">
+            <tr>
+              <th class="p-2">项目号</th>
+              <th class="p-2">品名</th>
+              <th class="p-2">规格</th>
+              <th class="p-2">零售价</th>
+              <th class="p-2">物料项目号</th>
+              <th class="p-2">物料名称</th>
+              <th class="p-2">单价</th>
+              <th class="p-2">数量</th>
+              <th class="p-2">计量单位</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
+        tableHTML += `
+          <tr class="parent-row">
+            <td class="border p-2">${highlight(parent.项目号, projectID)}</td>
+            <td class="border p-2">${highlight(parent.品名, nameKeyword)}</td>
+            <td class="border p-2">${highlight(parent.规格, "")}</td>
+            <td class="border p-2">${highlight(parent.零售价, "")}</td>
+            <td class="border p-2 text-center" colspan="5">物料明细如下 ↓</td>
+          </tr>
+          <tr class="bg-gray-50 text-gray-700 text-left">
+            <td colspan="9" class="border p-2 font-semibold text-blue-700">📦 BOM 明细清单</td>
+          </tr>
+        `;
+
+        items.forEach(child => {
+          const priceItem = priceData.find(p => String(p.项目号) === String(child.物料项目号));
+          const unitPrice = priceItem ? priceItem.采购单价.toFixed(2) : "—";
+          tableHTML += `
+            <tr class="child-row">
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2">${highlight(child.物料项目号, materialID)}</td>
+              <td class="border p-2">${highlight(child.物料名称, materialName)}</td>
+              <td class="border p-2 text-blue-700 font-medium">${unitPrice}</td>
+              <td class="border p-2">${highlight(child.数量, "")}</td>
+              <td class="border p-2">${highlight(child.计量单位, "")}</td>
+            </tr>
+          `;
+        });
+      }
+
+      tableHTML += `</tbody></table>`;
+      resultDiv.innerHTML = tableHTML;
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", renderFiltered);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("result").innerHTML = "";
+    });
+
+    // 导出 Excel
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const table = document.getElementById("bomTable");
+      if (!table) {
+        alert("请先查询再导出 Excel！");
+        return;
+      }
+      const wb = XLSX.utils.table_to_book(table, { sheet: "BOM数据" });
+      XLSX.writeFile(wb, "BOM查询结果.xlsx");
+    });
+  </script>
 </body>
 </html>
