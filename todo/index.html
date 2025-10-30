@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>每日待办 - 可自定义列宽</title>
+<title>每日待办</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
@@ -28,10 +28,9 @@ th.resizable span { position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
 
 <header class="bg-white rounded-xl shadow-md p-4 flex justify-between items-center relative">
   <div class="button-group">
-    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onclick="manualSave()">💾 保存数据</button>
-    <button class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" onclick="addRow()">新增事项</button>
-    <button class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600" onclick="exportToExcel()">导出Excel</button>
-    <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="clearAllData()">清空数据</button>
+<button class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" onclick="addRow()">新增事项</button>
+<button class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600" onclick="exportToExcel()">导出Excel</button>
+    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onclick="manualSave()"> 保存数据</button>
   </div>
   <div>📅 <script>document.write(new Date().toLocaleDateString());</script></div>
 </header>
@@ -46,21 +45,22 @@ const columns=['类型','优先级','物料名','供应商名','进展','备注'
 let unifiedData=JSON.parse(localStorage.getItem('unifiedData')||'[]');
 let colWidths=JSON.parse(localStorage.getItem('colWidths')||'{}');
 
-// 自动保存
 function autoSave(){ localStorage.setItem('unifiedData',JSON.stringify(unifiedData)); showSaveIndicator(); }
 function manualSave(){ localStorage.setItem('unifiedData',JSON.stringify(unifiedData)); showSaveIndicator(); }
-
 function showSaveIndicator(){ const ind=document.getElementById('saveIndicator'); ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),1500); }
 
-// 新增/删除行
 function addRow(){ const newRow={}; columns.forEach(col=>{ if(col==='类型') newRow[col]='合同'; else if(col==='优先级') newRow[col]='中'; else newRow[col]=''; }); unifiedData.push(newRow); renderTable(); autoSave(); }
 function deleteRow(i){ unifiedData.splice(i,1); renderTable(); autoSave(); }
-
-// Excel 导出
 function exportToExcel(){ let csv="data:text/csv;charset=utf-8,\uFEFF"; csv+=columns.join(',')+'\n'; unifiedData.forEach(r=>{ csv+=columns.map(c=>`"${r[c]||''}"`).join(',')+'\n'; }); const link=document.createElement("a"); link.setAttribute("href",encodeURI(csv)); link.setAttribute("download",`每日待办_${new Date().toLocaleDateString()}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
-
-// 清空数据
 function clearAllData(){ if(confirm('确定清空所有数据？')){ unifiedData=[]; renderTable(); autoSave(); } }
+
+// 获取类型对应背景色
+function typeBgColor(type){
+  if(type==='合同') return '#d0ebff'; // 浅蓝
+  if(type==='在途') return '#fff9d6'; // 浅黄
+  if(type==='打样') return '#ffd6d6'; // 浅红
+  return '#ffffff';
+}
 
 // 渲染表格
 function renderTable(){
@@ -68,21 +68,23 @@ function renderTable(){
   container.innerHTML=`<div class="overflow-x-auto"><table class="min-w-full border text-sm" id="unified-table"><thead><tr><th class="border px-2 py-1" style="width:40px;">序号</th>${columns.map(c=>`<th class="border px-2 py-1 resizable" style="width:${colWidths[c]||150}px"><div>${c}</div><span></span></th>`).join('')}<th class="border px-2 py-1">操作</th></tr></thead><tbody id="unified-table-body"></tbody></table></div>`;
   const tbody=document.getElementById('unified-table-body');
   unifiedData.forEach((row,i)=>{
+    const bg=typeBgColor(row['类型']);
     const tr=document.createElement('tr');
+    tr.style.backgroundColor=bg;
     tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>`+columns.map(col=>{
-      if(col==='类型') return `<td class="border px-2 py-1"><select onchange="rowTypeChange(${i},this.value)">${types.map(t=>`<option value="${t}" ${row[col]===t?'selected':''}>${t}</option>`)}</select></td>`;
+      if(col==='类型') return `<td class="border px-2 py-1"><select onchange="rowTypeChange(${i},this.value)" style="width:100%">${types.map(t=>`<option value="${t}" ${row[col]===t?'selected':''}>${t}</option>`)}</select></td>`;
       if(col==='优先级') return `<td class="border px-2 py-1"><select onchange="rowPriorityChange(${i},this.value)"><option value="高" ${row[col]==='高'?'selected':''}>高</option><option value="中" ${row[col]==='中'?'selected':''}>中</option><option value="低" ${row[col]==='低'?'selected':''}>低</option></select></td>`;
       return `<td class="border px-2 py-1" contenteditable="true" oninput="rowEdit(${i},'${col}',this.innerText)">${row[col]||''}</td>`;
     }).join('')+`<td class="border px-2 py-1 text-center"><button onclick="deleteRow(${i})" class="bg-blue-500 text-white px-2 py-1 rounded">删除</button></td>`;
     tbody.appendChild(tr);
   });
   makeResizable();
-  Sortable.create(tbody,{animation:150,onEnd:e=>{const newData=[]; Array.from(tbody.children).forEach(tr=>{ const idx=parseInt(tr.children[0].innerText)-1; newData.push(unifiedData[idx]); }); unifiedData=newData; renderTable(); autoSave(); }});
+  Sortable.create(tbody,{animation:150,onEnd:e=>{const newData=[]; Array.from(tbody.children).forEach(tr=>{ newData.push(unifiedData[parseInt(tr.children[0].innerText)-1]); }); unifiedData=newData; renderTable(); autoSave(); }});
 }
 
 // 行编辑
 function rowEdit(i,col,val){ unifiedData[i][col]=val; autoSave(); }
-function rowTypeChange(i,val){ unifiedData[i]['类型']=val; autoSave(); }
+function rowTypeChange(i,val){ unifiedData[i]['类型']=val; renderTable(); autoSave(); }
 function rowPriorityChange(i,val){ unifiedData[i]['优先级']=val; autoSave(); }
 
 // 可拖拽列宽 + 记忆
