@@ -21,34 +21,19 @@ th.resizable span { position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
 
 /* 按钮组自适应显示 */
 .button-group { display:flex; flex-wrap:wrap; gap:5px; }
-.button-group button { white-space:nowrap; }
+.button-group button { white-space:nowrap; cursor:pointer; }
 </style>
 </head>
 <body>
 
-<header class="bg-white rounded-xl shadow-md p-4 flex justify-between items-center">
+<header class="bg-white rounded-xl shadow-md p-4 flex justify-between items-center relative">
   <div class="button-group">
     <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onclick="manualSave()">💾 保存数据</button>
     <button class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600" onclick="addRow()">新增事项</button>
-    <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="toggleColorSettings()">颜色设置</button>
     <button class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600" onclick="exportToExcel()">导出Excel</button>
     <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="clearAllData()">清空数据</button>
   </div>
   <div>📅 <script>document.write(new Date().toLocaleDateString());</script></div>
-
-  <!-- 颜色设置面板 -->
-  <div id="colorSettingsPanel" class="hidden absolute bg-white p-4 rounded shadow z-50 mt-2 w-72">
-    <h3 class="text-lg font-semibold mb-3">优先级颜色设置</h3>
-    <div class="flex flex-col gap-2">
-      <div class="flex items-center justify-between"><span>高</span><input type="color" id="highBgColor" value="#ff0000"><input type="color" id="highTextColor" value="#ffffff"></div>
-      <div class="flex items-center justify-between"><span>中</span><input type="color" id="mediumBgColor" value="#ffff00"><input type="color" id="mediumTextColor" value="#000000"></div>
-      <div class="flex items-center justify-between"><span>低</span><input type="color" id="lowBgColor" value="#e5e7eb"><input type="color" id="lowTextColor" value="#000000"></div>
-      <div class="flex justify-between mt-2">
-        <button class="bg-blue-500 text-white px-3 py-1 rounded" onclick="applyColorSettings()">应用</button>
-        <button class="bg-gray-500 text-white px-3 py-1 rounded" onclick="resetColorSettings()">重置</button>
-      </div>
-    </div>
-  </div>
 </header>
 
 <section id="unified-section" class="bg-white rounded-xl shadow-md p-4 fade-in"></section>
@@ -59,27 +44,13 @@ th.resizable span { position: absolute; right: 0; top: 0; bottom: 0; width: 5px;
 const types=['合同','在途','打样'];
 const columns=['类型','优先级','物料名','供应商名','进展','备注','开始日','结束日'];
 let unifiedData=JSON.parse(localStorage.getItem('unifiedData')||'[]');
-let priorityColors=JSON.parse(localStorage.getItem('priorityColors'))||{'高':{bg:'#ff0000',text:'#ffffff'},'中':{bg:'#ffff00',text:'#000000'},'低':{bg:'#e5e7eb',text:'#000000'}};
 let colWidths=JSON.parse(localStorage.getItem('colWidths')||'{}');
 
 // 自动保存
 function autoSave(){ localStorage.setItem('unifiedData',JSON.stringify(unifiedData)); showSaveIndicator(); }
-function manualSave(){ saveData(); showSaveIndicator(); }
-function saveData(){ localStorage.setItem('unifiedData',JSON.stringify(unifiedData)); }
+function manualSave(){ localStorage.setItem('unifiedData',JSON.stringify(unifiedData)); showSaveIndicator(); }
 
 function showSaveIndicator(){ const ind=document.getElementById('saveIndicator'); ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),1500); }
-
-function toggleColorSettings(){
-  const panel=document.getElementById('colorSettingsPanel'); panel.classList.toggle('hidden');
-  document.getElementById('highBgColor').value=priorityColors['高'].bg;
-  document.getElementById('highTextColor').value=priorityColors['高'].text;
-  document.getElementById('mediumBgColor').value=priorityColors['中'].bg;
-  document.getElementById('mediumTextColor').value=priorityColors['中'].text;
-  document.getElementById('lowBgColor').value=priorityColors['低'].bg;
-  document.getElementById('lowTextColor').value=priorityColors['低'].text;
-}
-function applyColorSettings(){ priorityColors={'高':{bg:document.getElementById('highBgColor').value,text:document.getElementById('highTextColor').value},'中':{bg:document.getElementById('mediumBgColor').value,text:document.getElementById('mediumTextColor').value},'低':{bg:document.getElementById('lowBgColor').value,text:document.getElementById('lowTextColor').value}}; localStorage.setItem('priorityColors',JSON.stringify(priorityColors)); renderTable(); }
-function resetColorSettings(){ priorityColors={'高':{bg:'#ff0000',text:'#ffffff'},'中':{bg:'#ffff00',text:'#000000'},'低':{bg:'#e5e7eb',text:'#000000'}}; localStorage.setItem('priorityColors',JSON.stringify(priorityColors)); renderTable(); }
 
 // 新增/删除行
 function addRow(){ const newRow={}; columns.forEach(col=>{ if(col==='类型') newRow[col]='合同'; else if(col==='优先级') newRow[col]='中'; else newRow[col]=''; }); unifiedData.push(newRow); renderTable(); autoSave(); }
@@ -94,11 +65,11 @@ function clearAllData(){ if(confirm('确定清空所有数据？')){ unifiedData
 // 渲染表格
 function renderTable(){
   const container=document.getElementById('unified-section');
-  container.innerHTML=`<div class="overflow-x-auto"><table class="min-w-full border text-sm" id="unified-table"><thead><tr>${columns.map(c=>`<th class="border px-2 py-1 resizable" style="width:${colWidths[c]||150}px"><div>${c}</div><span></span></th>`).join('')}<th class="border px-2 py-1">操作</th></tr></thead><tbody id="unified-table-body"></tbody></table></div>`;
+  container.innerHTML=`<div class="overflow-x-auto"><table class="min-w-full border text-sm" id="unified-table"><thead><tr><th class="border px-2 py-1" style="width:40px;">序号</th>${columns.map(c=>`<th class="border px-2 py-1 resizable" style="width:${colWidths[c]||150}px"><div>${c}</div><span></span></th>`).join('')}<th class="border px-2 py-1">操作</th></tr></thead><tbody id="unified-table-body"></tbody></table></div>`;
   const tbody=document.getElementById('unified-table-body');
   unifiedData.forEach((row,i)=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=columns.map(col=>{
+    tr.innerHTML=`<td class="border px-2 py-1 text-center">${i+1}</td>`+columns.map(col=>{
       if(col==='类型') return `<td class="border px-2 py-1"><select onchange="rowTypeChange(${i},this.value)">${types.map(t=>`<option value="${t}" ${row[col]===t?'selected':''}>${t}</option>`)}</select></td>`;
       if(col==='优先级') return `<td class="border px-2 py-1"><select onchange="rowPriorityChange(${i},this.value)"><option value="高" ${row[col]==='高'?'selected':''}>高</option><option value="中" ${row[col]==='中'?'selected':''}>中</option><option value="低" ${row[col]==='低'?'selected':''}>低</option></select></td>`;
       return `<td class="border px-2 py-1" contenteditable="true" oninput="rowEdit(${i},'${col}',this.innerText)">${row[col]||''}</td>`;
@@ -106,6 +77,7 @@ function renderTable(){
     tbody.appendChild(tr);
   });
   makeResizable();
+  Sortable.create(tbody,{animation:150,onEnd:e=>{const newData=[]; Array.from(tbody.children).forEach(tr=>{ const idx=parseInt(tr.children[0].innerText)-1; newData.push(unifiedData[idx]); }); unifiedData=newData; renderTable(); autoSave(); }});
 }
 
 // 行编辑
@@ -121,7 +93,7 @@ function makeResizable(){
     const span=th.querySelector('span');
     const colName=th.innerText.trim();
     span.onmousedown=e=>{
-      let startX=e.pageX, startWidth=th.offsetWidth;
+      let startX=e.pageX,startWidth=th.offsetWidth;
       document.onmousemove=em=>{
         const newWidth=startWidth+(em.pageX-startX);
         if(newWidth>30) th.style.width=newWidth+'px';
@@ -135,6 +107,7 @@ function makeResizable(){
   });
 }
 
+// 初始化
 renderTable();
 </script>
 
