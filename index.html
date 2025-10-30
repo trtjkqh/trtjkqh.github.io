@@ -17,18 +17,23 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-<!-- 顶部卡片式标题栏（与物料查询页面风格一致） -->
-<div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-4 mb-6 fade-in">
+<!-- 顶部卡片式标题栏（精简版） -->
+<div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md px-4 py-2 mb-4 fade-in">
   <div class="flex items-center justify-between">
-    <!-- 左侧：LOGO + 标题 -->
-    <div class="flex items-center gap-4">
-      <img src="assets/img/trtlogo.png" alt="LOGO" class="h-18 w-auto object-contain">
-      <div>
-        <h1 class="text-xl md:text-2xl font-bold text-gray-800">青海厂内部查询系统</h1>
-        <!-- 若需要小标题可打开下一行 -->
-        <!-- <p class="text-sm text-gray-500">内部小工具导航页</p> -->
-      </div>
+    
+    <!-- 左侧 LOGO + 标题 -->
+    <div class="flex items-center gap-3">
+      <img src="assets/img/trtlogo.png" alt="LOGO" class="h-10 w-auto object-contain">
+      <h1 class="text-lg md:text-xl font-semibold text-gray-800">
+        青海厂内部查询系统
+      </h1>
     </div>
+
+    <!-- 占位区保持结构一致 -->
+    <div class="hidden md:flex items-center"></div>
+  </div>
+</div>
+
 
     <!-- 右侧：保留空位（与物料查询页保持一致的卡片布局） -->
     <div class="hidden md:flex items-center gap-3"></div>
