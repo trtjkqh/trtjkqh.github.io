@@ -7,19 +7,17 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform: translateY(10px);}
+      to { opacity:1; transform: translateY(0);}
     }
-    .fade-in { animation: fadeIn 0.4s ease-in; }
+    .fade-in { animation: fadeIn 0.4s ease-in;}
     #sidebar { transition: transform 0.3s; z-index:50; }
     #sidebar.hidden { transform: translateX(-100%); }
     #sidebar.show { transform: translateX(0); }
-    #toggleBtn { position: fixed; top: 1rem; left: 1rem; z-index:60; background-color:#ef4444; }
-    #toggleBtn:hover { background-color:#dc2626; }
     .product-card { transition: all 0.3s; }
-    .product-card:hover { transform: translateY(-8px) scale(1.05); box-shadow: 0 15px 25px rgba(0,0,0,0.25); }
-    #lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:100; }
-    #lightbox img { max-width:90%; max-height:90%; border-radius:12px; }
+    .product-card:hover { transform: translateY(-8px) scale(1.05); box-shadow:0 15px 25px rgba(0,0,0,0.25);}
+    #lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:100;}
+    #lightbox img { max-width:90%; max-height:90%; border-radius:12px;}
     .max-h-card { max-height:420px; }
     .series-btn { 
       px-4 py-2 rounded-full bg-gradient-to-r from-red-400 to-red-600 text-white font-semibold shadow-md 
@@ -29,33 +27,31 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
-  <!-- 顶部标题卡片：LOGO在左，标题在右，居中 -->
-  <div id="topCard" class="max-w-7xl mx-auto bg-white shadow-lg rounded-xl p-4 mb-6 fade-in flex items-center justify-center gap-4">
-    <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-20 w-auto object-contain">
-    <h1 id="topTitle" class="text-lg md:text-xl font-semibold text-gray-900 text-center">产品系列展示</h1>
-  </div>
+  <!-- 顶部标题栏 -->
+  <header class="bg-white shadow-md w-full flex items-center justify-between px-6 py-3 sticky top-0 z-40">
+    <div class="flex items-center gap-4">
+      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-16 w-auto object-contain">
+      <h1 id="topTitle" class="text-lg md:text-xl font-semibold text-gray-900">产品系列展示</h1>
+    </div>
+    <button id="toggleBtn" class="px-4 py-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600">☰ 系列</button>
+  </header>
 
-  <!-- 悬浮导航按钮 -->
-  <button id="toggleBtn" class="p-2 rounded-full shadow text-white hover:bg-red-600">☰</button>
-
-  <div class="flex flex-col min-h-screen">
-    <div class="flex flex-1 overflow-hidden">
-      <!-- 左侧导航 -->
-      <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block">
-        <div id="series-list" class="flex flex-col gap-3"></div>
-      </div>
-
-      <!-- 右侧产品区 -->
-      <div class="flex-1 p-6 overflow-y-auto md:ml-64 flex justify-center">
-        <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl"></div>
-      </div>
+  <div class="flex flex-col md:flex-row min-h-screen mt-4">
+    <!-- 左侧导航 -->
+    <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden md:block fixed md:relative md:top-0 md:left-0">
+      <div id="series-list" class="flex flex-col gap-3"></div>
     </div>
 
-    <!-- 底部版权 -->
-    <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
-      © 2025 德令哈采购管理部提供技术和数据支持
-    </footer>
+    <!-- 右侧产品区 -->
+    <main class="flex-1 p-6 md:ml-64 flex justify-center">
+      <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center w-full max-w-7xl"></div>
+    </main>
   </div>
+
+  <!-- 底部版权 -->
+  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
+    © 2025 德令哈采购管理部提供技术和数据支持
+  </footer>
 
   <!-- 图片放大遮罩 -->
   <div id="lightbox" class="flex" onclick="this.style.display='none'">
@@ -75,7 +71,8 @@
       sidebar.classList.toggle('hidden');
       sidebar.classList.toggle('show');
     });
-    sidebar.classList.add('hidden');
+
+    sidebar.classList.add('hidden'); // 默认隐藏
 
     fetch('data.json')
       .then(res => res.json())
@@ -91,17 +88,17 @@
           btn.className = 'px-4 py-2 rounded-full bg-gradient-to-r from-red-400 to-red-600 text-white font-semibold shadow-md hover:from-red-500 hover:to-red-700 transform hover:scale-105 transition';
           btn.addEventListener('click', () => {
             currentSeries = series;
-            topTitle.textContent = series; // 动态更新顶部标题
+            topTitle.textContent = series; // 动态更新标题
             renderProducts(series);
-            if (window.innerWidth < 768) {
-              sidebar.classList.remove('show');
+            if(window.innerWidth<768){
               sidebar.classList.add('hidden');
+              sidebar.classList.remove('show');
             }
           });
           seriesList.appendChild(btn);
         });
 
-        function renderProducts(series) {
+        function renderProducts(series){
           productsDiv.innerHTML = '';
           const filtered = data.filter(item => item.系列 === series);
           filtered.forEach(product => {
@@ -116,24 +113,23 @@
                 <h3 class="font-semibold text-lg truncate">${product.产品名称}</h3>
                 <p class="text-gray-600 text-sm truncate">${product.规格}</p>
                 <p class="text-red-600 font-semibold mt-1">￥${product.价格}</p>
-                ${product.说明 && product.说明 !== "null" ? `<p class="text-gray-500 text-xs mt-1">${product.说明}</p>` : ''}
+                ${product.说明 && product.说明!=="null"?`<p class="text-gray-500 text-xs mt-1">${product.说明}</p>`:''}
               </div>
             `;
             const img = card.querySelector('img');
-            img.addEventListener('click', e => {
-              lightboxImg.src = img.src;
-              lightbox.style.display = 'flex';
+            img.addEventListener('click', e=>{
+              lightboxImg.src=img.src;
+              lightbox.style.display='flex';
               e.stopPropagation();
             });
             productsDiv.appendChild(card);
           });
         }
 
-        // 默认渲染第一个系列
         topTitle.textContent = currentSeries;
         renderProducts(currentSeries);
       })
-      .catch(err => console.error('读取 data.json 出错:', err));
+      .catch(err=>console.error('读取 data.json 出错:', err));
   </script>
 </body>
 </html>
