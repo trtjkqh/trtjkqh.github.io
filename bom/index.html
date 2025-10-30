@@ -3,126 +3,136 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>产品 BOM 查询</title>
+<title>产品BOM查询</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
   .fade-in { animation: fadeIn 0.4s ease-in; }
+  .transition-smooth { transition: all 0.3s ease-in-out; }
 </style>
 </head>
+
 <body class="bg-gray-50 font-sans text-gray-800">
 
 <!-- 标题栏 -->
-<div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md px-4 py-4 mt-6 mb-6 fade-in">
-  <h1 class="text-2xl font-semibold text-center text-gray-800">产品 BOM 查询</h1>
+<div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md px-4 py-3 mb-6 fade-in">
+  <div class="flex items-center justify-center">
+    <h1 class="text-xl font-bold text-gray-800">产品BOM查询</h1>
+  </div>
 </div>
 
-<!-- 查询区 -->
-<div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6 fade-in">
-  <div class="flex flex-col sm:flex-row gap-4 items-center">
-    <input id="projectInput" type="text" placeholder="请输入项目号（需精准）" class="w-full sm:w-1/3 p-2 border border-gray-300 rounded">
-    <input id="productInput" type="text" placeholder="请输入产品名称（模糊搜索）" class="w-full sm:w-1/3 p-2 border border-gray-300 rounded">
-    <button id="searchBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">查询</button>
-    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">导出为 Excel</button>
+<!-- 主体内容 -->
+<main class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-6 fade-in">
+
+  <!-- 查询区 -->
+  <div class="flex flex-wrap items-center gap-3 mb-6">
+    <input id="searchInput" type="text" placeholder="输入产品名称..." class="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-400">
+    <button id="searchBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-smooth">查询</button>
+    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-smooth">导出为 Excel</button>
   </div>
 
-  <!-- 查询结果 -->
-  <div id="resultArea" class="mt-8 hidden">
-    <h2 class="text-lg font-semibold text-gray-700 mb-2">物料明细如下：</h2>
-    <h3 class="text-base font-semibold text-gray-600 mb-3">BOM 明细列表</h3>
+  <!-- 查询结果标题 -->
+  <h2 id="resultTitle" class="text-lg font-semibold mb-4 text-gray-700 hidden">物料明细如下：</h2>
+  <h3 id="subTitle" class="text-md font-semibold mb-2 text-gray-600 hidden">BOM 明细清单</h3>
 
-    <div class="overflow-x-auto">
-      <table id="resultTable" class="min-w-full border border-gray-200">
-        <thead class="bg-blue-100 text-gray-800">
-          <tr>
-            <th class="p-2 border">序号</th>
-            <th class="p-2 border">物料号</th>
-            <th class="p-2 border">物料名称</th>
-            <th class="p-2 border">数量</th>
-            <th class="p-2 border">单位</th>
-            <th class="p-2 border">单价（元）</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
+  <!-- 表格 -->
+  <div class="overflow-x-auto">
+    <table id="resultTable" class="hidden w-full border border-gray-200 text-sm">
+      <thead class="bg-blue-100 text-gray-800">
+        <tr>
+          <th class="p-2 border">序号</th>
+          <th class="p-2 border">物料名称</th>
+          <th class="p-2 border">规格</th>
+          <th class="p-2 border">用量</th>
+          <th class="p-2 border">单位</th>
+          <th class="p-2 border">单价</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
   </div>
 
-  <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到符合条件的记录。</p>
+  <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到相关产品。</p>
+
+</main>
+
+<!-- 保密提示 -->
+<div class="max-w-5xl mx-auto mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-700 font-semibold text-center">
+  ⚠️ 保密提醒：BOM数据及单价信息仅限内部查询，禁止外传。
 </div>
 
 <script>
-// 模拟数据加载（替换为你的 data.json 读取）
-const data = [
-  {
-    项目号: "A001",
-    产品名称: "虫草饮料",
-    明细: [
-      { 物料号: "M001", 物料名称: "瓶身", 数量: 1, 单位: "个", 单价: 0.8 },
-      { 物料号: "M002", 物料名称: "瓶盖", 数量: 1, 单位: "个", 单价: 0.3 },
-      { 物料号: "M003", 物料名称: "标签", 数量: 1, 单位: "张", 单价: 0.1 }
-    ]
-  },
-  {
-    项目号: "A002",
-    产品名称: "虫草原浆",
-    明细: [
-      { 物料号: "M005", 物料名称: "玻璃瓶", 数量: 1, 单位: "个", 单价: 1.2 },
-      { 物料号: "M006", 物料名称: "包装盒", 数量: 1, 单位: "个", 单价: 0.5 }
-    ]
-  }
-];
+let bomData = [], priceData = [];
+
+// 加载BOM和单价数据
+async function loadData() {
+  const bomResponse = await fetch('bom.json');
+  bomData = await bomResponse.json();
+  const priceResponse = await fetch('../tz/data.json');
+  priceData = await priceResponse.json();
+}
+loadData();
 
 // 查询功能
 document.getElementById('searchBtn').addEventListener('click', () => {
-  const project = document.getElementById('projectInput').value.trim();
-  const name = document.getElementById('productInput').value.trim();
-  const resultTable = document.getElementById('resultTable');
+  const keyword = document.getElementById('searchInput').value.trim();
+  const title = document.getElementById('resultTitle');
+  const subTitle = document.getElementById('subTitle');
+  const table = document.getElementById('resultTable');
   const tbody = document.getElementById('tableBody');
   const noResult = document.getElementById('noResult');
-  const resultArea = document.getElementById('resultArea');
-
+  
   tbody.innerHTML = '';
-  let results = [];
 
-  if (project) {
-    results = data.filter(d => d.项目号 === project);
-  } else if (name) {
-    results = data.filter(d => d.产品名称.includes(name));
-  }
-
-  if (results.length > 0) {
+  if (!keyword) {
+    title.classList.add('hidden');
+    subTitle.classList.add('hidden');
+    table.classList.add('hidden');
     noResult.classList.add('hidden');
-    resultArea.classList.remove('hidden');
-
-    const items = results[0].明细;
-    items.forEach((item, i) => {
-      const row = `<tr class="border-b hover:bg-gray-50">
-        <td class="border p-2 text-center">${i + 1}</td>
-        <td class="border p-2 text-center">${item.物料号}</td>
-        <td class="border p-2">${item.物料名称}</td>
-        <td class="border p-2 text-center">${item.数量}</td>
-        <td class="border p-2 text-center">${item.单位}</td>
-        <td class="border p-2 text-center">${item.单价.toFixed(2)}</td>
-      </tr>`;
-      tbody.insertAdjacentHTML('beforeend', row);
-    });
-  } else {
-    resultArea.classList.add('hidden');
-    noResult.classList.remove('hidden');
+    return;
   }
+
+  const product = bomData.find(item => item.产品名称.includes(keyword));
+  if (!product) {
+    title.classList.add('hidden');
+    subTitle.classList.add('hidden');
+    table.classList.add('hidden');
+    noResult.classList.remove('hidden');
+    return;
+  }
+
+  noResult.classList.add('hidden');
+  title.classList.remove('hidden');
+  subTitle.classList.remove('hidden');
+  table.classList.remove('hidden');
+
+  product.BOM.forEach((mat, index) => {
+    const priceItem = priceData.find(p => p.物料名称 === mat.物料名称);
+    const price = priceItem ? priceItem.单价 : '—';
+    const row = `
+      <tr class="hover:bg-gray-50">
+        <td class="border p-2 text-center">${index + 1}</td>
+        <td class="border p-2">${mat.物料名称}</td>
+        <td class="border p-2 text-center">${mat.规格 || '-'}</td>
+        <td class="border p-2 text-center">${mat.用量 || '-'}</td>
+        <td class="border p-2 text-center">${mat.单位 || '-'}</td>
+        <td class="border p-2 text-center text-blue-700 font-medium">${price}</td>
+      </tr>`;
+    tbody.insertAdjacentHTML('beforeend', row);
+  });
 });
 
 // 导出为 Excel
 document.getElementById('exportBtn').addEventListener('click', () => {
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.table_to_sheet(document.getElementById('resultTable'));
-  XLSX.utils.book_append_sheet(wb, ws, 'BOM明细');
-  XLSX.writeFile(wb, 'BOM查询结果.xlsx');
+  const table = document.getElementById('resultTable');
+  if (table.classList.contains('hidden')) return alert('请先查询产品BOM后再导出！');
+  
+  const wb = XLSX.utils.table_to_book(table, {sheet: "BOM数据"});
+  XLSX.writeFile(wb, "BOM查询结果.xlsx");
 });
 </script>
 
