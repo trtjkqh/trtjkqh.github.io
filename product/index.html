@@ -26,9 +26,9 @@
 <body class="bg-gray-50 font-sans">
 
   <!-- 顶部卡片 -->
-  <div id="topCard" class="max-w-7xl mx-auto bg-white shadow-lg rounded-xl p-4 mb-6 flex items-center gap-4 fade-in">
-    <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
-    <h1 id="topTitle" class="text-xl md:text-2xl font-bold text-gray-900">产品系列展示</h1>
+  <div id="topCard" class="max-w-7xl mx-auto bg-white shadow-lg rounded-xl p-6 mb-6 fade-in flex flex-col items-center">
+    <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain mb-2">
+    <h1 id="topTitle" class="text-2xl md:text-3xl font-bold text-gray-900 text-center">产品系列展示</h1>
   </div>
 
   <!-- 悬浮导航按钮 -->
@@ -38,7 +38,7 @@
     <div class="flex flex-1 overflow-hidden">
       <!-- 左侧导航 -->
       <div id="sidebar" class="w-64 bg-white shadow-lg p-4 overflow-y-auto hidden fixed md:relative md:block">
-        <div id="series-list" class="flex flex-col gap-2"></div>
+        <div id="series-list" class="flex flex-col gap-3"></div>
       </div>
 
       <!-- 右侧产品区 -->
@@ -80,11 +80,11 @@
         const seriesNames = Array.from(seriesSet);
         let currentSeries = seriesNames[0];
 
-        // 左侧系列导航
+        // 左侧系列导航按钮
         seriesNames.forEach(series => {
           const btn = document.createElement('button');
           btn.textContent = series;
-          btn.className = 'px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-left';
+          btn.className = 'px-4 py-2 rounded-full bg-gradient-to-r from-red-400 to-red-600 text-white font-semibold shadow-md hover:from-red-500 hover:to-red-700 transform hover:scale-105 transition';
           btn.addEventListener('click', () => {
             currentSeries = series;
             topTitle.textContent = series; // 动态更新顶部标题
