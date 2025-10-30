@@ -67,7 +67,7 @@
 
   <script>
     let bomData = [];
-    let priceData = {}; // key = BOM物料项目号 => 采购单价
+    let priceData = {}; // key = "项目号_物料名称" => 采购单价
 
     // 加载 BOM 主数据
     fetch('bom_data.json?_v=' + Date.now())
@@ -97,7 +97,8 @@
       .then(data => {
         if (!Array.isArray(data)) throw new Error("采购单价数据格式错误，必须为数组");
         data.forEach(item => {
-          priceData[String(item.项目号)] = item.采购单价; // 用项目号作为 key
+          const key = `${item.项目号}_${item.项目名称}`;
+          priceData[key] = item.采购单价;
         });
         checkAllLoaded();
       })
@@ -205,7 +206,8 @@
         `;
         // 子行数据
         items.forEach(child => {
-          const purchasePrice = priceData[child.物料项目号] !== undefined ? priceData[child.物料项目号] : "-";
+          const key = `${child.项目号}_${child.物料名称}`;
+          const purchasePrice = priceData[key] !== undefined ? priceData[key] : "-";
           tableHTML += `
             <tr class="child-row">
               <td class="border p-2"></td>
