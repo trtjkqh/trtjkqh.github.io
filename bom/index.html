@@ -67,7 +67,7 @@
 
   <script>
     let bomData = [];
-    let priceData = {}; // key = "项目号_项目名称" => 采购单价
+    let priceData = {}; // key = BOM物料项目号 => 采购单价
 
     // 加载 BOM 主数据
     fetch('bom_data.json?_v=' + Date.now())
@@ -97,10 +97,7 @@
       .then(data => {
         if (!Array.isArray(data)) throw new Error("采购单价数据格式错误，必须为数组");
         data.forEach(item => {
-          const projNo = String(item.项目号).trim();
-          const projName = String(item.项目名称).trim();
-          const key = `${projNo}_${projName}`;
-          priceData[key] = item.采购单价;
+          priceData[String(item.项目号)] = item.采购单价; // 用项目号作为 key
         });
         checkAllLoaded();
       })
@@ -208,21 +205,7 @@
         `;
         // 子行数据
         items.forEach(child => {
-          const projNo = String(child.项目号).trim();
-          const matName = String(child.物料名称).trim();
-          let purchasePrice = priceData[`${projNo}_${matName}`];
-
-          // 如果没有找到，尝试模糊匹配
-          if (purchasePrice === undefined) {
-            for (let [k, v] of Object.entries(priceData)) {
-              const [kProjNo, kProjName] = k.split("_");
-              if (kProjNo === projNo && kProjName.includes(matName)) {
-                purchasePrice = v;
-                break;
-              }
-            }
-          }
-
+          const purchasePrice = priceData[child.物料项目号] !== undefined ? priceData[child.物料项目号] : "-";
           tableHTML += `
             <tr class="child-row">
               <td class="border p-2"></td>
@@ -233,7 +216,7 @@
               <td class="border p-2">${highlight(child.物料名称, materialName)}</td>
               <td class="border p-2">${highlight(child.数量, "")}</td>
               <td class="border p-2">${highlight(child.计量单位, "")}</td>
-              <td class="border p-2">${purchasePrice !== undefined ? purchasePrice : "-"}</td>
+              <td class="border p-2">${purchasePrice}</td>
             </tr>
           `;
         });
