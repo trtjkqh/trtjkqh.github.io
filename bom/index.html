@@ -37,7 +37,7 @@
 
 <body class="bg-gray-50 font-sans text-gray-800">
 
-  <!-- 卡片式标题 + 保密声明 -->
+  <!-- 标题 + 保密声明 -->
   <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
     <div class="flex items-center gap-3">
       <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
@@ -67,9 +67,9 @@
 
   <script>
     let bomData = [];
-    let priceData = {}; // key = "项目号_物料名称" => 采购单价
+    let priceData = {}; // key = 物料项目号 => 采购单价
 
-    // 加载 BOM 主数据
+    // 加载 BOM 数据
     fetch('bom_data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
@@ -97,8 +97,7 @@
       .then(data => {
         if (!Array.isArray(data)) throw new Error("采购单价数据格式错误，必须为数组");
         data.forEach(item => {
-          const key = `${item.项目号}_${item.项目名称}`;
-          priceData[key] = item.采购单价;
+          priceData[String(item.物料项目号)] = item.采购单价; // 用物料项目号作为 key
         });
         checkAllLoaded();
       })
@@ -115,7 +114,7 @@
 
     function highlight(text, keyword) {
       if (!keyword) return text || "";
-      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')})`, "gi");
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&')})`, "gi");
       return (text || "").replace(reg, "<mark>$1</mark>");
     }
 
@@ -190,9 +189,9 @@
             <td class="border p-2" colspan="5"></td>
           </tr>
         `;
-        // 明细表头
+        // 子表表头
         tableHTML += `
-          <tr class="child-header">
+          <tr class="child-row child-header">
             <td class="border p-2"></td>
             <td class="border p-2"></td>
             <td class="border p-2"></td>
@@ -206,8 +205,7 @@
         `;
         // 子行数据
         items.forEach(child => {
-          const key = `${child.项目号}_${child.物料名称}`;
-          const purchasePrice = priceData[key] !== undefined ? priceData[key] : "-";
+          const purchasePrice = priceData[child.物料项目号] !== undefined ? priceData[child.物料项目号] : "-";
           tableHTML += `
             <tr class="child-row">
               <td class="border p-2"></td>
