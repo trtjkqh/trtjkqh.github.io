@@ -63,22 +63,20 @@
 
   <script>
     let bomData = [];
-    let priceData = {};
 
-    // 加载BOM数据
     fetch('bom_data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
         if(!Array.isArray(data)) throw new Error("数据格式错误，必须为数组");
         bomData = data.map(item => ({
           项目号: String(item.项目号 || "").trim(),
-          项目名称: String(item.项目名称 || "").trim(),
-          合同编号: String(item.合同编号 || "").trim(),
-          供应商名称: String(item.供应商名称 || "").trim(),
+          品名: String(item.品名 || "").trim(),
+          规格: String(item.规格 || "").trim(),
+          零售价: String(item["零售价（元）"] ?? item.零售价 ?? "").trim(),
+          物料项目号: String(item.物料项目号 || "").trim(),
+          物料名称: String(item.物料名称 || "").trim(),
           数量: String(item.数量 || "").trim(),
-          单位: String(item.单位 || "").trim(),
-          采购单价: Number(item.采购单价 || 0),
-          订单总额: Number(item.订单总额 || 0)
+          计量单位: String(item.计量单位 || "").trim()
         }));
         document.getElementById("loading").style.display = "none";
         console.log("✅ 数据加载成功", bomData.length, "条");
@@ -88,14 +86,6 @@
         document.getElementById("loading").textContent = "❌ 数据加载失败，请检查路径或格式";
       });
 
-    // 加载单价数据
-    fetch('tz/data.json?_v=' + Date.now())
-      .then(res => res.json())
-      .then(data => {
-        data.forEach(d => { priceData[d.物料项目号] = d.采购单价; });
-        console.log("✅ 单价数据加载完成");
-      });
-
     function highlight(text, keyword) {
       if (!keyword) return text || "";
       const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
@@ -103,81 +93,90 @@
     }
 
     function renderFiltered() {
-      const projectID = document.getElementById("projectSearch").value.trim();
       const nameKeyword = document.getElementById("nameSearch").value.trim();
+      const projectID = document.getElementById("projectSearch").value.trim();
+      const materialID = document.getElementById("materialIDSearch").value.trim();
+      const materialName = document.getElementById("materialNameSearch").value.trim();
+
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "";
 
-      if (!projectID && !nameKeyword) {
+      if (!nameKeyword && !projectID && !materialID && !materialName) {
         alert("请输入至少一项查询条件！");
         return;
       }
 
-      const filtered = bomData.filter(item =>
-        (!projectID || item.项目号 === projectID) &&
-        (!nameKeyword || item.项目名称.includes(nameKeyword))
+      let filtered = bomData.filter(item =>
+        (!nameKeyword || item.品名.includes(nameKeyword)) &&
+        (!projectID || item.项目号 === projectID)
       );
+
+      if (materialID || materialName) {
+        const matchedProjects = new Set(
+          bomData
+            .filter(item =>
+              (!materialID || item.物料项目号 === materialID) &&
+              (!materialName || item.物料名称.includes(materialName))
+            )
+            .map(item => item.项目号)
+        );
+        filtered = filtered.filter(item => matchedProjects.has(item.项目号));
+      }
 
       if (filtered.length === 0) {
         resultDiv.innerHTML = "<p class='text-center text-gray-500'>未找到匹配结果。</p>";
         return;
       }
 
+      const grouped = {};
+      filtered.forEach(item => {
+        if (!grouped[item.项目号]) grouped[item.项目号] = [];
+        grouped[item.项目号].push(item);
+      });
+
       let tableHTML = `
         <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
           <thead class="parent-header">
             <tr>
-              <th class="p-2">合同编号</th>
-              <th class="p-2">供应商名称</th>
               <th class="p-2">项目号</th>
-              <th class="p-2">项目名称</th>
+              <th class="p-2">品名</th>
+              <th class="p-2">规格</th>
+              <th class="p-2">零售价</th>
+              <th class="p-2">物料项目号</th>
+              <th class="p-2">物料名称</th>
               <th class="p-2">数量</th>
-              <th class="p-2">单位</th>
-              <th class="p-2">订单总额</th>
+              <th class="p-2">计量单位</th>
             </tr>
           </thead>
           <tbody>
       `;
 
-      filtered.forEach(item => {
+      for (const [proj, items] of Object.entries(grouped)) {
+        const parent = items[0];
         tableHTML += `
           <tr class="parent-row">
-            <td class="border p-2">${highlight(item.合同编号, "")}</td>
-            <td class="border p-2">${highlight(item.供应商名称, "")}</td>
-            <td class="border p-2">${highlight(item.项目号, projectID)}</td>
-            <td class="border p-2">${highlight(item.项目名称, nameKeyword)}</td>
-            <td class="border p-2">${item.数量}</td>
-            <td class="border p-2">${item.单位}</td>
-            <td class="border p-2">${item.订单总额.toFixed(2)}</td>
-          </tr>
-          <tr class="child-row font-semibold text-gray-700">
-            <td colspan="7" class="p-0">
-              <table class="w-full text-xs text-center">
-                <thead class="bg-red-100 text-red-800">
-                  <tr>
-                    <th class="p-2 border">物料项目号</th>
-                    <th class="p-2 border">物料名称</th>
-                    <th class="p-2 border">数量</th>
-                    <th class="p-2 border">计量单位</th>
-                    <th class="p-2 border">采购单价</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="border p-2">${item.项目号}</td>
-                    <td class="border p-2">${item.项目名称}</td>
-                    <td class="border p-2">${item.数量}</td>
-                    <td class="border p-2">${item.单位}</td>
-                    <td class="border p-2 text-red-700 font-bold">
-                      ¥${priceData[item.项目号] ? priceData[item.项目号].toFixed(2) : "—"}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
+            <td class="border p-2">${highlight(parent.项目号, projectID)}</td>
+            <td class="border p-2">${highlight(parent.品名, nameKeyword)}</td>
+            <td class="border p-2">${highlight(parent.规格, "")}</td>
+            <td class="border p-2">${highlight(parent.零售价, "")}</td>
+            <td class="border p-2 text-center" colspan="4">物料明细如下 ↓</td>
           </tr>
         `;
-      });
+        items.forEach(child => {
+          tableHTML += `
+            <tr class="child-row">
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2"></td>
+              <td class="border p-2">${highlight(child.物料项目号, materialID)}</td>
+              <td class="border p-2">${highlight(child.物料名称, materialName)}</td>
+              <td class="border p-2">${highlight(child.数量, "")}</td>
+              <td class="border p-2">${highlight(child.计量单位, "")}</td>
+            </tr>
+          `;
+        });
+      }
 
       tableHTML += `</tbody></table>`;
       resultDiv.innerHTML = tableHTML;
