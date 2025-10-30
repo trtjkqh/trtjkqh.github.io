@@ -1,218 +1,171 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>成品信息查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 小调整，让表格在桌面端看起来更紧凑 */
-    .table-fixed th, .table-fixed td { white-space: nowrap; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-in; }
+    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+    mark { background-color: #fff59d; color: inherit; padding: 0; }
+
+    .parent-header {
+      background: linear-gradient(90deg, #93c5fd, #3b82f6);
+      color: #ffffff;
+    }
+    .data-row:hover {
+      background-color: #f0f9ff;
+    }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen">
-  <div class="max-w-6xl mx-auto p-4">
-    <header class="flex items-center justify-between mb-4">
-      <div>
-        <h1 class="text-2xl font-semibold">成品信息查询</h1>
-        <p class="text-sm text-gray-500">在 CP 目录下放置 data.json（与本文件同级），输入项目号（精确）和/或品名（模糊）进行查询。</p>
-      </div>
-      <div class="text-sm text-gray-500">数据文件：<code class="bg-white px-2 py-1 rounded">CP/data.json</code></div>
-    </header>
-
-    <!-- 搜索区 -->
-    <section class="bg-white p-4 rounded shadow-sm mb-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="text-sm text-gray-600">项目号（精确）</label>
-          <input id="projectInput" type="text" placeholder="例如：XM-2025-001" class="mt-1 block w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
-        </div>
-        <div>
-          <label class="text-sm text-gray-600">品名（模糊）</label>
-          <input id="nameInput" type="text" placeholder="可输入部分品名进行模糊搜索" class="mt-1 block w-full border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
-        </div>
-        <div class="flex items-end gap-2">
-          <button id="searchBtn" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">查询</button>
-          <button id="clearBtn" class="px-4 py-2 border border-gray-300 rounded">清空</button>
-          <button id="exportBtn" class="px-4 py-2 border border-gray-300 rounded">导出 CSV</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 结果区 -->
-    <section id="resultSection" class="bg-white p-4 rounded shadow-sm">
-      <div id="count" class="text-sm text-gray-600 mb-2">加载中…</div>
-      <div class="overflow-x-auto">
-        <table id="resultTable" class="min-w-full divide-y divide-gray-200 table-fixed">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">项目号</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">品名</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">规格</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">单位</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">零售价</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">产品属性</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">保质期</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">品牌</th>
-              <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">可供应渠道</th>
-            </tr>
-          </thead>
-          <tbody id="tbody" class="bg-white divide-y divide-gray-100">
-            <!-- JS 动态填充 -->
-          </tbody>
-        </table>
-      </div>
-      <div id="noData" class="hidden text-center text-gray-500 py-6">未找到匹配结果。</div>
-    </section>
-
-    <!-- 详情模态 -->
-    <div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
-      <div class="bg-white rounded shadow-lg max-w-xl w-full p-4">
-        <div class="flex justify-between items-center mb-2">
-          <h3 id="modalTitle" class="text-lg font-medium">产品详情</h3>
-          <button id="closeModal" class="text-gray-500">关闭</button>
-        </div>
-        <div id="modalBody" class="text-sm text-gray-700">
-          <!-- 动态内容 -->
-        </div>
-      </div>
+<body class="bg-gray-50 font-sans text-gray-800">
+  <!-- 标题卡片 -->
+  <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
+    <div class="flex items-center gap-3">
+      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
+      <h1 class="text-xl md:text-2xl font-bold text-gray-900">成品信息查询</h1>
     </div>
-
-    <footer class="mt-4 text-xs text-gray-500">提示：项目号为精确匹配（未输入则忽略），品名支持模糊搜索（区分大小写可选，默认不区分）。</footer>
+    <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
+      <span class="px-2 py-1 bg-blue-50 border border-blue-200 rounded font-semibold text-blue-600">🔒 保密声明：所有数据仅供内部使用</span>
+      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">如未查询到，请联系采购部维护</span>
+    </div>
   </div>
 
+  <!-- 查询区域 -->
+  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+    <input id="projectInput" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-blue-400" />
+    <input id="nameInput" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-blue-400" />
+    <select id="brandSelect" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-blue-400">
+      <option value="">品牌（全部）</option>
+    </select>
+    <select id="channelSelect" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-blue-400">
+      <option value="">可供应渠道（全部）</option>
+    </select>
+    <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow">查询</button>
+    <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+  </div>
+
+  <!-- 查询结果 -->
+  <div id="loading" class="text-center text-blue-600 font-medium my-6">⏳ 数据加载中...</div>
+  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+
+  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部提供技术支持</footer>
+
   <script>
-    /*
-      期望 data.json 的示例结构（放在 CP/data.json）：
-      [
-        {
-          "项目号": "XM-2025-001",
-          "品名": "鲜冬虫夏草-2A",
-          "规格": "2A（0.61g-0.8g/支）-27",
-          "单位": "支",
-          "零售价": "¥120",
-          "产品属性": "保健食品",
-          "保质期": "24个月",
-          "品牌": "地平线",
-          "可供应渠道": "自有库存, 线上经销"
-        },
-        ...
-      ]
-    */
+    let cpData = [];
 
-    let data = [];
+    fetch('data.json?_v=' + Date.now())
+      .then(res => res.json())
+      .then(data => {
+        if(!Array.isArray(data)) throw new Error('数据格式错误');
+        cpData = data.map(item => ({
+          项目号: String(item.项目号 || '').trim(),
+          品名: String(item.品名 || '').trim(),
+          规格: String(item.规格 || '').trim(),
+          单位: String(item.单位 || '').trim(),
+          零售价: String(item.零售价 || '').trim(),
+          产品属性: String(item.产品属性 || '').trim(),
+          保质期: String(item.保质期 || '').trim(),
+          品牌: String(item.品牌 || '').trim(),
+          可供应渠道: String(item.可供应渠道 || '').trim()
+        }));
+        initFilters();
+        document.getElementById('loading').style.display = 'none';
+      })
+      .catch(err => {
+        document.getElementById('loading').textContent = '❌ 数据加载失败，请检查路径或格式';
+      });
 
-    async function loadData() {
-      try {
-        const res = await fetch('./data.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error('无法加载 data.json: ' + res.status);
-        data = await res.json();
-        document.getElementById('count').textContent = `共 ${data.length} 条记录（已加载）`;
-        renderTable(data.slice(0, 100)); // 初始展示前 100 条，避免一次塞太多
-      } catch (e) {
-        console.error(e);
-        document.getElementById('count').textContent = '加载 data.json 失败，请确认文件位置为 CP/data.json 且为合法 JSON。';
-        document.getElementById('noData').classList.remove('hidden');
-      }
+    function initFilters() {
+      const brandSet = new Set(cpData.map(i => i.品牌).filter(Boolean));
+      const channelSet = new Set(cpData.map(i => i.可供应渠道).filter(Boolean));
+      const brandSelect = document.getElementById('brandSelect');
+      const channelSelect = document.getElementById('channelSelect');
+
+      brandSet.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b; opt.textContent = b; brandSelect.appendChild(opt);
+      });
+      channelSet.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c; channelSelect.appendChild(opt);
+      });
     }
 
-    function renderTable(list) {
-      const tbody = document.getElementById('tbody');
-      tbody.innerHTML = '';
-      if (!list || list.length === 0) {
-        document.getElementById('noData').classList.remove('hidden');
+    function highlight(text, keyword) {
+      if (!keyword) return text || '';
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\$&')})`, 'gi');
+      return (text || '').replace(reg, '<mark>$1</mark>');
+    }
+
+    function renderResults() {
+      const proj = document.getElementById('projectInput').value.trim();
+      const name = document.getElementById('nameInput').value.trim();
+      const brand = document.getElementById('brandSelect').value;
+      const channel = document.getElementById('channelSelect').value;
+
+      let filtered = cpData.filter(item =>
+        (!proj || item.项目号 === proj) &&
+        (!name || item.品名.includes(name)) &&
+        (!brand || item.品牌 === brand) &&
+        (!channel || item.可供应渠道 === channel)
+      );
+
+      const resultDiv = document.getElementById('result');
+      if (filtered.length === 0) {
+        resultDiv.innerHTML = '<p class="text-center text-gray-500">未找到匹配结果。</p>';
         return;
       }
-      document.getElementById('noData').classList.add('hidden');
-      for (const row of list) {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 cursor-pointer';
-        tr.innerHTML = `
-          <td class="px-3 py-2 text-sm">${row['项目号'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['品名'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['规格'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['单位'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['零售价'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['产品属性'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['保质期'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['品牌'] ?? ''}</td>
-          <td class="px-3 py-2 text-sm">${row['可供应渠道'] ?? ''}</td>
-        `;
-        tr.addEventListener('click', () => showDetail(row));
-        tbody.appendChild(tr);
-      }
+
+      let tableHTML = `
+      <table class='w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm'>
+        <thead class='parent-header'>
+          <tr>
+            <th class='p-2'>项目号</th>
+            <th class='p-2'>品名</th>
+            <th class='p-2'>规格</th>
+            <th class='p-2'>单位</th>
+            <th class='p-2'>零售价</th>
+            <th class='p-2'>产品属性</th>
+            <th class='p-2'>保质期</th>
+            <th class='p-2'>品牌</th>
+            <th class='p-2'>可供应渠道</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      filtered.forEach(item => {
+        tableHTML += `
+          <tr class='data-row border-b'>
+            <td class='p-2 border'>${highlight(item.项目号, proj)}</td>
+            <td class='p-2 border'>${highlight(item.品名, name)}</td>
+            <td class='p-2 border'>${item.规格}</td>
+            <td class='p-2 border'>${item.单位}</td>
+            <td class='p-2 border'>${item.零售价}</td>
+            <td class='p-2 border'>${item.产品属性}</td>
+            <td class='p-2 border'>${item.保质期}</td>
+            <td class='p-2 border'>${item.品牌}</td>
+            <td class='p-2 border'>${item.可供应渠道}</td>
+          </tr>`;
+      });
+
+      tableHTML += '</tbody></table>';
+      resultDiv.innerHTML = tableHTML;
     }
 
-    function showDetail(row) {
-      document.getElementById('modalTitle').textContent = row['品名'] || '产品详情';
-      const body = document.getElementById('modalBody');
-      body.innerHTML = Object.entries(row).map(([k, v]) => `
-        <div class="mb-2"><span class="text-gray-600">${k}：</span><span class="font-medium">${v}</span></div>
-      `).join('');
-      document.getElementById('modal').classList.remove('hidden');
-      document.getElementById('modal').classList.add('flex');
-    }
-
-    function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
-      document.getElementById('modal').classList.remove('flex');
-    }
-
-    function doSearch() {
-      const project = document.getElementById('projectInput').value.trim();
-      const name = document.getElementById('nameInput').value.trim();
-
-      // 项目号为精确匹配：如果填写了项目号，以项目号为主（精确匹配），否则根据品名模糊
-      let results = data;
-      if (project) {
-        results = results.filter(r => (r['项目号'] ?? '').toString() === project);
-      }
-      if (name) {
-        const n = name.toLowerCase();
-        results = results.filter(r => (r['品名'] ?? '').toString().toLowerCase().includes(n));
-      }
-
-      document.getElementById('count').textContent = `匹配到 ${results.length} 条`;
-      renderTable(results);
-    }
-
-    function clearInputs() {
-      document.getElementById('projectInput').value = '';
-      document.getElementById('nameInput').value = '';
-      document.getElementById('count').textContent = `共 ${data.length} 条记录（已加载）`;
-      renderTable(data.slice(0, 100));
-    }
-
-    function exportCSV() {
-      const rows = Array.from(document.querySelectorAll('#tbody tr'));
-      if (!rows.length) return alert('当前没有可导出的数据。');
-      const header = ['项目号','品名','规格','单位','零售价','产品属性','保质期','品牌','可供应渠道'];
-      const csv = [header.join(',')];
-      for (const tr of rows) {
-        const cells = Array.from(tr.querySelectorAll('td')).map(td => '"' + (td.textContent.replaceAll('"','""')) + '"');
-        csv.push(cells.join(','));
-      }
-      const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'cp_query_export.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    document.getElementById('searchBtn').addEventListener('click', doSearch);
-    document.getElementById('clearBtn').addEventListener('click', clearInputs);
-    document.getElementById('exportBtn').addEventListener('click', exportCSV);
-    document.getElementById('closeModal').addEventListener('click', closeModal);
-    document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
-
-    // 支持回车触发查询
-    document.getElementById('projectInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
-    document.getElementById('nameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
-
-    // 启动时加载数据
-    loadData();
+    document.getElementById('searchBtn').addEventListener('click', renderResults);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      ['projectInput','nameInput'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('brandSelect').value = '';
+      document.getElementById('channelSelect').value = '';
+      document.getElementById('result').innerHTML = '';
+    });
   </script>
 </body>
 </html>
