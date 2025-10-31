@@ -37,19 +37,19 @@
 
 <body class="bg-gray-50 font-sans text-gray-800">
 
-  <!-- 标题 + 保密声明 -->
+  <!-- 标题区 -->
   <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
     <div class="flex items-center gap-3">
       <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
       <h1 class="text-xl md:text-2xl font-bold text-gray-900">BOM查询</h1>
     </div>
     <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
-      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：所有数据均属内部信息，严禁泄露</span>
-      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">如查询不到，请联系采购部更新数据</span>
+      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
+      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">如查询不到，请联系采购部更新</span>
     </div>
   </div>
 
-  <!-- 查询区域 -->
+  <!-- 查询输入 -->
   <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
     <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
     <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
@@ -67,13 +67,13 @@
 
   <script>
     let bomData = [];
-    let priceData = {}; // key = 物料项目号 => 采购单价
+    let priceData = {}; // { 物料项目号: 采购单价 }
 
     // 加载 BOM 数据
     fetch('bom_data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
-        if (!Array.isArray(data)) throw new Error("BOM数据格式错误，必须为数组");
+        if (!Array.isArray(data)) throw new Error("BOM数据格式错误");
         bomData = data.map(item => ({
           项目号: String(item.项目号 || "").trim(),
           品名: String(item.品名 || "").trim(),
@@ -88,33 +88,35 @@
       })
       .catch(err => {
         console.error("❌ BOM 数据加载失败:", err);
-        document.getElementById("loading").textContent = "❌ BOM数据加载失败，请检查路径或格式";
+        document.getElementById("loading").textContent = "❌ BOM数据加载失败";
       });
 
-    // 加载采购单价数据
+    // 加载物料单价数据
     fetch('tz/data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
-        if (!Array.isArray(data)) throw new Error("采购单价数据格式错误，必须为数组");
+        if (!Array.isArray(data)) throw new Error("采购单价数据格式错误");
         data.forEach(item => {
-          priceData[String(item.物料项目号)] = item.采购单价; // 用物料项目号作为 key
+          const id = String(item.物料项目号 || "").trim();
+          const price = item.采购单价 !== undefined ? item.采购单价 : "-";
+          priceData[id] = price;
         });
         checkAllLoaded();
       })
       .catch(err => {
-        console.error("❌ 采购单价数据加载失败:", err);
-        document.getElementById("loading").textContent = "❌ 采购单价加载失败，请检查路径或格式";
+        console.error("❌ 采购单价加载失败:", err);
+        document.getElementById("loading").textContent = "❌ 采购单价加载失败";
       });
 
     function checkAllLoaded() {
-      if (bomData.length > 0) {
+      if (bomData.length > 0 && Object.keys(priceData).length > 0) {
         document.getElementById("loading").style.display = "none";
       }
     }
 
     function highlight(text, keyword) {
       if (!keyword) return text || "";
-      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\$&')})`, "gi");
+      const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
       return (text || "").replace(reg, "<mark>$1</mark>");
     }
 
@@ -131,6 +133,7 @@
         return;
       }
 
+      // 筛选逻辑
       let filtered = bomData.filter(item =>
         (!nameKeyword || item.品名.includes(nameKeyword)) &&
         (!projectID || item.项目号 === projectID)
@@ -153,13 +156,14 @@
         return;
       }
 
+      // 按项目号分组
       const grouped = {};
       filtered.forEach(item => {
         if (!grouped[item.项目号]) grouped[item.项目号] = [];
         grouped[item.项目号].push(item);
       });
 
-      let tableHTML = `
+      let html = `
         <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
           <thead class="parent-header">
             <tr>
@@ -179,8 +183,7 @@
 
       for (const [proj, items] of Object.entries(grouped)) {
         const parent = items[0];
-        // 父行
-        tableHTML += `
+        html += `
           <tr class="parent-row">
             <td class="border p-2">${highlight(parent.项目号, projectID)}</td>
             <td class="border p-2">${highlight(parent.品名, nameKeyword)}</td>
@@ -189,8 +192,9 @@
             <td class="border p-2" colspan="5"></td>
           </tr>
         `;
-        // 子表表头
-        tableHTML += `
+
+        // 子表头
+        html += `
           <tr class="child-row child-header">
             <td class="border p-2"></td>
             <td class="border p-2"></td>
@@ -203,10 +207,11 @@
             <td class="border p-2">采购单价</td>
           </tr>
         `;
-        // 子行数据
+
         items.forEach(child => {
-          const purchasePrice = priceData[child.物料项目号] !== undefined ? priceData[child.物料项目号] : "-";
-          tableHTML += `
+          const id = child.物料项目号;
+          const purchasePrice = priceData[id] !== undefined ? priceData[id] : "-";
+          html += `
             <tr class="child-row">
               <td class="border p-2"></td>
               <td class="border p-2"></td>
@@ -222,8 +227,8 @@
         });
       }
 
-      tableHTML += `</tbody></table>`;
-      resultDiv.innerHTML = tableHTML;
+      html += `</tbody></table>`;
+      resultDiv.innerHTML = html;
     }
 
     document.getElementById("searchBtn").addEventListener("click", renderFiltered);
