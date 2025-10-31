@@ -11,12 +11,14 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .fade-in { animation: fadeIn 0.4s ease-in; }
-    table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+    table th { position: sticky; top: 0; z-index: 10; }
     mark { background-color: #fff59d; color: inherit; padding: 0; }
 
+    /* 表格样式 */
     .parent-header {
       background: linear-gradient(90deg, #fbbfbc, #f87171);
-      color: #ffffff;
+      color: #000000;
+      font-weight: 600;
     }
     .parent-row {
       background: linear-gradient(90deg, #ffe4e1, #ffe0e0);
@@ -25,9 +27,14 @@
     .child-header {
       background-color: #f3f4f6;
       font-weight: 600;
+      color: #000000;
     }
     .child-row {
-      background: linear-gradient(90deg, #fff8dc, #fffad1);
+      background-color: #fff8dc;
+    }
+    table td, table th {
+      padding: 6px 8px;
+      text-align: center;
     }
     tbody tr:hover {
       background-color: #fce4e4;
@@ -87,7 +94,6 @@
           计量单位: String(item.计量单位 || "").trim()
         }));
         bomLoaded = true;
-        console.log("✅ BOM 数据加载成功，共", bomData.length, "条");
         checkAllLoaded();
       })
       .catch(err => {
@@ -106,7 +112,6 @@
           priceData[id] = price;
         });
         priceLoaded = true;
-        console.log("✅ 采购单价加载成功，共", Object.keys(priceData).length, "条");
         checkAllLoaded();
       })
       .catch(err => {
@@ -114,21 +119,18 @@
         document.getElementById("loading").textContent = "❌ 采购单价加载失败";
       });
 
-    // 检查是否加载完毕
     function checkAllLoaded() {
       if (bomLoaded && priceLoaded) {
         document.getElementById("loading").style.display = "none";
       }
     }
 
-    // 高亮函数
     function highlight(text, keyword) {
       if (!keyword) return text || "";
       const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
       return (text || "").replace(reg, "<mark>$1</mark>");
     }
 
-    // 查询逻辑
     function renderFiltered() {
       const nameKeyword = document.getElementById("nameSearch").value.trim();
       const projectID = document.getElementById("projectSearch").value.trim();
@@ -174,15 +176,15 @@
         <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
           <thead class="parent-header">
             <tr>
-              <th class="p-2">项目号</th>
-              <th class="p-2">品名</th>
-              <th class="p-2">规格</th>
-              <th class="p-2">零售价</th>
-              <th class="p-2">物料项目号</th>
-              <th class="p-2">物料名称</th>
-              <th class="p-2">数量</th>
-              <th class="p-2">计量单位</th>
-              <th class="p-2">采购单价</th>
+              <th>项目号</th>
+              <th>品名</th>
+              <th>规格</th>
+              <th>零售价</th>
+              <th>物料项目号</th>
+              <th>物料名称</th>
+              <th>数量</th>
+              <th>计量单位</th>
+              <th>采购单价</th>
             </tr>
           </thead>
           <tbody>
@@ -192,33 +194,30 @@
         const parent = items[0];
         html += `
           <tr class="parent-row">
-            <td class="border p-2">${highlight(parent.项目号, projectID)}</td>
-            <td class="border p-2">${highlight(parent.品名, nameKeyword)}</td>
-            <td class="border p-2">${highlight(parent.规格, "")}</td>
-            <td class="border p-2">${highlight(parent.零售价, "")}</td>
-            <td class="border p-2" colspan="5"></td>
+            <td>${highlight(parent.项目号, projectID)}</td>
+            <td>${highlight(parent.品名, nameKeyword)}</td>
+            <td>${highlight(parent.规格, "")}</td>
+            <td>${highlight(parent.零售价, "")}</td>
+            <td colspan="5"></td>
           </tr>
-          <tr class="child-row child-header">
-            <td colspan="4"></td>
-            <td class="border p-2">物料项目号</td>
-            <td class="border p-2">物料名称</td>
-            <td class="border p-2">数量</td>
-            <td class="border p-2">计量单位</td>
-            <td class="border p-2">采购单价</td>
+          <tr class="child-header">
+            <td>物料项目号</td>
+            <td>物料名称</td>
+            <td>数量</td>
+            <td>计量单位</td>
+            <td colspan="5">采购单价</td>
           </tr>
         `;
-
         items.forEach(child => {
           const id = child.物料项目号;
           const purchasePrice = priceData[id] !== undefined ? priceData[id] : "-";
           html += `
             <tr class="child-row">
-              <td colspan="4"></td>
-              <td class="border p-2">${highlight(child.物料项目号, materialID)}</td>
-              <td class="border p-2">${highlight(child.物料名称, materialName)}</td>
-              <td class="border p-2">${highlight(child.数量, "")}</td>
-              <td class="border p-2">${highlight(child.计量单位, "")}</td>
-              <td class="border p-2">${purchasePrice}</td>
+              <td>${highlight(child.物料项目号, materialID)}</td>
+              <td>${highlight(child.物料名称, materialName)}</td>
+              <td>${highlight(child.数量, "")}</td>
+              <td>${highlight(child.计量单位, "")}</td>
+              <td colspan="5">${purchasePrice}</td>
             </tr>
           `;
         });
@@ -228,11 +227,17 @@
       resultDiv.innerHTML = html;
     }
 
-    // 事件绑定
     document.getElementById("searchBtn").addEventListener("click", renderFiltered);
     document.getElementById("resetBtn").addEventListener("click", () => {
       ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("result").innerHTML = "";
+    });
+
+    // 支持按回车查询
+    ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id => {
+      document.getElementById(id).addEventListener("keypress", e => {
+        if (e.key === "Enter") renderFiltered();
+      });
     });
   </script>
 </body>
