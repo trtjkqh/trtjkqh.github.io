@@ -19,6 +19,7 @@
 </style>
 </head>
 <body class="p-6">
+
 <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex flex-col md:flex-row justify-between fade-in mb-6">
   <div class="flex items-center gap-3">
     <img src="/assets/img/trtlogo.png" class="h-12 object-contain">
@@ -32,6 +33,7 @@
     <span class="px-2 py-1 bg-red-50 border rounded font-semibold text-red-600">⚠️ 保密：内部数据严禁外传</span>
   </div>
 </div>
+
 <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6 space-y-4">
 <div class="flex flex-wrap gap-3">
   <select id="channelSelect" class="border rounded-lg p-2 min-w-[150px]"><option value="">所有渠道</option></select>
@@ -40,6 +42,7 @@
   <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">查询</button>
   <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">导出Excel</button>
 </div>
+
 <div class="overflow-auto max-h-[70vh] border rounded-lg">
 <table id="resultTable" class="hidden fade-in">
 <thead>
@@ -52,6 +55,7 @@
   <th data-sort="零售价">零售价（元）</th>
   <th data-sort="品牌">品牌</th>
   <th data-sort="可供应渠道">渠道</th>
+  <th>BOM查询</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
@@ -59,15 +63,22 @@
 </div>
 <p id="noResult" class="text-center text-gray-500 mt-2 hidden">未找到记录</p>
 </div>
+
 <footer class="text-center text-gray-500 text-sm mt-6">© 2025 采购部 | <a href="/CP/index.html">成品信息</a> | <a href="/product/index.html">产品手册</a></footer>
+
 <script>
 let allData=[],currentData=[];let sortDirection={};
 fetch("data.json").then(r=>r.json()).then(data=>{allData=data;const s=document.getElementById("channelSelect");[...new Set(data.map(i=>i.可供应渠道).filter(Boolean))].forEach(c=>{s.innerHTML+=`<option>${c}</option>`})});
+
 function search(){const p=document.getElementById("projectInput").value.trim();const n=document.getElementById("nameInput").value.trim();const c=document.getElementById("channelSelect").value;currentData=allData.filter(i=>(!p||String(i.项目号)===p)&&(!n||i.品名.includes(n))&&(!c||i.可供应渠道===c));renderTable();}
-function renderTable(){const t=document.getElementById("resultTable"),tb=document.getElementById("tableBody"),no=document.getElementById("noResult");if(!currentData.length){t.classList.add("hidden");no.classList.remove("hidden");return;}no.classList.add("hidden");t.classList.remove("hidden");tb.innerHTML=currentData.map((i,idx)=>`<tr><td>${idx+1}</td><td>${i.项目号||""}</td><td>${i.品名||""}</td><td>${i.规格||""}</td><td>${i.单位||""}</td><td>${i.零售价??""}</td><td>${i.品牌||""}</td><td>${i.可供应渠道||""}</td></tr>`).join("");}
+
+function renderTable(){const t=document.getElementById("resultTable"),tb=document.getElementById("tableBody"),no=document.getElementById("noResult");if(!currentData.length){t.classList.add("hidden");no.classList.remove("hidden");return;}no.classList.add("hidden");t.classList.remove("hidden");tb.innerHTML=currentData.map((i,idx)=>`<tr><td>${idx+1}</td><td>${i.项目号||""}</td><td>${i.品名||""}</td><td>${i.规格||""}</td><td>${i.单位||""}</td><td>${i.零售价??""}</td><td>${i.品牌||""}</td><td>${i.可供应渠道||""}</td><td><a href='/bom/index.html?project=${i.项目号}' class='text-blue-600 hover:underline' target='_blank'>查看BOM</a></td></tr>`).join("");}
+
 document.querySelectorAll("th").forEach(th=>{th.addEventListener("click",()=>{const k=th.dataset.sort;if(k==="序号")return;sortDirection[k]=!sortDirection[k];currentData.sort((a,b)=>{const x=a[k]??0,y=b[k]??0;if(k==="零售价"){return sortDirection[k]?Number(x)-Number(y):Number(y)-Number(x);}return sortDirection[k]?String(x).localeCompare(String(y)):String(y).localeCompare(String(x));});document.querySelectorAll("th").forEach(h=>h.classList.remove("sort-asc","sort-desc"));th.classList.add(sortDirection[k]?"sort-asc":"sort-desc");renderTable();})});
+
 document.getElementById("exportBtn").onclick=()=>{if(!currentData.length)return alert("暂无数据");const data=currentData.map((i,idx)=>({序号:idx+1,项目号:i.项目号,品名:i.品名,规格:i.规格,单位:i.单位,零售价:i.零售价,品牌:i.品牌,渠道:i.可供应渠道}));const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"成品查询结果");XLSX.writeFile(wb,"成品查询.xlsx");};
 document.addEventListener("keydown",e=>{if(e.key==="Enter")search()});document.getElementById("searchBtn").onclick=search;
 </script>
+
 </body>
 </html>
