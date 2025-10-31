@@ -6,18 +6,17 @@
 <title>成品信息查询</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <style>
-body { background-color:#f3f4f6; }
-@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-.fade-in { animation: fadeIn 0.3s ease-in-out; }
+  body { background-color:#f3f4f6; font-family:sans-serif; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  .fade-in { animation: fadeIn 0.3s ease-in-out; }
 
-table { border-collapse:collapse; width:100%; background:white; font-size:0.9rem; }
-th, td { border:1px solid #e5e7eb; padding:0.5rem; text-align:center; }
-th { background:#e0f2fe; color:#1e3a8a; font-weight:600; cursor:pointer; position:sticky; top:0; z-index:10; }
-tr:hover { background:#f0f9ff; }
-.sort-asc::after { content:" ↑"; color:#0d6efd; }
-.sort-desc::after { content:" ↓"; color:#0d6efd; }
+  table { border-collapse:collapse; width:100%; background:white; font-size:0.9rem; }
+  th, td { border:1px solid #e5e7eb; padding:0.5rem; text-align:center; }
+  th { background:#e0f2fe; color:#1e3a8a; font-weight:600; cursor:pointer; position:sticky; top:0; z-index:10; }
+  tr:hover { background:#f0f9ff; }
+  .sort-asc::after { content:" ↑"; color:#0d6efd; }
+  .sort-desc::after { content:" ↓"; color:#0d6efd; }
 </style>
 </head>
 <body class="p-6">
@@ -45,13 +44,12 @@ tr:hover { background:#f0f9ff; }
   </select>
   <input id="projectInput" placeholder="项目号（精准）" class="border rounded-lg p-2 flex-1 min-w-[150px]">
   <input id="nameInput" placeholder="品名（模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[150px]">
-
   <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">查询</button>
   <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">导出Excel</button>
 </div>
 
 <!-- Result table -->
-<div class="overflow-auto max-h-[70vh] border rounded-lg mt-4">
+<div class="overflow-auto max-h-[70vh] border rounded-lg">
 <table id="resultTable" class="hidden fade-in">
 <thead>
 <tr>
@@ -63,7 +61,6 @@ tr:hover { background:#f0f9ff; }
   <th data-sort="零售价">零售价</th>
   <th data-sort="品牌">品牌</th>
   <th data-sort="可供应渠道">渠道</th>
-  <th>操作</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
@@ -73,27 +70,6 @@ tr:hover { background:#f0f9ff; }
 <p id="noResult" class="text-center text-gray-500 mt-2 hidden">未找到记录</p>
 </div>
 
-<!-- BOM 展示区 -->
-<div id="bomArea" class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6 hidden">
-  <h2 class="text-lg font-bold text-gray-700 mb-4">项目 BOM</h2>
-  <button id="closeBOM" class="mb-4 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">关闭</button>
-  <div class="overflow-auto max-h-[50vh] border rounded-lg">
-    <table id="bomTable" class="w-full text-sm border-collapse">
-      <thead>
-        <tr class="bg-blue-100">
-          <th class="border px-2 py-1">序号</th>
-          <th class="border px-2 py-1">物料项目号</th>
-          <th class="border px-2 py-1">物料名称</th>
-          <th class="border px-2 py-1">数量</th>
-          <th class="border px-2 py-1">计量单位</th>
-          <th class="border px-2 py-1">采购单价</th>
-        </tr>
-      </thead>
-      <tbody id="bomTableBody"></tbody>
-    </table>
-  </div>
-</div>
-
 <!-- Footer -->
 <footer class="text-center text-gray-500 text-sm mt-6">
 © 2025 采购部 | <a href="/CP/index.html">成品信息</a> | <a href="/product/index.html">产品手册</a>
@@ -101,50 +77,47 @@ tr:hover { background:#f0f9ff; }
 
 <script>
 let allData = [], currentData = [];
-let bomData = [], czData = [];
+let priceData = {};
 let sortDirection = {};
 
 // 加载 CP 数据
 fetch("data.json").then(r=>r.json()).then(data=>{
   allData = data;
-  const select=document.getElementById("channelSelect");
+  const select = document.getElementById("channelSelect");
   [...new Set(data.map(i=>i.可供应渠道).filter(Boolean))].forEach(c=>{
     select.innerHTML += `<option>${c}</option>`;
   });
 });
 
-// 加载 BOM 数据
-fetch("../bom/bom_data.json").then(r=>r.json()).then(data=>{
-  bomData = data;
-  console.log("BOM 数据加载成功", bomData);
-});
-
 // 加载采购单价数据
-fetch("../cz/data.json").then(r=>r.json()).then(data=>{
-  czData = data;
-  console.log("采购单价数据加载成功", czData);
+fetch("../tz/data.json?_v="+Date.now()).then(r=>r.json()).then(data=>{
+  data.forEach(item=>{
+    const id = String(item.物料项目号||"").trim();
+    priceData[id] = item.采购单价 !== undefined ? item.采购单价 : "-";
+  });
+}).catch(err=>{
+  console.error("采购单价加载失败:", err);
 });
 
-// 查询函数
+// 查询
 function search(){
-  const p=document.getElementById("projectInput").value.trim();
-  const n=document.getElementById("nameInput").value.trim();
-  const c=document.getElementById("channelSelect").value;
+  const p = document.getElementById("projectInput").value.trim();
+  const n = document.getElementById("nameInput").value.trim();
+  const c = document.getElementById("channelSelect").value;
 
   currentData = allData.filter(i =>
-    (!p || String(i.项目号)===p) &&
+    (!p || String(i.项目号) === p) &&
     (!n || i.品名.includes(n)) &&
-    (!c || i.可供应渠道===c)
+    (!c || i.可供应渠道 === c)
   );
-
   renderTable();
 }
 
 // 渲染表格
 function renderTable(){
-  const table=document.getElementById("resultTable");
-  const tbody=document.getElementById("tableBody");
-  const no=document.getElementById("noResult");
+  const table = document.getElementById("resultTable");
+  const tbody = document.getElementById("tableBody");
+  const no = document.getElementById("noResult");
 
   if(!currentData.length){
     table.classList.add("hidden");
@@ -155,92 +128,64 @@ function renderTable(){
   no.classList.add("hidden");
   table.classList.remove("hidden");
 
-  tbody.innerHTML = currentData.map((i,idx)=>`
+  tbody.innerHTML = currentData.map((i,idx)=>{
+    const purchasePrice = priceData[i.项目号] !== undefined ? priceData[i.项目号] : i.零售价??"";
+    return `
     <tr>
       <td>${idx+1}</td>
       <td>${i.项目号||""}</td>
       <td>${i.品名||""}</td>
       <td>${i.规格||""}</td>
       <td>${i.单位||""}</td>
-      <td>${i.零售价??""}</td>
+      <td>${purchasePrice}</td>
       <td>${i.品牌||""}</td>
       <td>${i.可供应渠道||""}</td>
-      <td><button class="text-blue-600 hover:underline" onclick="showBOM(${i.项目号})">查看BOM</button></td>
-    </tr>
-  `).join("");
+    </tr>`;
+  }).join("");
 }
 
 // 排序
 document.querySelectorAll("th").forEach(th=>{
-  th.addEventListener("click", ()=>{
-    const key = th.dataset.sort;
+  th.addEventListener("click",()=>{
+    const key=th.dataset.sort;
     if(key==="序号") return;
-    sortDirection[key] = !sortDirection[key];
+    sortDirection[key]=!sortDirection[key];
 
     currentData.sort((a,b)=>{
-      const x = a[key] ?? "";
-      const y = b[key] ?? "";
-      if(key === "零售价") return sortDirection[key] ? (x-y) : (y-x);
-      return sortDirection[key] ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
+      let x = a[key] ?? "", y = b[key] ?? "";
+      if(key==="零售价"){ x = priceData[a.项目号] ?? x; y = priceData[b.项目号] ?? y; }
+      return sortDirection[key] ? x.toString().localeCompare(y.toString()) : y.toString().localeCompare(x.toString());
     });
 
     document.querySelectorAll("th").forEach(h=>h.classList.remove("sort-asc","sort-desc"));
-    th.classList.add(sortDirection[key]?"sort-asc":"sort-desc");
+    th.classList.add(sortDirection[key] ? "sort-asc" : "sort-desc");
     renderTable();
   });
 });
 
 // 导出 Excel
-document.getElementById("exportBtn").onclick=()=>{
+document.getElementById("exportBtn").onclick = () => {
   if(!currentData.length) return alert("暂无数据");
-  const data=currentData.map((i,idx)=>({
-    序号:idx+1, 项目号:i.项目号, 品名:i.品名, 规格:i.规格,
-    单位:i.单位, 零售价:i.零售价??"", 品牌:i.品牌, 渠道:i.可供应渠道
+
+  const data = currentData.map((i,idx)=>({
+    序号: idx+1,
+    项目号: i.项目号,
+    品名: i.品名,
+    规格: i.规格,
+    单位: i.单位,
+    零售价: priceData[i.项目号] ?? i.零售价??"",
+    品牌: i.品牌,
+    渠道: i.可供应渠道
   }));
-  const ws=XLSX.utils.json_to_sheet(data);
-  const wb=XLSX.utils.book_new();
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "成品查询结果");
   XLSX.writeFile(wb, "成品查询.xlsx");
 };
 
-// 显示 BOM
-function showBOM(projectNo){
-  const bomArea = document.getElementById("bomArea");
-  const bomTableBody = document.getElementById("bomTableBody");
-
-  const rows = bomData.filter(b => String(b.项目号) === String(projectNo));
-  if(!rows.length){
-    bomTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-2">未找到 BOM</td></tr>`;
-    bomArea.classList.remove("hidden");
-    return;
-  }
-
-  bomTableBody.innerHTML = rows.map((i,idx)=>{
-    const czItem = czData.find(c => String(c.物料项目号)===String(i.物料项目号));
-    const price = czItem ? czItem.采购单价 : "未找到";
-    console.log("匹配采购单价:", i.物料项目号, price);
-
-    return `<tr>
-      <td class="border px-2 py-1">${idx+1}</td>
-      <td class="border px-2 py-1">${i.物料项目号||''}</td>
-      <td class="border px-2 py-1">${i.物料名称||''}</td>
-      <td class="border px-2 py-1">${i.数量||''}</td>
-      <td class="border px-2 py-1">${i.计量单位||''}</td>
-      <td class="border px-2 py-1">${price}</td>
-    </tr>`;
-  }).join('');
-
-  bomArea.classList.remove("hidden");
-}
-
-// 关闭 BOM
-document.getElementById("closeBOM").onclick = ()=>{
-  document.getElementById("bomArea").classList.add("hidden");
-};
-
-// 回车触发查询
-document.addEventListener("keydown", e=>{ if(e.key==="Enter") search(); });
 document.getElementById("searchBtn").onclick = search;
+document.addEventListener("keydown", e=>{ if(e.key==="Enter") search(); });
 </script>
 </body>
 </html>
