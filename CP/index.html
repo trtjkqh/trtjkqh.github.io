@@ -82,11 +82,11 @@ tr:hover { background:#f0f9ff; }
       <thead>
         <tr class="bg-blue-100">
           <th class="border px-2 py-1">序号</th>
-          <th class="border px-2 py-1">物料号</th>
+          <th class="border px-2 py-1">物料项目号</th>
           <th class="border px-2 py-1">物料名称</th>
-          <th class="border px-2 py-1">规格</th>
-          <th class="border px-2 py-1">单位</th>
           <th class="border px-2 py-1">数量</th>
+          <th class="border px-2 py-1">计量单位</th>
+          <th class="border px-2 py-1">采购单价</th>
         </tr>
       </thead>
       <tbody id="bomTableBody"></tbody>
@@ -101,8 +101,8 @@ tr:hover { background:#f0f9ff; }
 
 <script>
 let allData = [], currentData = [];
-let sortDirection = {};
 let bomData = [];
+let sortDirection = {};
 
 // 加载 CP 数据
 fetch("data.json").then(r=>r.json()).then(data=>{
@@ -114,13 +114,10 @@ fetch("data.json").then(r=>r.json()).then(data=>{
 });
 
 // 加载 BOM 数据
-fetch("../bom/bom_data.json")  // 注意路径
-  .then(r => r.json())
-  .then(data => {
-    bomData = data;
-    console.log("BOM 数据已加载", bomData);
-  })
-  .catch(err => console.error("BOM 数据加载失败:", err));
+fetch("../bom/bom_data.json")
+  .then(r=>r.json())
+  .then(data=>{ bomData=data; })
+  .catch(err=>console.error("BOM 数据加载失败:", err));
 
 function search(){
   const p=document.getElementById("projectInput").value.trim();
@@ -201,32 +198,33 @@ document.getElementById("exportBtn").onclick=()=>{
 };
 
 // 显示 BOM
-const bomArea = document.getElementById('bomArea');
-const bomTableBody = document.getElementById('bomTableBody');
-document.getElementById('closeBOM').onclick = () => { bomArea.classList.add('hidden'); };
-
 function showBOM(projectNo){
   const items = bomData.filter(item => Number(item.项目号) === Number(projectNo));
-  if(items.length === 0){
-    alert("未找到对应的 BOM");
-    return;
-  }
-  bomTableBody.innerHTML = items.map((i, idx) => `
+  if(items.length === 0){ alert("未找到对应的 BOM"); return; }
+  const bomTableBody = document.getElementById("bomTableBody");
+  const bomArea = document.getElementById("bomArea");
+  bomTableBody.innerHTML = items.map((i, idx)=>`
     <tr>
       <td class="border px-2 py-1">${idx+1}</td>
-      <td class="border px-2 py-1">${i.物料号||''}</td>
+      <td class="border px-2 py-1">${i.物料项目号||''}</td>
       <td class="border px-2 py-1">${i.物料名称||''}</td>
-      <td class="border px-2 py-1">${i.规格||''}</td>
-      <td class="border px-2 py-1">${i.单位||''}</td>
       <td class="border px-2 py-1">${i.数量||''}</td>
+      <td class="border px-2 py-1">${i.计量单位||''}</td>
+      <td class="border px-2 py-1">${i.采购单价||''}</td>
     </tr>
   `).join('');
   bomArea.classList.remove('hidden');
 }
 
+// 关闭 BOM
+document.getElementById("closeBOM").onclick = ()=>{
+  document.getElementById("bomArea").classList.add("hidden");
+}
+
 // 回车触发查询
-document.addEventListener("keydown", e => { if(e.key==="Enter") search(); });
+document.addEventListener("keydown", e=>{ if(e.key==="Enter") search(); });
 document.getElementById("searchBtn").onclick = search;
 </script>
+
 </body>
 </html>
