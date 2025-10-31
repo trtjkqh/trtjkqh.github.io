@@ -41,6 +41,13 @@
     .parent-row { background:#e0f2fe; font-weight:600; }
     .child-row { background:#f0f9ff; }
     mark { background-color:#fff59d; color:inherit; padding:0; }
+    .tool-card {
+      transition: all 0.25s ease;
+    }
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -57,7 +64,10 @@
       <div class="mb-8">
         <h2 class="text-xl font-bold text-gray-800 mb-4">功能导航</h2>
         <div class="space-y-2">
-          <div class="nav-item active p-3 rounded-lg cursor-pointer transition-colors" data-target="cp">
+          <div class="nav-item active p-3 rounded-lg cursor-pointer transition-colors" data-target="dashboard">
+            <i class="fas fa-tachometer-alt mr-2"></i>数据仪表盘
+          </div>
+          <div class="nav-item p-3 rounded-lg cursor-pointer transition-colors" data-target="cp">
             <i class="fas fa-tag mr-2"></i>成品信息查询
           </div>
           <div class="nav-item p-3 rounded-lg cursor-pointer transition-colors" data-target="bom">
@@ -93,8 +103,96 @@
 
     <!-- 右侧内容区 -->
     <div class="flex-1 bg-gray-50 p-8 overflow-y-auto">
+      <!-- 数据仪表盘内容 -->
+      <div id="dashboard" class="content-section active">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">数据概览</h2>
+        
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white rounded-xl p-4 shadow">
+            <div class="flex items-center">
+              <div class="p-3 rounded-lg bg-blue-100 text-blue-600 mr-4">
+                <i class="fas fa-tag text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-500 text-sm">成品数量</p>
+                <p class="text-2xl font-bold" id="dashboard-cp-count">-</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-4 shadow">
+            <div class="flex items-center">
+              <div class="p-3 rounded-lg bg-green-100 text-green-600 mr-4">
+                <i class="fas fa-boxes text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-500 text-sm">BOM记录</p>
+                <p class="text-2xl font-bold" id="dashboard-bom-count">-</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-4 shadow">
+            <div class="flex items-center">
+              <div class="p-3 rounded-lg bg-yellow-100 text-yellow-600 mr-4">
+                <i class="fas fa-money-bill-wave text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-500 text-sm">物料记录</p>
+                <p class="text-2xl font-bold" id="dashboard-tz-count">-</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-xl p-4 shadow">
+            <div class="flex items-center">
+              <div class="p-3 rounded-lg bg-purple-100 text-purple-600 mr-4">
+                <i class="fas fa-industry text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-500 text-sm">供应商</p>
+                <p class="text-2xl font-bold" id="dashboard-supplier-count">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 功能区 -->
+        <h3 class="text-xl font-bold text-gray-800 mb-4">快速访问</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- 成品信息查询 -->
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="cp">
+            <div class="text-4xl mb-3">🏷️</div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">成品信息查询</h2>
+            <p class="text-sm text-gray-500">成品基础信息与系列归属快速检索。</p>
+          </div>
+
+          <!-- 产品BOM查询 -->
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="bom">
+            <div class="text-4xl mb-3">📦</div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">产品BOM查询</h2>
+            <p class="text-sm text-gray-500">快速查询物料构成、数量与采购单价。</p>
+          </div>
+
+          <!-- 物料单价查询 -->
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="tz">
+            <div class="text-4xl mb-3">💰</div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">物料单价查询</h2>
+            <p class="text-sm text-gray-500">查看并核对最新采购单价与供应商数据。</p>
+          </div>
+
+          <!-- 供应商管理 -->
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="supplier">
+            <div class="text-4xl mb-3">🏭</div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">供应商管理</h2>
+            <p class="text-sm text-gray-500">管理供应商信息与采购记录。</p>
+          </div>
+        </div>
+      </div>
+      
       <!-- 成品信息查询内容 -->
-      <div id="cp" class="content-section active">
+      <div id="cp" class="content-section">
         <!-- 标题栏 -->
         <div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
           <div class="flex items-center gap-3">
@@ -409,6 +507,7 @@
   <!-- 底部版权信息 -->
   <footer class="text-center text-gray-500 text-sm mt-4 mb-6">
     © 2025 采购部 |
+    <a href="#" class="hover:underline">数据仪表盘</a> |
     <a href="#" class="hover:underline">成品信息</a> |
     <a href="#" class="hover:underline">BOM</a> |
     <a href="#" class="hover:underline">物料单价</a> |
@@ -438,40 +537,107 @@
       });
     });
 
-    // ==================== 成品信息查询功能 ====================
+    // 仪表盘卡片点击导航功能
+    document.querySelectorAll('.tool-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        
+        // 移除所有激活状态
+        document.querySelectorAll('.nav-item').forEach(nav => {
+          nav.classList.remove('active');
+        });
+        
+        // 隐藏所有内容区域
+        document.querySelectorAll('.content-section').forEach(section => {
+          section.classList.remove('active');
+        });
+        
+        // 激活对应导航项
+        document.querySelector(`.nav-item[data-target="${targetId}"]`).classList.add('active');
+        
+        // 显示对应内容区域
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+
+    // ==================== 数据加载和仪表盘功能 ====================
     let cpAllData = [], cpCurrentData = [], cpBomData = [], cpSortDirection = {};
+    let bomData = [], bomPriceData = {};
+    let tzDataCache = [];
 
     // 自动尝试加载（防止路径问题）
-    async function cpSafeFetch(urls) {
+    async function safeFetch(urls) {
       for(const url of urls) {
         try {
           const r = await fetch(url);
           if(r.ok) return await r.json();
-        } catch(e) {}
+        } catch(e) {
+          console.error(`加载失败: ${url}`, e);
+        }
       }
       return [];
     }
 
-    // 载入所有数据
+    // 载入所有数据并更新仪表盘
     Promise.all([
-      cpSafeFetch(["CP/data.json", "./CP/data.json"]),
-      cpSafeFetch(["bom/bom_data.json", "./bom/bom_data.json"])
-    ]).then(([a, b]) => {
-      cpAllData = a; 
-      cpBomData = b;
+      safeFetch(["../CP/data.json", "./CP/data.json"]),
+      safeFetch(["../bom/bom_data.json", "./bom/bom_data.json"]),
+      safeFetch(["../tz/data.json", "./tz/data.json"])
+    ]).then(([cpData, bomDataRes, tzData]) => {
+      // 处理成品数据
+      cpAllData = cpData || [];
       const select = document.getElementById("cp-channelSelect");
-      [...new Set(a.map(i => i.可供应渠道).filter(Boolean))].forEach(c => {
+      [...new Set(cpAllData.map(i => i.可供应渠道).filter(Boolean))].forEach(c => {
         select.innerHTML += `<option>${c}</option>`;
       });
       document.getElementById("cp-status").textContent = "已加载";
       document.getElementById("cp-status").className = "text-green-600";
-      console.log("✅ 成品数据加载完成", {cpAllData, cpBomData});
+      
+      // 更新仪表盘成品计数
+      document.getElementById("dashboard-cp-count").textContent = cpAllData.length;
+      
+      // 处理BOM数据
+      bomData = (bomDataRes || []).map(i => ({
+        项目号: String(i.项目号 || "").trim(),
+        品名: String(i.品名 || "").trim(),
+        规格: String(i.规格 || "").trim(),
+        零售价: String(i["零售价（元）"] ?? i.零售价 ?? "").trim(),
+        物料项目号: String(i.物料项目号 || "").trim(),
+        物料名称: String(i.物料名称 || "").trim(),
+        数量: String(i.数量 || "").trim(),
+        计量单位: String(i.计量单位 || "").trim()
+      }));
+      document.getElementById("bom-status").textContent = "已加载";
+      document.getElementById("bom-status").className = "text-green-600";
+      document.getElementById("bom-loading").style.display = "none";
+      
+      // 更新仪表盘BOM计数
+      document.getElementById("dashboard-bom-count").textContent = bomData.length;
+      
+      // 处理物料数据
+      tzDataCache = tzData || [];
+      document.getElementById("tz-status").textContent = "已加载";
+      document.getElementById("tz-status").className = "text-green-600";
+      document.getElementById("tz-loading").style.display = "none";
+      
+      // 更新仪表盘物料计数
+      document.getElementById("dashboard-tz-count").textContent = tzDataCache.length;
+      
+      // 更新供应商计数（示例数据）
+      document.getElementById("dashboard-supplier-count").textContent = "3";
+      
+      console.log("✅ 所有数据加载完成");
     }).catch(err => {
+      console.error("❌ 数据加载失败:", err);
       document.getElementById("cp-status").textContent = "加载失败";
       document.getElementById("cp-status").className = "text-red-600";
-      console.error("❌ 成品数据加载失败:", err);
+      document.getElementById("bom-status").textContent = "加载失败";
+      document.getElementById("bom-status").className = "text-red-600";
+      document.getElementById("tz-status").textContent = "加载失败";
+      document.getElementById("tz-status").className = "text-red-600";
     });
 
+    // ==================== 成品信息查询功能 ====================
     function cpSearch() {
       const p = document.getElementById("cp-projectInput").value.trim();
       const n = document.getElementById("cp-nameInput").value.trim();
@@ -515,7 +681,7 @@
     function cpShowBOM(projectId) {
       const section = document.getElementById("cp-bomSection");
       const tbody = document.getElementById("cp-bomBody");
-      const list = cpBomData.filter(i => String(i.项目号) === String(projectId));
+      const list = bomData.filter(i => String(i.项目号) === String(projectId));
       if(!list.length) { 
         section.classList.remove("hidden"); 
         tbody.innerHTML = "<tr><td colspan='5' class='text-gray-500'>未找到BOM</td></tr>"; 
@@ -572,58 +738,6 @@
     document.getElementById("cp-searchBtn").onclick = cpSearch;
 
     // ==================== BOM查询功能 ====================
-    let bomData = [], bomPriceData = {};
-    let bomLoaded = false, priceLoaded = false;
-
-    fetch('bom/bom_data.json?_v=' + Date.now())
-      .then(res => res.json())
-      .then(data => {
-        bomData = data.map(i => ({
-          项目号: String(i.项目号 || "").trim(),
-          品名: String(i.品名 || "").trim(),
-          规格: String(i.规格 || "").trim(),
-          零售价: String(i["零售价（元）"] ?? i.零售价 ?? "").trim(),
-          物料项目号: String(i.物料项目号 || "").trim(),
-          物料名称: String(i.物料名称 || "").trim(),
-          数量: String(i.数量 || "").trim(),
-          计量单位: String(i.计量单位 || "").trim()
-        }));
-        bomLoaded = true; 
-        bomCheckAllLoaded();
-        document.getElementById("bom-status").textContent = "已加载";
-        document.getElementById("bom-status").className = "text-green-600";
-      }).catch(err => {
-        console.error(err);
-        document.getElementById("bom-loading").textContent = "❌ BOM数据加载失败";
-        document.getElementById("bom-status").textContent = "加载失败";
-        document.getElementById("bom-status").className = "text-red-600";
-      });
-
-    fetch('tz/data.json?_v=' + Date.now())
-      .then(res => res.json())
-      .then(data => {
-        data.forEach(i => {
-          const id = String(i.物料项目号 || "").trim();
-          const price = i.采购单价 !== undefined ? i.采购单价 : "-";
-          bomPriceData[id] = price;
-        });
-        priceLoaded = true; 
-        bomCheckAllLoaded();
-        document.getElementById("tz-status").textContent = "已加载";
-        document.getElementById("tz-status").className = "text-green-600";
-      }).catch(err => {
-        console.error(err);
-        document.getElementById("bom-loading").textContent = "❌ 采购单价加载失败";
-        document.getElementById("tz-status").textContent = "加载失败";
-        document.getElementById("tz-status").className = "text-red-600";
-      });
-
-    function bomCheckAllLoaded() {
-      if(bomLoaded && priceLoaded) {
-        document.getElementById("bom-loading").style.display = "none";
-      }
-    }
-
     function bomHighlight(text, keyword) {
       if(!keyword) return text || "";
       const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
@@ -703,7 +817,7 @@
           const tr = document.createElement("tr");
           tr.className = "child-row";
           const id = child.物料项目号;
-          const purchasePrice = bomPriceData[id] !== undefined ? bomPriceData[id] : "-";
+          const purchasePrice = tzDataCache.find(item => String(item.物料项目号) === id)?.采购单价 || "-";
           tr.innerHTML = `
             <td class="p-2 border-b" colspan="4"></td>
             <td class="p-2 border-b">${bomHighlight(child.物料项目号, materialID)}</td>
@@ -731,24 +845,6 @@
     });
 
     // ==================== 物料单价查询功能 ====================
-    let tzDataCache = [];
-
-    fetch('tz/data.json')
-      .then(res => res.json())
-      .then(data => {
-        tzDataCache = data;
-        document.getElementById("tz-loading").style.display = "none";
-        document.getElementById("tz-status").textContent = "已加载";
-        document.getElementById("tz-status").className = "text-green-600";
-        console.log("✅ 物料数据已加载:", tzDataCache.length, "条");
-      })
-      .catch(err => {
-        console.error("❌ 物料数据加载失败:", err);
-        document.getElementById("tz-loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
-        document.getElementById("tz-status").textContent = "加载失败";
-        document.getElementById("tz-status").className = "text-red-600";
-      });
-
     function tzSearchData() {
       const year = document.getElementById("tz-year").value.trim();
       const supplier = document.getElementById("tz-supplier").value.trim();
