@@ -15,7 +15,7 @@
     mark { background-color: #fff59d; color: inherit; padding: 0; }
 
     .parent-header { background: linear-gradient(90deg, #fbbfbc, #f87171); color: black; }
-    .parent-row { background: linear-gradient(90deg, #ffe4e1, #ffe0e0); font-weight: 600; cursor: pointer; }
+    .parent-row { background: linear-gradient(90deg, #ffe4e1, #ffe0e0); font-weight: 600; }
     .child-row { background: linear-gradient(90deg, #fff8dc, #fffad1); }
     tbody tr:hover { background-color: #fce4e4; }
 
@@ -182,7 +182,7 @@
         `;
         tbody.appendChild(parentRow);
 
-        const childRows = items.map(child => {
+        items.forEach(child => {
           const tr = document.createElement("tr");
           tr.className = "child-row";
           const id = child.物料项目号;
@@ -195,13 +195,7 @@
             <td>${highlight(child.计量单位, "")}</td>
             <td>${purchasePrice}</td>
           `;
-          return tr;
-        });
-
-        childRows.forEach(tr => tbody.appendChild(tr));
-
-        parentRow.addEventListener("click", () => {
-          childRows.forEach(tr => tr.style.display = tr.style.display === "none" ? "" : "none");
+          tbody.appendChild(tr);
         });
       }
 
