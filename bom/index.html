@@ -16,7 +16,6 @@
 
     .parent-header { background: linear-gradient(90deg, #fbbfbc, #f87171); color: black; }
     .parent-row { background: linear-gradient(90deg, #ffe4e1, #ffe0e0); font-weight: 600; cursor: pointer; }
-    .child-header { background-color: #f3f4f6; font-weight: 600; }
     .child-row { background: linear-gradient(90deg, #fff8dc, #fffad1); }
     tbody tr:hover { background-color: #fce4e4; }
 
@@ -60,7 +59,6 @@
     let bomLoaded = false;
     let priceLoaded = false;
 
-    // 加载 BOM 数据
     fetch('bom_data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
@@ -82,7 +80,6 @@
         document.getElementById("loading").textContent = "❌ BOM数据加载失败";
       });
 
-    // 加载采购单价数据
     fetch('../tz/data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
@@ -105,14 +102,12 @@
       }
     }
 
-    // 高亮
     function highlight(text, keyword) {
       if (!keyword) return text || "";
       const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
       return (text || "").replace(reg, "<mark>$1</mark>");
     }
 
-    // 渲染查询结果
     function renderFiltered() {
       const nameKeyword = document.getElementById("nameSearch").value.trim();
       const projectID = document.getElementById("projectSearch").value.trim();
@@ -154,7 +149,6 @@
         grouped[item.项目号].push(item);
       });
 
-      // 使用 DocumentFragment 渲染
       const table = document.createElement("table");
       table.className = "w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm";
       const thead = document.createElement("thead");
@@ -177,7 +171,6 @@
 
       for (const [proj, items] of Object.entries(grouped)) {
         const parent = items[0];
-
         const parentRow = document.createElement("tr");
         parentRow.className = "parent-row";
         parentRow.innerHTML = `
@@ -188,18 +181,6 @@
           <td colspan="5"></td>
         `;
         tbody.appendChild(parentRow);
-
-        const childHeaderRow = document.createElement("tr");
-        childHeaderRow.className = "child-row child-header";
-        childHeaderRow.innerHTML = `
-          <td colspan="4"></td>
-          <td>物料项目号</td>
-          <td>物料名称</td>
-          <td>数量</td>
-          <td>计量单位</td>
-          <td>采购单价</td>
-        `;
-        tbody.appendChild(childHeaderRow);
 
         const childRows = items.map(child => {
           const tr = document.createElement("tr");
@@ -219,10 +200,8 @@
 
         childRows.forEach(tr => tbody.appendChild(tr));
 
-        // 点击 parent 行折叠/展开子行
         parentRow.addEventListener("click", () => {
           childRows.forEach(tr => tr.style.display = tr.style.display === "none" ? "" : "none");
-          childHeaderRow.style.display = childRows[0].style.display === "none" ? "none" : "";
         });
       }
 
@@ -230,14 +209,12 @@
       resultDiv.appendChild(table);
     }
 
-    // 事件绑定
     document.getElementById("searchBtn").addEventListener("click", renderFiltered);
     document.getElementById("resetBtn").addEventListener("click", () => {
       ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("result").innerHTML = "";
     });
 
-    // 支持 Enter 键查询
     document.querySelectorAll("#nameSearch,#projectSearch,#materialIDSearch,#materialNameSearch").forEach(input => {
       input.addEventListener("keypress", e => {
         if(e.key === "Enter") renderFiltered();
