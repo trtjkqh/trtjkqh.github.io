@@ -114,9 +114,13 @@ fetch("data.json").then(r=>r.json()).then(data=>{
 });
 
 // 加载 BOM 数据
-fetch("bom/bom_data.json").then(r=>r.json()).then(data=>{
-  bomData = data;
-});
+fetch("../bom/bom_data.json")  // 注意路径
+  .then(r => r.json())
+  .then(data => {
+    bomData = data;
+    console.log("BOM 数据已加载", bomData);
+  })
+  .catch(err => console.error("BOM 数据加载失败:", err));
 
 function search(){
   const p=document.getElementById("projectInput").value.trim();
@@ -161,6 +165,7 @@ function renderTable(){
   `).join("");
 }
 
+// 排序
 document.querySelectorAll("th").forEach(th=>{
   th.addEventListener("click", ()=>{
     const key = th.dataset.sort;
@@ -201,7 +206,11 @@ const bomTableBody = document.getElementById('bomTableBody');
 document.getElementById('closeBOM').onclick = () => { bomArea.classList.add('hidden'); };
 
 function showBOM(projectNo){
-  const items = bomData.filter(item => String(item.项目号) === String(projectNo));
+  const items = bomData.filter(item => Number(item.项目号) === Number(projectNo));
+  if(items.length === 0){
+    alert("未找到对应的 BOM");
+    return;
+  }
   bomTableBody.innerHTML = items.map((i, idx) => `
     <tr>
       <td class="border px-2 py-1">${idx+1}</td>
@@ -215,10 +224,9 @@ function showBOM(projectNo){
   bomArea.classList.remove('hidden');
 }
 
-// 回车查询
-document.addEventListener("keydown",e=>{ if(e.key==="Enter") search(); });
+// 回车触发查询
+document.addEventListener("keydown", e => { if(e.key==="Enter") search(); });
 document.getElementById("searchBtn").onclick = search;
 </script>
-
 </body>
 </html>
