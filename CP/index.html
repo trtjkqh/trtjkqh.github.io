@@ -18,24 +18,26 @@
 </head>
 <body class="p-6">
 
-  <!-- 标题栏（Logo + 标题 + 保密声明同一行） -->
-  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex items-center justify-between fade-in mb-6">
-    <!-- 左侧 Logo -->
-    <div class="flex items-center gap-3">
-          <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
-      <h1 class="text-2xl font-bold text-gray-700">成品信息查询</h1>
+  <!-- 标题栏（Logo + 标题 + 保密声明） -->
+  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex flex-col md:flex-row items-center justify-between fade-in mb-6">
+    <div class="flex items-center gap-3 mb-2 md:mb-0">
+      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-700">成品信息查询</h1>
+        <p class="text-sm text-gray-500">选择渠道后即可点击查询</p>
+      </div>
     </div>
-
-    <!-- 右侧保密声明 -->
-       <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 数据：2025年7月1日</span>
-    <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
+    <div class="flex flex-col md:flex-row items-center gap-2 ml-auto">
+      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 数据：2025年7月1日</span>
+      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
+    </div>
   </div>
 
   <!-- 查询条件 -->
   <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6">
     <div class="flex flex-wrap items-center gap-4 mb-6">
       <select id="channelSelect" class="border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200">
-        <option value="">选择渠道（可选）</option>
+        <option value="">所有渠道</option>
       </select>
       <input id="projectInput" type="text" placeholder="输入项目号（需精准）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
       <input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
@@ -63,6 +65,11 @@
     <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到符合条件的记录。</p>
   </div>
 
+  <!-- 页面底部版权信息 -->
+  <div class="max-w-6xl mx-auto text-center text-gray-400 text-sm mb-6">
+    © 2025 德令哈采购管理部提供技术和数据支持
+  </div>
+
   <script>
     let allData = [];
 
@@ -76,6 +83,8 @@
     function populateChannels(data) {
       const select = document.getElementById('channelSelect');
       const channels = [...new Set(data.map(item => item.可供应渠道).filter(Boolean))];
+      // 清空原有选项，保留“所有渠道”
+      select.innerHTML = '<option value="">所有渠道</option>';
       channels.forEach(ch => {
         const option = document.createElement('option');
         option.value = ch;
