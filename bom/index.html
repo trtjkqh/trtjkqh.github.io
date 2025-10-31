@@ -88,10 +88,6 @@
           品名: String(item.品名 || "").trim(),
           规格: String(item.规格 || "").trim(),
           零售价: String(item["零售价（元）"] ?? item.零售价 ?? "").trim(),
-          物料项目号: String(item.物料项目号 || "").trim(),
-          物料名称: String(item.物料名称 || "").trim(),
-          数量: String(item.数量 || "").trim(),
-          计量单位: String(item.计量单位 || "").trim()
         }));
         bomLoaded = true;
         checkAllLoaded();
