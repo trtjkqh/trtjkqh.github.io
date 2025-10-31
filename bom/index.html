@@ -6,34 +6,33 @@
 <title>BOM查询</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { background-color:#f3f4f6; font-family:sans-serif; color:#1f2937; }
+body { background-color:#f3f4f6; font-family:sans-serif; color:#1f2937; }
 
-  @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-  .fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
 
-  table { border-collapse: collapse; width: 100%; font-size:0.9rem; }
-  th, td { border:1px solid #e5e7eb; padding:0.5rem; text-align:center; }
-  th { background:#e0f2fe; color:#1e3a8a; font-weight:600; position: sticky; top:0; z-index:10; }
-  tr:hover { background:#f0f9ff; }
+table { border-collapse: collapse; width: 100%; font-size:0.9rem; background:white; border-radius:0.5rem; }
+th, td { border:1px solid #e5e7eb; padding:0.5rem; text-align:center; }
+th { background:#e0f2fe; color:#1e3a8a; font-weight:600; position: sticky; top:0; z-index:10; }
+tr:hover { background:#dbeafe; }
 
-  .parent-row { background:#bfdbfe; font-weight:600; }      /* 父行深蓝 */
-  .child-row { background:#dbeafe; }                        /* 子行浅蓝 */
-  mark { background-color:#fff59d; color:inherit; padding:0; }
+.parent-row { background:#e0f2fe; font-weight:600; }
+.child-row { background:#f0f9ff; }
 
-  /* 按钮 */
-  .btn { padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-weight:500; }
-  .btn-red { background-color:#ef4444; color:white; }
-  .btn-red:hover { background-color:#b91c1c; }
-  .btn-gray { background-color:#e5e7eb; color:#1f2937; }
-  .btn-gray:hover { background-color:#d1d5db; }
+mark { background-color:#fff59d; color:inherit; padding:0; }
 
-  /* 查询结果容器背景 */
-  #result { background:white; border-radius:0.5rem; box-shadow:0 2px 6px rgba(0,0,0,0.05); padding:0.5rem; }
+input { border:1px solid #d1d5db; border-radius:0.5rem; padding:0.5rem; flex:1; }
 
-  input { border:1px solid #d1d5db; border-radius:0.5rem; padding:0.5rem; flex:1; }
+.btn { padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-weight:500; transition:all 0.2s; }
+.btn-red { background-color:#ef4444; color:white; }
+.btn-red:hover { background-color:#b91c1c; }
+.btn-gray { background-color:#e5e7eb; color:#1f2937; }
+.btn-gray:hover { background-color:#d1d5db; }
+
+#result { background:white; border-radius:0.5rem; box-shadow:0 2px 6px rgba(0,0,0,0.05); padding:0.5rem; }
 </style>
 </head>
-<body class="bg-gray-50">
+<body>
 
 <!-- Header -->
 <div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
@@ -160,7 +159,7 @@ function renderFiltered(){
 
   const thead=document.createElement("thead");
   thead.innerHTML=`
-    <tr class="parent-row">
+    <tr>
       <th>项目号</th>
       <th>品名</th>
       <th>规格</th>
@@ -175,7 +174,6 @@ function renderFiltered(){
   table.appendChild(thead);
 
   const tbody=document.createElement("tbody");
-
   for(const [proj, items] of Object.entries(grouped)){
     const parent=items[0];
     const parentRow=document.createElement("tr");
