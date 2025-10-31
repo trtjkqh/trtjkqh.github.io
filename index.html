@@ -1,95 +1,78 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>青海厂内部小工具</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    font-family: sans-serif;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .fade-in { animation: fadeIn 0.4s ease-in; }
-  .card {
-    border-radius: 1rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .card:hover {
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.15);
-  }
-  .disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>青海厂内部小工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      font-family: "Microsoft YaHei", sans-serif;
+      animation: fadeIn 0.8s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tool-card {
+      transition: all 0.25s ease;
+    }
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
-<body class="text-gray-800">
+<body class="flex flex-col min-h-screen">
+  <!-- 顶部标题 -->
+  <header class="text-center mt-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">青海厂内部管理工具中心</h1>
+    <p class="text-gray-500">采购管理部 · 数据与系统支持平台</p>
+  </header>
 
-<!-- 顶部标题栏 -->
-<div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md px-6 py-4 mb-6 fade-in flex items-center justify-center gap-4">
-  <img src="assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
-  <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">青海厂内部查询系统</h1>
-</div>
+  <!-- 功能区 -->
+  <main class="flex-1 flex flex-col items-center justify-center mt-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-11/12 max-w-6xl">
 
-<!-- 主内容 -->
-<main class="max-w-6xl mx-auto px-4">
-  <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <!-- 物料单价查询 -->
+      <a href="cz/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+        <div class="text-4xl mb-3">💰</div>
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">物料单价查询</h2>
+        <p class="text-sm text-gray-500">查看并核对最新采购单价与供应商数据。</p>
+      </a>
 
-    <!-- 主功能入口（红色渐变） -->
-<a href="tz/index.html" target="_blank" class="card bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
-  <img src="https://img.icons8.com/ios-filled/50/ffffff/money-bag.png" class="mx-auto mb-3 h-10 w-10" alt="物料单价查询">
-  物料单价查询
-</a>
+      <!-- 产品BOM查询 -->
+      <a href="bom/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+        <div class="text-4xl mb-3">📦</div>
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">产品BOM查询</h2>
+        <p class="text-sm text-gray-500">快速查询物料构成、数量与采购单价。</p>
+      </a>
 
-<a href="bom/index.html" target="_blank" class="card bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
-  <img src="https://img.icons8.com/ios-filled/50/ffffff/box.png" class="mx-auto mb-3 h-10 w-10" alt="产品BOM 查询">
-  产品BOM 查询
-</a>
+      <!-- 成品信息查询 -->
+      <a href="CP/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+        <div class="text-4xl mb-3">🏷️</div>
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">成品信息查询</h2>
+        <p class="text-sm text-gray-500">成品基础信息与系列归属快速检索。</p>
+      </a>
 
-<a href="CP/index.html" target="_blank" class="card bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
-  <img src="https://img.icons8.com/ios-filled/50/ffffff/product.png" class="mx-auto mb-3 h-10 w-10" alt="成品查询">
-  成品查询
-</a>
-
-<!-- 产品系列卡片（黄色渐变） -->
-<a href="product/index.html" target="_blank" class="card bg-gradient-to-r from-yellow-400 to-yellow-500 text-white p-6 rounded-2xl text-center font-semibold shadow-md hover:shadow-lg">
-  <img src="https://img.icons8.com/ios-filled/50/ffffff/open-box.png" class="mx-auto mb-3 h-10 w-10" alt="产品系列">
-  产品系列
-</a>
-
-
-    <!-- 禁用占位功能（灰色） -->
-    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
-      功能 5
+      <!-- 产品系列展示 -->
+      <a href="product/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+        <div class="text-4xl mb-3">🧩</div>
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">产品系列展示</h2>
+        <p class="text-sm text-gray-500">查看产品系列、图标与各系列下的成品。</p>
+      </a>
     </div>
-    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
-      功能 6
-    </div>
-    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
-      功能 7
-    </div>
-    <div class="card bg-gray-300 text-white p-6 rounded-2xl text-center font-semibold disabled">
-      功能 8
-    </div>
+  </main>
 
-  </div>
-</main>
-
-<footer class="text-center text-gray-500 text-sm mt-8 mb-4">
-  © 2025 采购部 |
-  <a href="/tz/index.html" class="hover:underline">物料单价</a> |
-  <a href="/bom/index.html" class="hover:underline">BOM</a> |
-  <a href="/CP/index.html" class="hover:underline">成品信息</a> |
-  <a href="/product/index.html" class="hover:underline">产品手册</a>
-</footer>
-
-
+  <!-- 底部版权信息 -->
+  <footer class="text-center text-gray-500 text-sm mt-12 mb-6">
+    © 2025 德令哈采购管理部提供技术和数据支持 |
+    <a href="index.html" class="hover:underline">首页</a> |
+    <a href="cz/index.html" class="hover:underline">物料单价</a> |
+    <a href="bom/index.html" class="hover:underline">BOM</a> |
+    <a href="CP/index.html" class="hover:underline">成品</a> |
+    <a href="product/index.html" class="hover:underline">系列</a>
+  </footer>
 </body>
 </html>
