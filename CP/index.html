@@ -62,7 +62,7 @@
   <th data-sort="品名">品名</th>
   <th data-sort="规格">规格</th>
   <th data-sort="单位">单位</th>
-  <th data-sort="零售价">零售价（元）</th>
+  <th data-sort="零售价">零售价</th>
   <th data-sort="品牌">品牌</th>
   <th data-sort="可供应渠道">渠道</th>
 </tr>
@@ -129,7 +129,7 @@ function renderTable(){
     <td>${i.品名||""}</td>
     <td>${i.规格||""}</td>
     <td>${i.单位||""}</td>
-    <td>${i.零售价??i["零售价（元）"]??""}</td>
+    <td>${i.零售价??i["零售价"]??""}</td>
     <td>${i.品牌||""}</td>
     <td>${i.可供应渠道||""}</td>
   </tr>`).join("");
@@ -159,7 +159,7 @@ document.getElementById("exportBtn").onclick=()=>{
 
   const data=currentData.map((i,idx)=>({
     序号:idx+1, 项目号:i.项目号, 品名:i.品名, 规格:i.规格,
-    单位:i.单位, 零售价:i.零售价??i["零售价（元）"], 品牌:i.品牌, 渠道:i.可供应渠道
+    单位:i.单位, 零售价:i.零售价??i["零售价"], 品牌:i.品牌, 渠道:i.可供应渠道
   }));
 
   const ws=XLSX.utils.json_to_sheet(data);
