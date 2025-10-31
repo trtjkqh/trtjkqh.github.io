@@ -1,0 +1,62 @@
+[
+  {
+    "id": "23001",
+    "name": "华东包装材料有限公司",
+    "shortName": "华东包装",
+    "contactPerson": "张经理",
+    "phone": "13800138000",
+    "backupPhone": "0571-12345678",
+    "address": "浙江省杭州市西湖区文三路100号",
+    "category": "包装材料",
+    "mainProducts": "纸箱,纸盒,包装纸",
+    "startDate": "2023-01-15",
+    "status": "active",
+    "creditRating": "A",
+    "remarks": "合作稳定，质量可靠"
+  },
+  {
+    "id": "23002",
+    "name": "北方原料供应集团",
+    "shortName": "北方原料",
+    "contactPerson": "李总监",
+    "phone": "13900139000",
+    "backupPhone": "0311-87654321",
+    "address": "河北省石家庄市长安区中山东路200号",
+    "category": "原料",
+    "mainProducts": "化工原料,食品添加剂",
+    "startDate": "2022-08-10",
+    "status": "active",
+    "creditRating": "B",
+    "remarks": "价格优势明显，交货准时"
+  },
+  {
+    "id": "23003",
+    "name": "华南设备科技有限公司",
+    "shortName": "华南设备",
+    "contactPerson": "王总",
+    "phone": "13700137000",
+    "backupPhone": "0755-23456789",
+    "address": "广东省深圳市南山区科技园南区",
+    "category": "设备",
+    "mainProducts": "生产设备,检测仪器",
+    "startDate": "2023-03-20",
+    "status": "pending",
+    "creditRating": "C",
+    "remarks": "新供应商，正在评估中"
+  },
+  {
+    "id": "23004",
+    "name": "西部辅料制品厂",
+    "shortName": "西部辅料",
+    "contactPerson": "刘厂长",
+    "phone": "13600136000",
+    "backupPhone": "028-34567890",
+    "address": "四川省成都市金牛区金府路88号",
+    "category": "辅料",
+    "mainProducts": "标签,说明书,包装辅料",
+    "startDate": "2021-11-05",
+    "status": "inactive",
+    "creditRating": "B",
+    "remarks": "暂时停止合作，质量问题需要改进"
+  }
+]
