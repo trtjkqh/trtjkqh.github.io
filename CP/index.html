@@ -114,10 +114,16 @@ fetch("data.json").then(r=>r.json()).then(data=>{
 });
 
 // 加载 BOM 数据
-fetch("../bom/bom_data.json").then(r=>r.json()).then(data=>{ bomData=data; });
+fetch("../bom/bom_data.json").then(r=>r.json()).then(data=>{
+  bomData = data;
+  console.log("BOM 数据加载成功", bomData);
+});
 
 // 加载采购单价数据
-fetch("../cz/data.json").then(r=>r.json()).then(data=>{ czData=data; });
+fetch("../cz/data.json").then(r=>r.json()).then(data=>{
+  czData = data;
+  console.log("采购单价数据加载成功", czData);
+});
 
 // 查询函数
 function search(){
@@ -200,14 +206,14 @@ document.getElementById("exportBtn").onclick=()=>{
 
 // 显示 BOM
 function showBOM(projectNo){
-  const items = bomData.filter(item => Number(item.项目号) === Number(projectNo));
+  const items = bomData.filter(item => String(item.项目号) === String(projectNo));
   if(items.length===0){ alert("未找到对应 BOM"); return; }
   const bomTableBody = document.getElementById("bomTableBody");
   const bomArea = document.getElementById("bomArea");
 
   bomTableBody.innerHTML = items.map((i,idx)=>{
     const czItem = czData.find(c=>String(c.物料项目号) === String(i.物料项目号));
-    const price = czItem ? czItem.采购单价 : '';
+    const price = czItem ? czItem.采购单价 : '未找到';
     return `<tr>
       <td class="border px-2 py-1">${idx+1}</td>
       <td class="border px-2 py-1">${i.物料项目号||''}</td>
@@ -217,6 +223,7 @@ function showBOM(projectNo){
       <td class="border px-2 py-1">${price}</td>
     </tr>`;
   }).join('');
+
   bomArea.classList.remove("hidden");
 }
 
@@ -228,7 +235,7 @@ document.getElementById("closeBOM").onclick = ()=>{
 // 回车触发查询
 document.addEventListener("keydown", e=>{ if(e.key==="Enter") search(); });
 document.getElementById("searchBtn").onclick = search;
-</script>
 
+</script>
 </body>
 </html>
