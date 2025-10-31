@@ -197,23 +197,29 @@ document.getElementById("exportBtn").onclick=()=>{
     序号:idx+1, 项目号:i.项目号, 品名:i.品名, 规格:i.规格,
     单位:i.单位, 零售价:i.零售价??"", 品牌:i.品牌, 渠道:i.可供应渠道
   }));
-
   const ws=XLSX.utils.json_to_sheet(data);
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"成品查询结果");
-  XLSX.writeFile(wb,"成品查询.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "成品查询结果");
+  XLSX.writeFile(wb, "成品查询.xlsx");
 };
 
 // 显示 BOM
 function showBOM(projectNo){
-  const items = bomData.filter(item => String(item.项目号) === String(projectNo));
-  if(items.length===0){ alert("未找到对应 BOM"); return; }
-  const bomTableBody = document.getElementById("bomTableBody");
   const bomArea = document.getElementById("bomArea");
+  const bomTableBody = document.getElementById("bomTableBody");
 
-  bomTableBody.innerHTML = items.map((i,idx)=>{
-    const czItem = czData.find(c=>String(c.物料项目号) === String(i.物料项目号));
-    const price = czItem ? czItem.采购单价 : '未找到';
+  const rows = bomData.filter(b => String(b.项目号) === String(projectNo));
+  if(!rows.length){
+    bomTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-2">未找到 BOM</td></tr>`;
+    bomArea.classList.remove("hidden");
+    return;
+  }
+
+  bomTableBody.innerHTML = rows.map((i,idx)=>{
+    const czItem = czData.find(c => String(c.物料项目号)===String(i.物料项目号));
+    const price = czItem ? czItem.采购单价 : "未找到";
+    console.log("匹配采购单价:", i.物料项目号, price);
+
     return `<tr>
       <td class="border px-2 py-1">${idx+1}</td>
       <td class="border px-2 py-1">${i.物料项目号||''}</td>
@@ -235,7 +241,6 @@ document.getElementById("closeBOM").onclick = ()=>{
 // 回车触发查询
 document.addEventListener("keydown", e=>{ if(e.key==="Enter") search(); });
 document.getElementById("searchBtn").onclick = search;
-
 </script>
 </body>
 </html>
