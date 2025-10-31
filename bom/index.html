@@ -60,14 +60,16 @@
   </div>
 
   <!-- 查询结果 -->
-  <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 数据加载中...</div>
+  <div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 正在加载数据，请稍候...</div>
   <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
 
   <footer class="text-center text-gray-500 text-sm mt-8 mb-4">© 2025 德令哈采购管理部提供技术和数据支持</footer>
 
   <script>
     let bomData = [];
-    let priceData = {}; // { 物料项目号: 采购单价 }
+    let priceData = {};
+    let bomLoaded = false;
+    let priceLoaded = false;
 
     // 加载 BOM 数据
     fetch('bom_data.json?_v=' + Date.now())
@@ -84,6 +86,8 @@
           数量: String(item.数量 || "").trim(),
           计量单位: String(item.计量单位 || "").trim()
         }));
+        bomLoaded = true;
+        console.log("✅ BOM 数据加载成功，共", bomData.length, "条");
         checkAllLoaded();
       })
       .catch(err => {
@@ -91,8 +95,8 @@
         document.getElementById("loading").textContent = "❌ BOM数据加载失败";
       });
 
-    // 加载物料单价数据
-    fetch('tz/data.json?_v=' + Date.now())
+    // 加载采购单价数据
+    fetch('../tz/data.json?_v=' + Date.now())
       .then(res => res.json())
       .then(data => {
         if (!Array.isArray(data)) throw new Error("采购单价数据格式错误");
@@ -101,6 +105,8 @@
           const price = item.采购单价 !== undefined ? item.采购单价 : "-";
           priceData[id] = price;
         });
+        priceLoaded = true;
+        console.log("✅ 采购单价加载成功，共", Object.keys(priceData).length, "条");
         checkAllLoaded();
       })
       .catch(err => {
@@ -108,18 +114,21 @@
         document.getElementById("loading").textContent = "❌ 采购单价加载失败";
       });
 
+    // 检查是否加载完毕
     function checkAllLoaded() {
-      if (bomData.length > 0 && Object.keys(priceData).length > 0) {
+      if (bomLoaded && priceLoaded) {
         document.getElementById("loading").style.display = "none";
       }
     }
 
+    // 高亮函数
     function highlight(text, keyword) {
       if (!keyword) return text || "";
       const reg = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, "gi");
       return (text || "").replace(reg, "<mark>$1</mark>");
     }
 
+    // 查询逻辑
     function renderFiltered() {
       const nameKeyword = document.getElementById("nameSearch").value.trim();
       const projectID = document.getElementById("projectSearch").value.trim();
@@ -133,7 +142,6 @@
         return;
       }
 
-      // 筛选逻辑
       let filtered = bomData.filter(item =>
         (!nameKeyword || item.品名.includes(nameKeyword)) &&
         (!projectID || item.项目号 === projectID)
@@ -156,7 +164,6 @@
         return;
       }
 
-      // 按项目号分组
       const grouped = {};
       filtered.forEach(item => {
         if (!grouped[item.项目号]) grouped[item.项目号] = [];
@@ -191,15 +198,8 @@
             <td class="border p-2">${highlight(parent.零售价, "")}</td>
             <td class="border p-2" colspan="5"></td>
           </tr>
-        `;
-
-        // 子表头
-        html += `
           <tr class="child-row child-header">
-            <td class="border p-2"></td>
-            <td class="border p-2"></td>
-            <td class="border p-2"></td>
-            <td class="border p-2"></td>
+            <td colspan="4"></td>
             <td class="border p-2">物料项目号</td>
             <td class="border p-2">物料名称</td>
             <td class="border p-2">数量</td>
@@ -213,10 +213,7 @@
           const purchasePrice = priceData[id] !== undefined ? priceData[id] : "-";
           html += `
             <tr class="child-row">
-              <td class="border p-2"></td>
-              <td class="border p-2"></td>
-              <td class="border p-2"></td>
-              <td class="border p-2"></td>
+              <td colspan="4"></td>
               <td class="border p-2">${highlight(child.物料项目号, materialID)}</td>
               <td class="border p-2">${highlight(child.物料名称, materialName)}</td>
               <td class="border p-2">${highlight(child.数量, "")}</td>
@@ -231,6 +228,7 @@
       resultDiv.innerHTML = html;
     }
 
+    // 事件绑定
     document.getElementById("searchBtn").addEventListener("click", renderFiltered);
     document.getElementById("resetBtn").addEventListener("click", () => {
       ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id => document.getElementById(id).value = "");
