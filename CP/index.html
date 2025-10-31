@@ -1,148 +1,197 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>成品信息查询</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { background-color: #f3f4f6; }
-    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成品信息查询</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-    table { border-collapse: collapse; width: 100%; background:white; font-size:0.9rem; }
-    table th, table td { border:1px solid #e5e7eb; text-align:center; padding:0.5rem; }
-    table th { background-color: #e0f2fe; color:#1e3a8a; font-weight:600; }
-    table tr:hover { background-color: #f0f9ff; }
-  </style>
+<style>
+  body { background-color:#f3f4f6; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  .fade-in { animation: fadeIn 0.3s ease-in-out; }
+
+  table { border-collapse:collapse; width:100%; background:white; font-size:0.9rem; }
+  th, td { border:1px solid #e5e7eb; padding:0.5rem; text-align:center; }
+  th { background:#e0f2fe; color:#1e3a8a; font-weight:600; cursor:pointer; position:sticky; top:0; z-index:10; }
+  tr:hover { background:#f0f9ff; }
+
+  /* 排序箭头样式 */
+  .sort-asc::after { content:" ↑"; color:#0d6efd; }
+  .sort-desc::after { content:" ↓"; color:#0d6efd; }
+</style>
 </head>
 <body class="p-6">
 
-  <!-- 标题栏（Logo + 标题 + 保密声明） -->
-  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex flex-col md:flex-row items-center justify-between fade-in mb-6">
-    <div class="flex items-center gap-3 mb-2 md:mb-0">
-      <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-700">成品信息查询</h1>
-        <p class="text-sm text-gray-500">选择渠道后即可点击查询</p>
-      </div>
-    </div>
-    <div class="flex flex-col md:flex-row items-center gap-2 ml-auto">
-      <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 数据：2025年7月</span>
-      <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
+<!-- 标题 -->
+<div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-4 flex flex-col md:flex-row justify-between fade-in mb-6">
+  <div class="flex items-center gap-3 mb-2 md:mb-0">
+    <img src="/assets/img/trtlogo.png" class="h-12 object-contain">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-700">成品信息查询</h1>
+      <p class="text-sm text-gray-500">输入条件后查询</p>
     </div>
   </div>
-
-  <!-- 查询条件 -->
-  <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6">
-    <div class="flex flex-wrap items-center gap-4 mb-6">
-      <select id="channelSelect" class="border rounded-lg p-2 min-w-[180px] focus:ring focus:ring-blue-200">
-        <option value="">所有渠道</option>
-      </select>
-      <input id="projectInput" type="text" placeholder="输入项目号（需精准）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
-      <input id="nameInput" type="text" placeholder="输入品名（可模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[180px] focus:ring focus:ring-blue-200" />
-      <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">查询</button>
-    </div>
-
-    <!-- 查询结果表格 -->
-    <div class="overflow-x-auto">
-      <table id="resultTable" class="hidden fade-in">
-        <thead>
-          <tr>
-            <th>项目号</th>
-            <th>品名</th>
-            <th>规格</th>
-            <th>单位</th>
-            <th>零售价（元）</th>
-            <th>品牌</th>
-            <th>渠道</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-
-    <p id="noResult" class="text-center text-gray-500 mt-4 hidden">未找到符合条件的记录。</p>
+  <div class="flex flex-col md:flex-row items-center gap-2">
+    <span class="px-2 py-1 bg-yellow-50 border rounded text-yellow-700">🔍 数据：2025年7月</span>
+    <span class="px-2 py-1 bg-red-50 border rounded font-semibold text-red-600">⚠️ 保密：内部数据严禁外传</span>
   </div>
+</div>
 
-  <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
-  © 2025 采购部 |
-  <a href="/CP/index.html" class="hover:underline">成品信息</a> |
-  <a href="/product/index.html" class="hover:underline">产品手册</a>
+<!-- 查询条件 -->
+<div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6 space-y-4">
+
+<div class="flex flex-wrap gap-3">
+  <select id="channelSelect" class="border rounded-lg p-2 min-w-[150px]">
+    <option value="">所有渠道</option>
+  </select>
+  <input id="projectInput" placeholder="项目号（精准）" class="border rounded-lg p-2 flex-1 min-w-[150px]">
+  <input id="nameInput" placeholder="品名（模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[150px]">
+
+  <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">查询</button>
+  <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">导出Excel</button>
+</div>
+
+<!-- 表格 -->
+<div class="overflow-auto max-h-[60vh] border rounded-lg">
+<table id="resultTable" class="hidden fade-in">
+<thead>
+<tr>
+  <th data-sort="序号">序号</th>
+  <th data-sort="项目号">项目号</th>
+  <th data-sort="品名">品名</th>
+  <th data-sort="规格">规格</th>
+  <th data-sort="单位">单位</th>
+  <th data-sort="零售价">零售价（元）</th>
+  <th data-sort="品牌">品牌</th>
+  <th data-sort="可供应渠道">渠道</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<p id="noResult" class="text-center text-gray-500 mt-2 hidden">未找到记录</p>
+
+<!-- 分页 -->
+<div class="flex justify-between items-center mt-3">
+  <button id="prevPage" class="px-3 py-1 bg-gray-200 rounded hidden">上一页</button>
+  <span id="pageInfo" class="text-gray-600"></span>
+  <button id="nextPage" class="px-3 py-1 bg-gray-200 rounded hidden">下一页</button>
+</div>
+
+</div>
+
+<!-- 页脚 -->
+<footer class="text-center text-gray-500 text-sm mt-6">
+© 2025 采购部 | <a href="/CP/index.html">成品信息</a> | <a href="/product/index.html">产品手册</a>
 </footer>
 
+<script>
+let allData = [], currentData = [];
+let sortDirection = {};
+let page = 1, pageSize = 15;
 
-  <script>
-    let allData = [];
+// 加载数据
+fetch("data.json").then(r=>r.json()).then(data=>{
+  allData=data;
+  populateChannels(data);
+});
 
-    fetch('data.json')
-      .then(res => res.json())
-      .then(data => {
-        allData = data;
-        populateChannels(data);
-      });
+// 填充渠道
+function populateChannels(data){
+  const select=document.getElementById("channelSelect");
+  const channels=[...new Set(data.map(i=>i.可供应渠道).filter(Boolean))];
+  select.innerHTML='<option value="">所有渠道</option>';
+  channels.forEach(c=>select.innerHTML+=`<option>${c}</option>`);
+}
 
-    function populateChannels(data) {
-      const select = document.getElementById('channelSelect');
-      const channels = [...new Set(data.map(item => item.可供应渠道).filter(Boolean))];
-      // 清空原有选项，保留“所有渠道”
-      select.innerHTML = '<option value="">所有渠道</option>';
-      channels.forEach(ch => {
-        const option = document.createElement('option');
-        option.value = ch;
-        option.textContent = ch;
-        select.appendChild(option);
-      });
-    }
+// 查询
+function search(){
+  const p=document.getElementById("projectInput").value.trim();
+  const n=document.getElementById("nameInput").value.trim();
+  const c=document.getElementById("channelSelect").value;
 
-    document.getElementById('searchBtn').addEventListener('click', () => {
-      const project = document.getElementById('projectInput').value.trim();
-      const name = document.getElementById('nameInput').value.trim();
-      const channel = document.getElementById('channelSelect').value;
+  currentData = allData.filter(i =>
+    (!p || i.项目号===p) &&
+    (!n || i.品名.includes(n)) &&
+    (!c || i.可供应渠道===c)
+  );
 
-      let filtered = allData.filter(item => {
-        const matchProject = project ? item.项目号 === project : true;
-        const matchName = name ? item.品名.includes(name) : true;
-        const matchChannel = channel ? item.可供应渠道 === channel : true;
-        return matchProject && matchName && matchChannel;
-      });
+  page = 1;
+  renderTable();
+}
 
-      if (!project && !name && channel) {
-        filtered = allData.filter(item => item.可供应渠道 === channel);
-      }
+// 渲染表格 + 分页
+function renderTable(){
+  const table=document.getElementById("resultTable");
+  const tbody=document.getElementById("tableBody");
+  const no=document.getElementById("noResult");
 
-      renderTable(filtered);
+  if(!currentData.length){ table.classList.add("hidden"); no.classList.remove("hidden"); return; }
+
+  no.classList.add("hidden");
+  table.classList.remove("hidden");
+
+  let showData=currentData.slice((page-1)*pageSize, page*pageSize);
+  tbody.innerHTML=showData.map((i,idx)=>`
+  <tr>
+    <td>${(page-1)*pageSize+idx+1}</td>
+    <td>${i.项目号||""}</td>
+    <td>${i.品名||""}</td>
+    <td>${i.规格||""}</td>
+    <td>${i.单位||""}</td>
+    <td>${i.零售价??i["零售价（元）"]??""}</td>
+    <td>${i.品牌||""}</td>
+    <td>${i.可供应渠道||""}</td>
+  </tr>`).join("");
+
+  document.getElementById("prevPage").classList.toggle("hidden",page===1);
+  document.getElementById("nextPage").classList.toggle("hidden",page*pageSize>=currentData.length);
+  document.getElementById("pageInfo").textContent=`${page}/${Math.ceil(currentData.length/pageSize)}页`;
+}
+
+// 排序
+document.querySelectorAll("th").forEach(th=>{
+  th.addEventListener("click",()=>{
+    const key=th.dataset.sort; if(key==="序号") return;
+    sortDirection[key]=!sortDirection[key];
+
+    currentData.sort((a,b)=>{
+      const x=a[key]??"", y=b[key]??"";
+      return sortDirection[key] ? x.localeCompare(y) : y.localeCompare(x);
     });
 
-    function renderTable(data) {
-      const table = document.getElementById('resultTable');
-      const tbody = document.getElementById('tableBody');
-      const noResult = document.getElementById('noResult');
-      tbody.innerHTML = '';
+    document.querySelectorAll("th").forEach(h=>h.classList.remove("sort-asc","sort-desc"));
+    th.classList.add(sortDirection[key]?"sort-asc":"sort-desc");
 
-      if (data.length === 0) {
-        table.classList.add('hidden');
-        noResult.classList.remove('hidden');
-        return;
-      }
+    renderTable();
+  });
+});
 
-      noResult.classList.add('hidden');
-      table.classList.remove('hidden');
+// 导出
+document.getElementById("exportBtn").onclick=()=>{
+  if(!currentData.length) return alert("暂无数据");
 
-      data.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${item.项目号 || ''}</td>
-          <td>${item.品名 || ''}</td>
-          <td>${item.规格 || ''}</td>
-          <td>${item.单位 || ''}</td>
-          <td>${item.零售价 ?? item['零售价（元）'] ?? ''}</td>
-          <td>${item.品牌 || ''}</td>
-          <td>${item.可供应渠道 || ''}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-  </script>
+  const data=currentData.map((i,idx)=>({
+    序号:idx+1, 项目号:i.项目号, 品名:i.品名, 规格:i.规格,
+    单位:i.单位, 零售价:i.零售价??i["零售价（元）"], 品牌:i.品牌, 渠道:i.可供应渠道
+  }));
+
+  const ws=XLSX.utils.json_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"成品信息");
+  XLSX.writeFile(wb,"成品查询.xlsx");
+};
+
+// 分页按钮
+document.getElementById("prevPage").onclick=()=>{ page--; renderTable(); }
+document.getElementById("nextPage").onclick=()=>{ page++; renderTable(); }
+
+// 回车触发搜索
+document.addEventListener("keydown",e=>{ if(e.key==="Enter") search(); });
+document.getElementById("searchBtn").onclick=search;
+</script>
 </body>
 </html>
