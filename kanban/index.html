@@ -48,6 +48,20 @@
       transform: translateY(-5px);
       box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }
+    .status-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .status-active { background-color: #dcfce7; color: #166534; }
+    .status-pending { background-color: #fef3c7; color: #92400e; }
+    .status-inactive { background-color: #f3f4f6; color: #6b7280; }
+    .status-terminated { background-color: #fee2e2; color: #991b1b; }
+    .credit-a { background-color: #dcfce7; color: #166534; }
+    .credit-b { background-color: #dbeafe; color: #1e40af; }
+    .credit-c { background-color: #fef3c7; color: #92400e; }
+    .credit-d { background-color: #fee2e2; color: #991b1b; }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -334,170 +348,193 @@
       
       <!-- 供应商管理内容 -->
       <div id="supplier" class="content-section">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">供应商管理</h2>
-          <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
-            <i class="fas fa-plus mr-2"></i> 添加供应商
-          </button>
-        </div>
-        
-        <!-- 供应商搜索和筛选 -->
-        <div class="bg-white rounded-xl p-4 shadow mb-6">
-          <div class="flex flex-wrap gap-4">
-            <div class="flex-1 min-w-[200px]">
-              <label class="block text-sm font-medium text-gray-700 mb-1">搜索供应商</label>
-              <div class="relative">
-                <input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg" placeholder="输入供应商名称或编号">
-                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-              </div>
-            </div>
-            <div class="min-w-[150px]">
-              <label class="block text-sm font-medium text-gray-700 mb-1">合作状态</label>
-              <select class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                <option>全部状态</option>
-                <option>合作中</option>
-                <option>暂停合作</option>
-                <option>待审核</option>
-              </select>
-            </div>
-            <div class="min-w-[150px]">
-              <label class="block text-sm font-medium text-gray-700 mb-1">供应品类</label>
-              <select class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                <option>全部品类</option>
-                <option>包装材料</option>
-                <option>原料</option>
-                <option>辅料</option>
-                <option>设备</option>
-              </select>
-            </div>
+        <!-- 标题栏 -->
+        <div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
+          <div class="flex items-center gap-3">
+            <div class="h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">TRT</div>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900">供应商管理系统</h1>
+          </div>
+          <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
+            <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 数据实时更新，本地存储</span>
+            <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
           </div>
         </div>
-        
-        <!-- 供应商列表 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- 供应商卡片示例 -->
-          <div class="bg-white rounded-xl p-6 shadow">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-lg font-bold text-gray-800">华东包装材料有限公司</h3>
-                <p class="text-sm text-gray-500">编号: SUP-2023001</p>
-              </div>
-              <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">合作中</span>
-            </div>
-            
-            <div class="space-y-3 mb-4">
-              <div class="flex items-center text-sm">
-                <i class="fas fa-user text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">联系人: 张经理</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-phone text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">13800138000</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-map-marker-alt text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">浙江省杭州市西湖区</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-boxes text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">包装材料、纸制品</span>
-              </div>
-            </div>
-            
-            <div class="flex justify-between pt-4 border-t border-gray-200">
-              <button class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                <i class="fas fa-edit mr-1"></i> 编辑
-              </button>
-              <button class="text-gray-600 hover:text-gray-800 text-sm flex items-center">
-                <i class="fas fa-chart-bar mr-1"></i> 采购记录
-              </button>
-              <button class="text-red-600 hover:text-red-800 text-sm flex items-center">
-                <i class="fas fa-trash-alt mr-1"></i> 删除
-              </button>
-            </div>
+
+        <!-- 查询区域 -->
+        <div class="bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+          <input id="supplier-search" type="text" placeholder="供应商名称或编号" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+          <select id="status-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+            <option value="">全部状态</option>
+            <option value="active">合作中</option>
+            <option value="pending">待审核</option>
+            <option value="inactive">暂停合作</option>
+            <option value="terminated">已终止</option>
+          </select>
+          <select id="category-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+            <option value="">全部品类</option>
+            <option value="包装材料">包装材料</option>
+            <option value="原料">原料</option>
+            <option value="辅料">辅料</option>
+            <option value="设备">设备</option>
+            <option value="其他">其他</option>
+          </select>
+          <select id="credit-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+            <option value="">全部等级</option>
+            <option value="A">A级</option>
+            <option value="B">B级</option>
+            <option value="C">C级</option>
+            <option value="D">D级</option>
+          </select>
+          <button id="supplier-search-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+          <button id="supplier-reset-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+          <button id="supplier-add-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow">添加供应商</button>
+          <button id="supplier-export-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
+        </div>
+
+        <!-- 汇总区 -->
+        <div id="supplier-summary" class="mb-4 flex gap-4 fade-in">
+          <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
+            供应商总数：<span id="supplier-total-count">0</span> 家
           </div>
-          
-          <!-- 更多供应商卡片 -->
-          <div class="bg-white rounded-xl p-6 shadow">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-lg font-bold text-gray-800">北方原料供应集团</h3>
-                <p class="text-sm text-gray-500">编号: SUP-2023002</p>
-              </div>
-              <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">合作中</span>
-            </div>
-            
-            <div class="space-y-3 mb-4">
-              <div class="flex items-center text-sm">
-                <i class="fas fa-user text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">联系人: 李总监</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-phone text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">13900139000</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-map-marker-alt text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">河北省石家庄市</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-boxes text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">原料、化工材料</span>
-              </div>
-            </div>
-            
-            <div class="flex justify-between pt-4 border-t border-gray-200">
-              <button class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                <i class="fas fa-edit mr-1"></i> 编辑
-              </button>
-              <button class="text-gray-600 hover:text-gray-800 text-sm flex items-center">
-                <i class="fas fa-chart-bar mr-1"></i> 采购记录
-              </button>
-              <button class="text-red-600 hover:text-red-800 text-sm flex items-center">
-                <i class="fas fa-trash-alt mr-1"></i> 删除
-              </button>
-            </div>
+          <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
+            合作中：<span id="supplier-active-count">0</span> 家
           </div>
-          
-          <div class="bg-white rounded-xl p-6 shadow">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-lg font-bold text-gray-800">华南设备科技有限公司</h3>
-                <p class="text-sm text-gray-500">编号: SUP-2023003</p>
-              </div>
-              <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">待审核</span>
+          <div class="flex-1 bg-yellow-50 border border-yellow-200 rounded-lg p-4 font-semibold text-yellow-700 text-center shadow">
+            待审核：<span id="supplier-pending-count">0</span> 家
+          </div>
+          <div class="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4 font-semibold text-blue-700 text-center shadow">
+            A级供应商：<span id="supplier-a-count">0</span> 家
+          </div>
+        </div>
+
+        <!-- 查询结果 -->
+        <div id="supplier-loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+        <div id="supplier-result" class="overflow-x-auto fade-in"></div>
+
+        <!-- 供应商详情模态框 -->
+        <div id="supplier-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+          <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold text-gray-800" id="supplier-modal-title">添加供应商</h3>
+              <button id="supplier-close-modal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+              </button>
             </div>
             
-            <div class="space-y-3 mb-4">
-              <div class="flex items-center text-sm">
-                <i class="fas fa-user text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">联系人: 王总</span>
+            <form id="supplier-form" class="space-y-4">
+              <input type="hidden" id="supplier-id">
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 基本信息 -->
+                <div class="md:col-span-2">
+                  <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">基本信息</h4>
+                </div>
+                
+                <div>
+                  <label for="supplier-code" class="block text-sm font-medium text-gray-700 mb-1">供应商编号 *</label>
+                  <input type="text" id="supplier-code" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div>
+                  <label for="supplier-name" class="block text-sm font-medium text-gray-700 mb-1">供应商名称 *</label>
+                  <input type="text" id="supplier-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div>
+                  <label for="supplier-shortname" class="block text-sm font-medium text-gray-700 mb-1">供应商简称 *</label>
+                  <input type="text" id="supplier-shortname" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <!-- 联系信息 -->
+                <div class="md:col-span-2 mt-4">
+                  <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">联系信息</h4>
+                </div>
+                
+                <div>
+                  <label for="contact-person" class="block text-sm font-medium text-gray-700 mb-1">联系人 *</label>
+                  <input type="text" id="contact-person" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div>
+                  <label for="contact-phone" class="block text-sm font-medium text-gray-700 mb-1">联系电话 *</label>
+                  <input type="text" id="contact-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div>
+                  <label for="backup-phone" class="block text-sm font-medium text-gray-700 mb-1">备用电话</label>
+                  <input type="text" id="backup-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label for="address" class="block text-sm font-medium text-gray-700 mb-1">公司地址</label>
+                  <input type="text" id="address" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                
+                <!-- 业务信息 -->
+                <div class="md:col-span-2 mt-4">
+                  <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">业务信息</h4>
+                </div>
+                
+                <div>
+                  <label for="category" class="block text-sm font-medium text-gray-700 mb-1">供应品类 *</label>
+                  <select id="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                    <option value="">请选择品类</option>
+                    <option value="包装材料">包装材料</option>
+                    <option value="原料">原料</option>
+                    <option value="辅料">辅料</option>
+                    <option value="设备">设备</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="main-products" class="block text-sm font-medium text-gray-700 mb-1">主营产品 *</label>
+                  <input type="text" id="main-products" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">合作起始日期 *</label>
+                  <input type="date" id="start-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                </div>
+                
+                <!-- 状态信息 -->
+                <div class="md:col-span-2 mt-4">
+                  <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">状态信息</h4>
+                </div>
+                
+                <div>
+                  <label for="status" class="block text-sm font-medium text-gray-700 mb-1">合作状态 *</label>
+                  <select id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                    <option value="">请选择状态</option>
+                    <option value="active">合作中</option>
+                    <option value="pending">待审核</option>
+                    <option value="inactive">暂停合作</option>
+                    <option value="terminated">已终止</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="credit-rating" class="block text-sm font-medium text-gray-700 mb-1">信用等级 *</label>
+                  <select id="credit-rating" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                    <option value="">请选择等级</option>
+                    <option value="A">A级</option>
+                    <option value="B">B级</option>
+                    <option value="C">C级</option>
+                    <option value="D">D级</option>
+                  </select>
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label for="remarks" class="block text-sm font-medium text-gray-700 mb-1">备注信息</label>
+                  <textarea id="remarks" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3"></textarea>
+                </div>
               </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-phone text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">13700137000</span>
+              
+              <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" id="supplier-cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">取消</button>
+                <button type="submit" id="supplier-save-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">保存</button>
               </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-map-marker-alt text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">广东省深圳市</span>
-              </div>
-              <div class="flex items-center text-sm">
-                <i class="fas fa-boxes text-gray-400 mr-2 w-5"></i>
-                <span class="text-gray-600">生产设备、配件</span>
-              </div>
-            </div>
-            
-            <div class="flex justify-between pt-4 border-t border-gray-200">
-              <button class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                <i class="fas fa-edit mr-1"></i> 编辑
-              </button>
-              <button class="text-gray-600 hover:text-gray-800 text-sm flex items-center">
-                <i class="fas fa-chart-bar mr-1"></i> 采购记录
-              </button>
-              <button class="text-red-600 hover:text-red-800 text-sm flex items-center">
-                <i class="fas fa-trash-alt mr-1"></i> 删除
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -942,6 +979,457 @@
     document.getElementById("tz-searchBtn").addEventListener("click", tzSearchData);
     document.getElementById("tz-resetBtn").addEventListener("click", tzResetForm);
     document.getElementById("tz-exportBtn").addEventListener("click", () => tzExportTableToExcel('查询结果.xlsx'));
+
+    // ==================== 供应商管理功能 ====================
+    // 供应商数据存储
+    let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];
+
+    // 从JSON文件加载数据的函数
+    async function loadSuppliersFromJSON() {
+      try {
+        const response = await fetch('data.json');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        
+        // 如果本地存储没有数据，使用JSON文件中的数据
+        if (suppliers.length === 0) {
+          suppliers = data;
+          localStorage.setItem('suppliers', JSON.stringify(suppliers));
+        }
+        
+        document.getElementById("supplier-loading").style.display = "none";
+        console.log("✅ 供应商数据已加载:", suppliers.length, "条");
+        updateSupplierStatistics();
+        renderSupplierTable(suppliers);
+      } catch (error) {
+        console.error("❌ 数据加载失败:", error);
+        document.getElementById("supplier-loading").textContent = "❌ 无法加载数据，使用本地存储数据";
+        
+        // 如果本地存储有数据，使用本地存储数据
+        if (suppliers.length > 0) {
+          document.getElementById("supplier-loading").style.display = "none";
+          updateSupplierStatistics();
+          renderSupplierTable(suppliers);
+        } else {
+          // 如果没有本地数据，使用示例数据
+          suppliers = [
+            {
+              id: '23001',
+              name: '华东包装材料有限公司',
+              shortName: '华东包装',
+              contactPerson: '张经理',
+              phone: '13800138000',
+              backupPhone: '0571-12345678',
+              address: '浙江省杭州市西湖区文三路100号',
+              category: '包装材料',
+              mainProducts: '纸箱,纸盒,包装纸',
+              startDate: '2023-01-15',
+              status: 'active',
+              creditRating: 'A',
+              remarks: '合作稳定，质量可靠'
+            },
+            {
+              id: '23002',
+              name: '北方原料供应集团',
+              shortName: '北方原料',
+              contactPerson: '李总监',
+              phone: '13900139000',
+              backupPhone: '0311-87654321',
+              address: '河北省石家庄市长安区中山东路200号',
+              category: '原料',
+              mainProducts: '化工原料,食品添加剂',
+              startDate: '2022-08-10',
+              status: 'active',
+              creditRating: 'B',
+              remarks: '价格优势明显，交货准时'
+            },
+            {
+              id: '23003',
+              name: '华南设备科技有限公司',
+              shortName: '华南设备',
+              contactPerson: '王总',
+              phone: '13700137000',
+              backupPhone: '0755-23456789',
+              address: '广东省深圳市南山区科技园南区',
+              category: '设备',
+              mainProducts: '生产设备,检测仪器',
+              startDate: '2023-03-20',
+              status: 'pending',
+              creditRating: 'C',
+              remarks: '新供应商，正在评估中'
+            },
+            {
+              id: '23004',
+              name: '西部辅料制品厂',
+              shortName: '西部辅料',
+              contactPerson: '刘厂长',
+              phone: '13600136000',
+              backupPhone: '028-34567890',
+              address: '四川省成都市金牛区金府路88号',
+              category: '辅料',
+              mainProducts: '标签,说明书,包装辅料',
+              startDate: '2021-11-05',
+              status: 'inactive',
+              creditRating: 'B',
+              remarks: '暂时停止合作，质量问题需要改进'
+            }
+          ];
+          localStorage.setItem('suppliers', JSON.stringify(suppliers));
+          document.getElementById("supplier-loading").style.display = "none";
+          updateSupplierStatistics();
+          renderSupplierTable(suppliers);
+        }
+      }
+    }
+
+    // 初始化供应商管理页面
+    document.addEventListener('DOMContentLoaded', function() {
+      // 加载供应商数据
+      loadSuppliersFromJSON();
+      
+      // 搜索按钮事件
+      document.getElementById('supplier-search-btn').addEventListener('click', searchSuppliers);
+      
+      // 重置按钮事件
+      document.getElementById('supplier-reset-btn').addEventListener('click', resetSupplierForm);
+      
+      // 添加供应商按钮事件
+      document.getElementById('supplier-add-btn').addEventListener('click', openSupplierModal);
+      
+      // 导出按钮事件
+      document.getElementById('supplier-export-btn').addEventListener('click', exportSuppliersToExcel);
+      
+      // 关闭模态框
+      document.getElementById('supplier-close-modal').addEventListener('click', closeSupplierModal);
+      document.getElementById('supplier-cancel-btn').addEventListener('click', closeSupplierModal);
+      
+      // 保存供应商
+      document.getElementById('supplier-form').addEventListener('submit', saveSupplier);
+      
+      // 搜索框回车事件
+      document.getElementById('supplier-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchSuppliers();
+      });
+    });
+
+    // 搜索供应商
+    function searchSuppliers() {
+      const searchTerm = document.getElementById('supplier-search').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('status-filter').value;
+      const categoryFilter = document.getElementById('category-filter').value;
+      const creditFilter = document.getElementById('credit-filter').value;
+      
+      let filtered = suppliers.filter(supplier => {
+        const matchesSearch = !searchTerm || 
+          supplier.name.toLowerCase().includes(searchTerm) ||
+          supplier.shortName.toLowerCase().includes(searchTerm) ||
+          supplier.id.includes(searchTerm) ||
+          supplier.contactPerson.toLowerCase().includes(searchTerm) ||
+          supplier.mainProducts.toLowerCase().includes(searchTerm);
+        
+        const matchesStatus = !statusFilter || supplier.status === statusFilter;
+        const matchesCategory = !categoryFilter || supplier.category === categoryFilter;
+        const matchesCredit = !creditFilter || supplier.creditRating === creditFilter;
+        
+        return matchesSearch && matchesStatus && matchesCategory && matchesCredit;
+      });
+      
+      renderSupplierTable(filtered);
+    }
+
+    // 重置表单
+    function resetSupplierForm() {
+      document.getElementById('supplier-search').value = '';
+      document.getElementById('status-filter').value = '';
+      document.getElementById('category-filter').value = '';
+      document.getElementById('credit-filter').value = '';
+      renderSupplierTable(suppliers);
+    }
+
+    // 打开供应商模态框
+    function openSupplierModal(supplier = null) {
+      const modal = document.getElementById('supplier-modal');
+      const title = document.getElementById('supplier-modal-title');
+      const form = document.getElementById('supplier-form');
+      
+      // 重置表单
+      form.reset();
+      
+      if (supplier) {
+        // 编辑模式
+        title.textContent = '编辑供应商';
+        document.getElementById('supplier-id').value = supplier.id;
+        document.getElementById('supplier-code').value = supplier.id;
+        document.getElementById('supplier-name').value = supplier.name;
+        document.getElementById('supplier-shortname').value = supplier.shortName;
+        document.getElementById('contact-person').value = supplier.contactPerson;
+        document.getElementById('contact-phone').value = supplier.phone;
+        document.getElementById('backup-phone').value = supplier.backupPhone || '';
+        document.getElementById('address').value = supplier.address || '';
+        document.getElementById('category').value = supplier.category;
+        document.getElementById('main-products').value = supplier.mainProducts;
+        document.getElementById('start-date').value = supplier.startDate;
+        document.getElementById('status').value = supplier.status;
+        document.getElementById('credit-rating').value = supplier.creditRating;
+        document.getElementById('remarks').value = supplier.remarks || '';
+      } else {
+        // 添加模式
+        title.textContent = '添加供应商';
+        document.getElementById('supplier-id').value = '';
+        // 生成新的供应商编号
+        const maxId = Math.max(...suppliers.map(s => parseInt(s.id)), 0);
+        document.getElementById('supplier-code').value = String(maxId + 1).padStart(5, '0');
+      }
+      
+      modal.classList.remove('hidden');
+    }
+
+    // 关闭供应商模态框
+    function closeSupplierModal() {
+      document.getElementById('supplier-modal').classList.add('hidden');
+    }
+
+    // 保存供应商
+    function saveSupplier(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('supplier-id').value;
+      const code = document.getElementById('supplier-code').value;
+      const name = document.getElementById('supplier-name').value;
+      const shortName = document.getElementById('supplier-shortname').value;
+      const contactPerson = document.getElementById('contact-person').value;
+      const phone = document.getElementById('contact-phone').value;
+      const backupPhone = document.getElementById('backup-phone').value;
+      const address = document.getElementById('address').value;
+      const category = document.getElementById('category').value;
+      const mainProducts = document.getElementById('main-products').value;
+      const startDate = document.getElementById('start-date').value;
+      const status = document.getElementById('status').value;
+      const creditRating = document.getElementById('credit-rating').value;
+      const remarks = document.getElementById('remarks').value;
+      
+      // 验证必填字段
+      if (!code || !name || !shortName || !contactPerson || !phone || !category || !mainProducts || !startDate || !status || !creditRating) {
+        alert('请填写所有必填字段！');
+        return;
+      }
+      
+      const supplierData = {
+        id: code,
+        name,
+        shortName,
+        contactPerson,
+        phone,
+        backupPhone,
+        address,
+        category,
+        mainProducts,
+        startDate,
+        status,
+        creditRating,
+        remarks
+      };
+      
+      if (id) {
+        // 更新现有供应商
+        const index = suppliers.findIndex(s => s.id === id);
+        if (index !== -1) {
+          suppliers[index] = supplierData;
+        }
+      } else {
+        // 添加新供应商
+        suppliers.push(supplierData);
+      }
+      
+      // 保存到本地存储
+      localStorage.setItem('suppliers', JSON.stringify(suppliers));
+      
+      // 重新渲染列表
+      renderSupplierTable(suppliers);
+      
+      // 更新统计信息
+      updateSupplierStatistics();
+      
+      // 关闭模态框
+      closeSupplierModal();
+      
+      alert('供应商信息已保存！');
+    }
+
+    // 删除供应商
+    function deleteSupplier(id) {
+      if (confirm('确定要删除这个供应商吗？')) {
+        suppliers = suppliers.filter(s => s.id !== id);
+        
+        // 保存到本地存储
+        localStorage.setItem('suppliers', JSON.stringify(suppliers));
+        
+        // 重新渲染列表
+        renderSupplierTable(suppliers);
+        
+        // 更新统计信息
+        updateSupplierStatistics();
+        
+        alert('供应商已删除！');
+      }
+    }
+
+    // 渲染供应商表格
+    function renderSupplierTable(supplierList) {
+      const container = document.getElementById('supplier-result');
+      
+      if (supplierList.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">未找到匹配的供应商</p>';
+        return;
+      }
+      
+      // 状态徽章文本
+      function getStatusText(status) {
+        switch(status) {
+          case 'active': return '合作中';
+          case 'pending': return '待审核';
+          case 'inactive': return '暂停合作';
+          case 'terminated': return '已终止';
+          default: return status;
+        }
+      }
+      
+      // 状态徽章类
+      function getStatusClass(status) {
+        switch(status) {
+          case 'active': return 'status-active';
+          case 'pending': return 'status-pending';
+          case 'inactive': return 'status-inactive';
+          case 'terminated': return 'status-terminated';
+          default: return '';
+        }
+      }
+      
+      // 信用等级徽章类
+      function getCreditClass(credit) {
+        switch(credit) {
+          case 'A': return 'credit-a';
+          case 'B': return 'credit-b';
+          case 'C': return 'credit-c';
+          case 'D': return 'credit-d';
+          default: return '';
+        }
+      }
+      
+      let tableHTML = `
+        <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
+          <thead class="bg-gray-100 font-semibold sticky top-0">
+            <tr>
+              <th class="p-2 border-b">供应商编号</th>
+              <th class="p-2 border-b">供应商名称</th>
+              <th class="p-2 border-b">简称</th>
+              <th class="p-2 border-b">联系人</th>
+              <th class="p-2 border-b">联系电话</th>
+              <th class="p-2 border-b">供应品类</th>
+              <th class="p-2 border-b">主营产品</th>
+              <th class="p-2 border-b">合作状态</th>
+              <th class="p-2 border-b">信用等级</th>
+              <th class="p-2 border-b">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${supplierList.map((supplier, i) => `
+              <tr class="${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-red-50 transition">
+                <td class="p-2 border-b">${supplier.id}</td>
+                <td class="p-2 border-b">${supplier.name}</td>
+                <td class="p-2 border-b">${supplier.shortName}</td>
+                <td class="p-2 border-b">${supplier.contactPerson}</td>
+                <td class="p-2 border-b">${supplier.phone}</td>
+                <td class="p-2 border-b">${supplier.category}</td>
+                <td class="p-2 border-b">${supplier.mainProducts}</td>
+                <td class="p-2 border-b"><span class="status-badge ${getStatusClass(supplier.status)}">${getStatusText(supplier.status)}</span></td>
+                <td class="p-2 border-b"><span class="status-badge ${getCreditClass(supplier.creditRating)}">${supplier.creditRating}级</span></td>
+                <td class="p-2 border-b">
+                  <button class="edit-supplier text-blue-600 hover:text-blue-800 mx-1" data-id="${supplier.id}">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="delete-supplier text-red-600 hover:text-red-800 mx-1" data-id="${supplier.id}">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      container.innerHTML = tableHTML;
+      
+      // 添加编辑和删除事件
+      document.querySelectorAll('.edit-supplier').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const supplier = suppliers.find(s => s.id === id);
+          if (supplier) {
+            openSupplierModal(supplier);
+          }
+        });
+      });
+      
+      document.querySelectorAll('.delete-supplier').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          deleteSupplier(id);
+        });
+      });
+    }
+
+    // 更新统计信息
+    function updateSupplierStatistics() {
+      const totalCount = suppliers.length;
+      const activeCount = suppliers.filter(s => s.status === 'active').length;
+      const pendingCount = suppliers.filter(s => s.status === 'pending').length;
+      const aCount = suppliers.filter(s => s.creditRating === 'A').length;
+      
+      document.getElementById('supplier-total-count').textContent = totalCount;
+      document.getElementById('supplier-active-count').textContent = activeCount;
+      document.getElementById('supplier-pending-count').textContent = pendingCount;
+      document.getElementById('supplier-a-count').textContent = aCount;
+    }
+
+    // 导出为Excel
+    function exportSuppliersToExcel() {
+      if (!suppliers.length) {
+        alert('暂无数据可导出！');
+        return;
+      }
+      
+      const data = suppliers.map(supplier => ({
+        '供应商编号': supplier.id,
+        '供应商名称': supplier.name,
+        '供应商简称': supplier.shortName,
+        '联系人': supplier.contactPerson,
+        '联系电话': supplier.phone,
+        '备用电话': supplier.backupPhone || '',
+        '公司地址': supplier.address || '',
+        '供应品类': supplier.category,
+        '主营产品': supplier.mainProducts,
+        '合作起始日期': supplier.startDate,
+        '合作状态': getSupplierStatusText(supplier.status),
+        '信用等级': supplier.creditRating + '级',
+        '备注信息': supplier.remarks || ''
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "供应商信息");
+      XLSX.writeFile(wb, "供应商信息.xlsx");
+    }
+
+    // 状态徽章文本
+    function getSupplierStatusText(status) {
+      switch(status) {
+        case 'active': return '合作中';
+        case 'pending': return '待审核';
+        case 'inactive': return '暂停合作';
+        case 'terminated': return '已终止';
+        default: return status;
+      }
+    }
   </script>
 </body>
 </html>
