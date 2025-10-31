@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>青海厂内部管理工具中心</title>
+  <title>生产和采购管理工具</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -40,6 +40,15 @@
       transform: scale(1.02);
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
+    table th { 
+      position: sticky; 
+      top: 0; 
+      background-color: white; 
+      z-index: 10; 
+    }
+    .fade-in { 
+      animation: fadeIn 0.4s ease-in; 
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -50,7 +59,7 @@
   </header>
 
   <!-- 主内容区 -->
-  <div class="flex flex-1 w-11/12 max-w-6xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-lg">
+  <div class="flex flex-1 w-11/12 max-w-7xl mx-auto mb-8 rounded-2xl overflow-hidden shadow-lg">
     <!-- 左侧导航 -->
     <div class="w-1/4 bg-white p-6 flex flex-col">
       <div class="mb-8">
@@ -148,33 +157,79 @@
         <h3 class="text-xl font-bold text-gray-800 mb-4">常用工具</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <!-- 物料单价查询 -->
-          <a href="tz/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="material">
             <div class="text-4xl mb-3">💰</div>
             <h2 class="text-lg font-semibold text-gray-800 mb-2">物料单价查询</h2>
             <p class="text-sm text-gray-500">查看并核对最新采购单价与供应商数据。</p>
-          </a>
+          </div>
 
           <!-- 产品BOM查询 -->
-          <a href="bom/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="bom">
             <div class="text-4xl mb-3">📦</div>
             <h2 class="text-lg font-semibold text-gray-800 mb-2">产品BOM查询</h2>
             <p class="text-sm text-gray-500">快速查询物料构成、数量与采购单价。</p>
-          </a>
+          </div>
 
           <!-- 成品信息查询 -->
-          <a href="CP/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="product">
             <div class="text-4xl mb-3">🏷️</div>
             <h2 class="text-lg font-semibold text-gray-800 mb-2">成品信息查询</h2>
             <p class="text-sm text-gray-500">成品基础信息与系列归属快速检索。</p>
-          </a>
+          </div>
 
           <!-- 产品系列展示 -->
-          <a href="product/index.html" class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg">
+          <div class="tool-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg cursor-pointer" data-target="series">
             <div class="text-4xl mb-3">🧩</div>
             <h2 class="text-lg font-semibold text-gray-800 mb-2">产品系列展示</h2>
             <p class="text-sm text-gray-500">查看产品系列、图片与各系列下的成品。</p>
-          </a>
+          </div>
         </div>
+      </div>
+      
+      <!-- 物料单价查询内容 -->
+      <div id="material" class="content-section">
+        <!-- 标题栏 -->
+        <div class="bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
+          <div class="flex items-center gap-3">
+            <div class="h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">TRT</div>
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900">物料单价查询</h2>
+          </div>
+          <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
+            <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 查询范围：2022年1月1日 - 2025年10月14日</span>
+            <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
+          </div>
+        </div>
+
+        <!-- 查询区域 -->
+        <div class="bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+          <select id="year" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+            <option value="">全部年份</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+          </select>
+          <input id="projectName" type="text" placeholder="物料名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+          <input id="projectNo" type="text" placeholder="物料项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+          <input id="supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+          <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+          <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+          <button onclick="exportTableToExcel('查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
+        </div>
+
+        <!-- 汇总区 -->
+        <div id="summary" class="hidden mb-4 flex gap-4 fade-in">
+          <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
+            匹配结果：<span id="count"></span> 条
+          </div>
+          <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
+            金额总计：<span id="total"></span> 元
+          </div>
+        </div>
+
+        <!-- 查询结果 -->
+        <div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+        <div id="result" class="overflow-x-auto fade-in"></div>
       </div>
       
       <!-- 供应商管理内容 -->
@@ -347,19 +402,7 @@
         </div>
       </div>
       
-      <!-- 其他内容区域（物料单价、BOM查询等） -->
-      <div id="material" class="content-section">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">物料单价查询</h2>
-        <div class="bg-white rounded-xl p-8 text-center shadow">
-          <div class="text-6xl mb-4">💰</div>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">物料单价查询功能</h3>
-          <p class="text-gray-500 mb-6">查看并核对最新采购单价与供应商数据。</p>
-          <a href="tz/index.html" class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg">
-            进入功能页面
-          </a>
-        </div>
-      </div>
-      
+      <!-- 其他内容区域（BOM查询、成品信息、产品系列） -->
       <div id="bom" class="content-section">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">产品BOM查询</h2>
         <div class="bg-white rounded-xl p-8 text-center shadow">
@@ -430,6 +473,187 @@
         document.getElementById(targetId).classList.add('active');
       });
     });
+
+    // 仪表盘卡片点击导航功能
+    document.querySelectorAll('.tool-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        
+        // 移除所有激活状态
+        document.querySelectorAll('.nav-item').forEach(nav => {
+          nav.classList.remove('active');
+        });
+        
+        // 隐藏所有内容区域
+        document.querySelectorAll('.content-section').forEach(section => {
+          section.classList.remove('active');
+        });
+        
+        // 激活对应导航项
+        document.querySelector(`.nav-item[data-target="${targetId}"]`).classList.add('active');
+        
+        // 显示对应内容区域
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+
+    // 物料查询功能
+    let dataCache = [];
+
+    // 模拟数据加载
+    document.addEventListener('DOMContentLoaded', function() {
+      // 模拟加载数据
+      setTimeout(() => {
+        dataCache = [
+          {
+            "物料项目号": "MAT-2022001",
+            "物料名称": "包装纸箱A型",
+            "数量": 1000,
+            "单位": "个",
+            "采购单价": 5.8,
+            "订单总额": 5800,
+            "供应商名称": "华东包装材料有限公司",
+            "合同编号": "HT-2022001"
+          },
+          {
+            "物料项目号": "MAT-2022002",
+            "物料名称": "塑料薄膜B型",
+            "数量": 500,
+            "单位": "卷",
+            "采购单价": 12.5,
+            "订单总额": 6250,
+            "供应商名称": "北方原料供应集团",
+            "合同编号": "HT-2022002"
+          },
+          {
+            "物料项目号": "MAT-2023001",
+            "物料名称": "包装纸箱A型",
+            "数量": 800,
+            "单位": "个",
+            "采购单价": 5.5,
+            "订单总额": 4400,
+            "供应商名称": "华东包装材料有限公司",
+            "合同编号": "HT-2023001"
+          },
+          {
+            "物料项目号": "MAT-2023002",
+            "物料名称": "彩盒包装C型",
+            "数量": 300,
+            "单位": "个",
+            "采购单价": 8.2,
+            "订单总额": 2460,
+            "供应商名称": "华南设备科技有限公司",
+            "合同编号": "HT-2023002"
+          },
+          {
+            "物料项目号": "MAT-2024001",
+            "物料名称": "塑料薄膜B型",
+            "数量": 600,
+            "单位": "卷",
+            "采购单价": 11.8,
+            "订单总额": 7080,
+            "供应商名称": "北方原料供应集团",
+            "合同编号": "HT-2024001"
+          }
+        ];
+        document.getElementById("loading").style.display = "none";
+        console.log("✅ 数据已加载:", dataCache.length, "条");
+      }, 1000);
+    });
+
+    function searchData() {
+      const year = document.getElementById("year").value.trim();
+      const supplier = document.getElementById("supplier").value.trim();
+      const projectNo = document.getElementById("projectNo").value.trim();
+      const projectName = document.getElementById("projectName").value.trim();
+
+      if (!year && !supplier && !projectNo && !projectName) {
+        alert("请输入至少一项查询条件！");
+        return;
+      }
+
+      let filtered = dataCache.filter(item => {
+        const supplierStr = item["供应商名称"] || "";
+        const projectNoStr = item["物料项目号"] ? String(item["物料项目号"]) : "";
+        const projectNameStr = item["物料名称"] || "";
+        const contractNoStr = item["合同编号"] || "";
+
+        const matchYear = year ? contractNoStr.includes(year) : true;
+        const matchSupplier = supplier ? supplierStr.includes(supplier) : true;
+        const matchProjectNo = projectNo ? projectNoStr === projectNo : true;
+        const matchProjectName = projectName ? projectNameStr.includes(projectName) : true;
+
+        return matchYear && matchSupplier && matchProjectNo && matchProjectName;
+      });
+
+      filtered.sort((a,b)=>b["合同编号"].localeCompare(a["合同编号"]));
+
+      if (filtered.length === 0) {
+        document.getElementById("summary").classList.add("hidden");
+        document.getElementById("result").innerHTML = "<p class='text-center text-gray-500'>未找到匹配的数据。</p>";
+        return;
+      }
+
+      let total = filtered.reduce((sum,item)=>sum + Number(item["订单总额"]||0),0);
+
+      document.getElementById("summary").classList.remove("hidden");
+      document.getElementById("count").textContent = filtered.length;
+      document.getElementById("total").textContent = total.toLocaleString(undefined,{minimumFractionDigits:2});
+
+      let tableHTML = `
+        <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
+          <thead class="bg-gray-100 font-semibold sticky top-0">
+            <tr>
+              <th class="p-2 border-b">物料项目号</th>
+              <th class="p-2 border-b">物料名称</th>
+              <th class="p-2 border-b">数量</th>
+              <th class="p-2 border-b">单位</th>
+              <th class="p-2 border-b">采购单价</th>
+              <th class="p-2 border-b">订单总额</th>
+              <th class="p-2 border-b">供应商名称</th>
+              <th class="p-2 border-b">合同编号</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map((row,i)=>`
+              <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
+                <td class="p-2 border-b">${row["物料项目号"]||""}</td>
+                <td class="p-2 border-b">${row["物料名称"]||""}</td>
+                <td class="p-2 border-b">${row["数量"]||""}</td>
+                <td class="p-2 border-b">${row["单位"]||""}</td>
+                <td class="p-2 border-b">${Number(row["采购单价"]||0).toFixed(2)}</td>
+                <td class="p-2 border-b text-red-600 font-semibold">${Number(row["订单总额"]||0).toFixed(2)}</td>
+                <td class="p-2 border-b">${row["供应商名称"]||""}</td>
+                <td class="p-2 border-b">${row["合同编号"]||""}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot class="bg-gray-100 font-semibold">
+            <tr>
+              <td colspan="5" class="p-2 text-right">金额总计：</td>
+              <td colspan="3" class="p-2 text-red-700">${total.toFixed(2)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+      document.getElementById("result").innerHTML = tableHTML;
+    }
+
+    function resetForm() {
+      ["year","supplier","projectNo","projectName"].forEach(id=>document.getElementById(id).value="");
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("summary").classList.add("hidden");
+    }
+
+    function exportTableToExcel(filename) {
+      const table = document.querySelector("#result table");
+      if (!table) { alert("请先执行查询！"); return; }
+      const html = table.outerHTML.replace(/ /g,'%20');
+      const link = document.createElement("a");
+      link.href = 'data:application/vnd.ms-excel,' + html;
+      link.download = filename;
+      link.click();
+    }
   </script>
 </body>
 </html>
