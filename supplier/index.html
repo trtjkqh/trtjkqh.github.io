@@ -1,131 +1,102 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>供应商管理升级版</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>供应商信息与采购统计</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #f9fafb;
+      font-family: 'Microsoft YaHei', sans-serif;
+    }
+    th {
+      background-color: #e5e7eb;
+      font-weight: 600;
+    }
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 font-sans p-4">
+<body class="p-8">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800">供应商信息与采购统计</h1>
 
-<div class="mb-4">
-  <!-- 筛选区 -->
-  <div class="flex flex-wrap gap-2 items-center">
-    <select id="categoryFilter" class="border rounded px-2 py-1">
-      <option value="">全部供应品类</option>
-      <option value="包装">包装</option>
-      <option value="辅料">辅料</option>
-    </select>
-    <input type="text" id="supplierFilter" placeholder="供应商名称" class="border rounded px-2 py-1 flex-1">
-    <button id="exportBtn" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">导出Excel</button>
+  <div class="overflow-x-auto shadow-lg rounded-2xl bg-white p-4">
+    <table class="min-w-full text-sm text-gray-700 border border-gray-200 rounded-lg">
+      <thead>
+        <tr>
+          <th class="px-4 py-2 border">序号</th>
+          <th class="px-4 py-2 border">供应商名称</th>
+          <th class="px-4 py-2 border">联系人</th>
+          <th class="px-4 py-2 border">联系方式</th>
+          <th class="px-4 py-2 border">地址</th>
+          <th class="px-4 py-2 border text-right">累计采购金额（元）</th>
+        </tr>
+      </thead>
+      <tbody id="supplierBody"></tbody>
+    </table>
   </div>
-</div>
 
-<!-- 统计区 -->
-<div class="grid grid-cols-4 gap-4 mb-4">
-  <div class="bg-white p-4 rounded shadow text-center">
-    <div class="text-gray-500">供应商总数</div>
-    <div id="totalSuppliers" class="text-xl font-bold">0</div>
-  </div>
-  <div class="bg-white p-4 rounded shadow text-center">
-    <div class="text-gray-500">合作中供应商</div>
-    <div id="activeSuppliers" class="text-xl font-bold">0</div>
-  </div>
-  <div class="bg-white p-4 rounded shadow text-center">
-    <div class="text-gray-500">A级供应商</div>
-    <div id="aSuppliers" class="text-xl font-bold">0</div>
-  </div>
-  <div class="bg-white p-4 rounded shadow text-center">
-    <div class="text-gray-500">采购总金额</div>
-    <div id="totalAmount" class="text-xl font-bold">0</div>
-  </div>
-</div>
+  <p id="totalAmount" class="mt-6 text-gray-700 font-semibold"></p>
 
-<!-- 表格区 -->
-<div class="overflow-x-auto bg-white p-2 rounded shadow">
-  <table class="min-w-full table-auto border-collapse border border-gray-200" id="supplierTable">
-    <thead>
-      <tr class="bg-gray-100">
-        <th class="border px-2 py-1">供应品类</th>
-        <th class="border px-2 py-1">供应商名称</th>
-        <th class="border px-2 py-1">供应商等级</th>
-        <th class="border px-2 py-1">合作状态</th>
-        <th class="border px-2 py-1">采购金额</th>
-        <th class="border px-2 py-1">其他字段1</th>
-        <th class="border px-2 py-1">其他字段2</th>
-        <!-- 可根据 tz/data.json 增加全部字段 -->
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
-</div>
+  <script>
+    async function loadSupplierData() {
+      try {
+        // 同时加载 supplier/data.json 和 tz/data.json
+        const [supplierRes, tzRes] = await Promise.all([
+          fetch('data.json'),       // supplier/data.json
+          fetch('../tz/data.json')  // tz/data.json
+        ]);
 
-<script>
-let supplierData = [];
+        if (!supplierRes.ok || !tzRes.ok) throw new Error('数据加载失败');
 
-// 加载数据
-async function loadData() {
-  const res = await fetch('tz/data.json');
-  supplierData = await res.json();
-  renderTable();
-  updateStats();
-}
+        const supplierData = await supplierRes.json();
+        const tzData = await tzRes.json();
 
-// 渲染表格
-function renderTable() {
-  const category = document.getElementById('categoryFilter').value;
-  const supplier = document.getElementById('supplierFilter').value.trim().toLowerCase();
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
+        // 计算每个供应商的累计采购金额
+        const supplierAmounts = {};
+        tzData.forEach(item => {
+          const name = item['供应商名称'];
+          const amount = parseFloat(item['金额'] || 0);
+          if (name) {
+            supplierAmounts[name] = (supplierAmounts[name] || 0) + amount;
+          }
+        });
 
-  const filtered = supplierData.filter(item => {
-    const matchCategory = category ? item['供应品类'] === category : ['包装','辅料'].includes(item['供应品类']);
-    const matchSupplier = supplier ? item['供应商名称'].toLowerCase().includes(supplier) : true;
-    return matchCategory && matchSupplier;
-  });
+        // 构建表格内容
+        const tbody = document.getElementById('supplierBody');
+        tbody.innerHTML = '';
+        let totalAll = 0;
 
-  filtered.forEach(item => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="border px-2 py-1">${item['供应品类'] || ''}</td>
-      <td class="border px-2 py-1">${item['供应商名称'] || ''}</td>
-      <td class="border px-2 py-1">${item['供应商等级'] || ''}</td>
-      <td class="border px-2 py-1">${item['合作状态'] || ''}</td>
-      <td class="border px-2 py-1">${item['采购金额'] || 0}</td>
-      <td class="border px-2 py-1">${item['其他字段1'] || ''}</td>
-      <td class="border px-2 py-1">${item['其他字段2'] || ''}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+        supplierData.forEach((supplier, index) => {
+          const name = supplier['供应商名称'];
+          const amount = supplierAmounts[name] || 0;
+          totalAll += amount;
 
-  updateStats(filtered);
-}
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="border px-4 py-2 text-center">${index + 1}</td>
+            <td class="border px-4 py-2">${name}</td>
+            <td class="border px-4 py-2">${supplier['联系人'] || '-'}</td>
+            <td class="border px-4 py-2">${supplier['联系方式'] || '-'}</td>
+            <td class="border px-4 py-2">${supplier['地址'] || '-'}</td>
+            <td class="border px-4 py-2 text-right">${amount.toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
 
-// 更新统计
-function updateStats(filteredData) {
-  const data = filteredData || supplierData.filter(item => ['包装','辅料'].includes(item['供应品类']));
-  document.getElementById('totalSuppliers').textContent = data.length;
-  document.getElementById('activeSuppliers').textContent = data.filter(d => d['合作状态'] === '合作中').length;
-  document.getElementById('aSuppliers').textContent = data.filter(d => d['供应商等级'] === 'A').length;
-  const total = data.reduce((sum, d) => sum + (Number(d['采购金额']) || 0), 0);
-  document.getElementById('totalAmount').textContent = total.toFixed(2);
-}
+        document.getElementById('totalAmount').textContent =
+          `全部供应商累计采购金额：${totalAll.toFixed(2)} 元`;
 
-// Excel 导出
-function exportExcel() {
-  const table = document.getElementById('supplierTable');
-  const wb = XLSX.utils.table_to_book(table, {sheet:"Sheet1"});
-  XLSX.writeFile(wb, '供应商数据.xlsx');
-}
+      } catch (error) {
+        console.error('加载失败：', error);
+        document.getElementById('supplierBody').innerHTML =
+          `<tr><td colspan="6" class="text-center text-red-500 py-4">数据加载失败，请检查路径或文件格式</td></tr>`;
+      }
+    }
 
-// 事件绑定
-document.getElementById('categoryFilter').addEventListener('change', renderTable);
-document.getElementById('supplierFilter').addEventListener('input', renderTable);
-document.getElementById('exportBtn').addEventListener('click', exportExcel);
-
-// 初始化
-loadData();
-</script>
+    loadSupplierData();
+  </script>
 </body>
 </html>
