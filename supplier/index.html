@@ -1,677 +1,213 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>供应商管理系统</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-  .fade-in { animation: fadeIn 0.4s ease-in; }
-  table th { position: sticky; top: 0; background-color: white; z-index: 10; }
-  .status-badge {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-  .status-active { background-color: #dcfce7; color: #166534; }
-  .status-pending { background-color: #fef3c7; color: #92400e; }
-  .status-inactive { background-color: #f3f4f6; color: #6b7280; }
-  .status-terminated { background-color: #fee2e2; color: #991b1b; }
-  .credit-a { background-color: #dcfce7; color: #166534; }
-  .credit-b { background-color: #dbeafe; color: #1e40af; }
-  .credit-c { background-color: #fef3c7; color: #92400e; }
-  .credit-d { background-color: #fee2e2; color: #991b1b; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>供应商信息管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-6xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+    <h1 class="text-2xl font-bold mb-4 text-blue-700">供应商信息管理</h1>
 
-<!-- 标题栏 -->
-<div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
-  <div class="flex items-center gap-3">
-    <div class="h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">TRT</div>
-    <h1 class="text-xl md:text-2xl font-bold text-gray-900">供应商管理系统</h1>
-  </div>
-  <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
-    <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 数据实时更新，本地存储</span>
-    <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 保密声明：内部数据，严禁外传</span>
-  </div>
-</div>
+    <div id="loading" class="text-gray-500 mb-4">⏳ 正在加载数据...</div>
+    <div id="statistics" class="mb-4 text-sm text-gray-600"></div>
 
-<!-- 查询区域 -->
-<div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
-  <input id="supplier-search" type="text" placeholder="供应商名称或编号" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-  <select id="status-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
-    <option value="">全部状态</option>
-    <option value="active">合作中</option>
-    <option value="pending">待审核</option>
-    <option value="inactive">暂停合作</option>
-    <option value="terminated">已终止</option>
-  </select>
-  <select id="category-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
-    <option value="">全部品类</option>
-    <option value="包装">包装</option>
-    <option value="原料">原料</option>
-    <option value="辅料">辅料</option>
-    <option value="设备">设备</option>
-    <option value="其他">其他</option>
-  </select>
-  <select id="credit-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
-    <option value="">全部等级</option>
-    <option value="A">A级</option>
-    <option value="B">B级</option>
-    <option value="C">C级</option>
-    <option value="D">D级</option>
-  </select>
-  <button id="search-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
-  <button id="reset-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
-  <button id="add-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition shadow">添加供应商</button>
-  <button id="export-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
-</div>
-
-<!-- 汇总区 -->
-<div id="summary" class="max-w-7xl mx-auto mb-4 flex gap-4 fade-in">
-  <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
-    供应商总数：<span id="total-count">0</span> 家
-  </div>
-  <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
-    合作中：<span id="active-count">0</span> 家
-  </div>
-  <div class="flex-1 bg-yellow-50 border border-yellow-200 rounded-lg p-4 font-semibold text-yellow-700 text-center shadow">
-    待审核：<span id="pending-count">0</span> 家
-  </div>
-  <div class="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4 font-semibold text-blue-700 text-center shadow">
-    A级供应商：<span id="a-count">0</span> 家
-  </div>
-</div>
-
-<!-- 查询结果 -->
-<div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
-<div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
-
-<footer class="text-center text-gray-500 text-sm mt-8 mb-4">
-  © 2025 采购部 |
-  <a href="/" class="hover:underline">首页</a> |
-  <a href="/bom/index.html" class="hover:underline">BOM</a> |
-  <a href="/CP/index.html" class="hover:underline">成品信息</a> |
-  <a href="/tz/index.html" class="hover:underline">物料单价</a> |
-  <a href="/product/index.html" class="hover:underline">产品手册</a>
-</footer>
-
-<!-- 供应商详情模态框 -->
-<div id="supplier-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-xl font-bold text-gray-800" id="modal-title">添加供应商</h3>
-      <button id="close-modal" class="text-gray-500 hover:text-gray-700">
-        <i class="fas fa-times text-xl"></i>
-      </button>
-    </div>
-    
-    <form id="supplier-form" class="space-y-4">
-      <input type="hidden" id="supplier-id">
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- 基本信息 -->
-        <div class="md:col-span-2">
-          <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">基本信息</h4>
-        </div>
-        
-        <div>
-          <label for="supplier-code" class="block text-sm font-medium text-gray-700 mb-1">供应商编号 *</label>
-          <input type="text" id="supplier-code" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <div>
-          <label for="supplier-name" class="block text-sm font-medium text-gray-700 mb-1">供应商名称 *</label>
-          <input type="text" id="supplier-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <div>
-          <label for="supplier-shortname" class="block text-sm font-medium text-gray-700 mb-1">供应商简称 *</label>
-          <input type="text" id="supplier-shortname" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <!-- 联系信息 -->
-        <div class="md:col-span-2 mt-4">
-          <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">联系信息</h4>
-        </div>
-        
-        <div>
-          <label for="contact-person" class="block text-sm font-medium text-gray-700 mb-1">联系人 *</label>
-          <input type="text" id="contact-person" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <div>
-          <label for="contact-phone" class="block text-sm font-medium text-gray-700 mb-1">联系电话 *</label>
-          <input type="text" id="contact-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <div>
-          <label for="backup-phone" class="block text-sm font-medium text-gray-700 mb-1">备用电话</label>
-          <input type="text" id="backup-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-        </div>
-        
-        <div class="md:col-span-2">
-          <label for="address" class="block text-sm font-medium text-gray-700 mb-1">公司地址</label>
-          <input type="text" id="address" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-        </div>
-        
-        <!-- 业务信息 -->
-        <div class="md:col-span-2 mt-4">
-          <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">业务信息</h4>
-        </div>
-        
-        <div>
-          <label for="category" class="block text-sm font-medium text-gray-700 mb-1">供应品类 *</label>
-          <select id="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-            <option value="">请选择品类</option>
-            <option value="包装">包装</option>
-            <option value="原料">原料</option>
-            <option value="辅料">辅料</option>
-            <option value="设备">设备</option>
-            <option value="其他">其他</option>
-          </select>
-        </div>
-        
-        <div>
-          <label for="main-products" class="block text-sm font-medium text-gray-700 mb-1">主营产品 *</label>
-          <input type="text" id="main-products" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <div class="md:col-span-2">
-          <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">合作起始日期 *</label>
-          <input type="date" id="start-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-        </div>
-        
-        <!-- 状态信息 -->
-        <div class="md:col-span-2 mt-4">
-          <h4 class="text-lg font-semibold text-gray-700 mb-2 border-b pb-1">状态信息</h4>
-        </div>
-        
-        <div>
-          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">合作状态 *</label>
-          <select id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-            <option value="">请选择状态</option>
-            <option value="active">合作中</option>
-            <option value="pending">待审核</option>
-            <option value="inactive">暂停合作</option>
-            <option value="terminated">已终止</option>
-          </select>
-        </div>
-        
-        <div>
-          <label for="credit-rating" class="block text-sm font-medium text-gray-700 mb-1">信用等级 *</label>
-          <select id="credit-rating" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
-            <option value="">请选择等级</option>
-            <option value="A">A级</option>
-            <option value="B">B级</option>
-            <option value="C">C级</option>
-            <option value="D">D级</option>
-          </select>
-        </div>
-        
-        <div class="md:col-span-2">
-          <label for="remarks" class="block text-sm font-medium text-gray-700 mb-1">备注信息</label>
-          <textarea id="remarks" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3"></textarea>
-        </div>
-      </div>
-      
-      <div class="flex justify-end space-x-3 pt-4">
-        <button type="button" id="cancel-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">取消</button>
-        <button type="submit" id="save-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">保存</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-// 供应商数据存储
-let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];
-
-// 从JSON文件加载数据的函数
-async function loadSuppliersFromJSON() {
-  try {
-    const response = await fetch('data.json');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    
-    // 转换数据格式，将中文字段映射到英文字段
-    const convertedData = data.map(item => ({
-      id: item["供应商编号"].toString(),
-      name: item["名称"],
-      shortName: item["简称"],
-      contactPerson: item["联系人"],
-      phone: item["联系电话"].toString(),
-      backupPhone: item["备用电话"] ? item["备用电话"].toString() : '',
-      address: item["公司地址"],
-      category: item["供应品类"],
-      mainProducts: item["主要产品"],
-      startDate: convertExcelDate(item["合作起始日期"]),
-      status: convertStatus(item["合作状态"]),
-      creditRating: item["信用等级"],
-      remarks: item["备注信息"] || ''
-    }));
-    
-    // 如果本地存储没有数据，使用JSON文件中的数据
-    if (suppliers.length === 0) {
-      suppliers = convertedData;
-      localStorage.setItem('suppliers', JSON.stringify(suppliers));
-    }
-    
-    document.getElementById("loading").style.display = "none";
-    console.log("✅ 供应商数据已加载:", suppliers.length, "条");
-    updateStatistics();
-    renderSupplierTable(suppliers);
-  } catch (error) {
-    console.error("❌ 数据加载失败:", error);
-    document.getElementById("loading").textContent = "❌ 无法加载数据，使用本地存储数据";
-    
-    // 如果本地存储有数据，使用本地存储数据
-    if (suppliers.length > 0) {
-      document.getElementById("loading").style.display = "none";
-      updateStatistics();
-      renderSupplierTable(suppliers);
-    } else {
-      // 如果没有本地数据，使用示例数据
-      suppliers = [
-        {
-          id: '23001',
-          name: '华东包装材料有限公司',
-          shortName: '华东包装',
-          contactPerson: '张经理',
-          phone: '13800138000',
-          backupPhone: '0571-12345678',
-          address: '浙江省杭州市西湖区文三路100号',
-          category: '包装',
-          mainProducts: '纸箱,纸盒,包装纸',
-          startDate: '2023-01-15',
-          status: 'terminated',
-          creditRating: 'A',
-          remarks: '合作稳定，质量可靠'
-        }
-      ];
-      localStorage.setItem('suppliers', JSON.stringify(suppliers));
-      document.getElementById("loading").style.display = "none";
-      updateStatistics();
-      renderSupplierTable(suppliers);
-    }
-  }
-}
-
-// 转换Excel日期序列为YYYY-MM-DD格式
-function convertExcelDate(excelDate) {
-  if (typeof excelDate === 'number') {
-    // Excel日期序列是从1900-01-01开始
-    const date = new Date((excelDate - 25569) * 86400 * 1000);
-    return date.toISOString().split('T')[0];
-  }
-  return excelDate;
-}
-
-// 转换状态从中文到英文
-function convertStatus(chineseStatus) {
-  switch(chineseStatus) {
-    case '合作中': return 'active';
-    case '待审核': return 'pending';
-    case '暂停合作': return 'inactive';
-    case '已终止': return 'terminated';
-    default: return 'active';
-  }
-}
-
-// 初始化页面
-document.addEventListener('DOMContentLoaded', function() {
-  // 加载供应商数据
-  loadSuppliersFromJSON();
-  
-  // 搜索按钮事件
-  document.getElementById('search-btn').addEventListener('click', searchSuppliers);
-  
-  // 重置按钮事件
-  document.getElementById('reset-btn').addEventListener('click', resetForm);
-  
-  // 添加供应商按钮事件
-  document.getElementById('add-btn').addEventListener('click', openSupplierModal);
-  
-  // 导出按钮事件
-  document.getElementById('export-btn').addEventListener('click', exportToExcel);
-  
-  // 关闭模态框
-  document.getElementById('close-modal').addEventListener('click', closeSupplierModal);
-  document.getElementById('cancel-btn').addEventListener('click', closeSupplierModal);
-  
-  // 保存供应商
-  document.getElementById('supplier-form').addEventListener('submit', saveSupplier);
-  
-  // 搜索框回车事件
-  document.getElementById('supplier-search').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') searchSuppliers();
-  });
-});
-
-// 搜索供应商
-function searchSuppliers() {
-  const searchTerm = document.getElementById('supplier-search').value.trim().toLowerCase();
-  const statusFilter = document.getElementById('status-filter').value;
-  const categoryFilter = document.getElementById('category-filter').value;
-  const creditFilter = document.getElementById('credit-filter').value;
-  
-  let filtered = suppliers.filter(supplier => {
-    const matchesSearch = !searchTerm || 
-      supplier.name.toLowerCase().includes(searchTerm) ||
-      supplier.shortName.toLowerCase().includes(searchTerm) ||
-      supplier.id.includes(searchTerm) ||
-      supplier.contactPerson.toLowerCase().includes(searchTerm) ||
-      supplier.mainProducts.toLowerCase().includes(searchTerm);
-    
-    const matchesStatus = !statusFilter || supplier.status === statusFilter;
-    const matchesCategory = !categoryFilter || supplier.category === categoryFilter;
-    const matchesCredit = !creditFilter || supplier.creditRating === creditFilter;
-    
-    return matchesSearch && matchesStatus && matchesCategory && matchesCredit;
-  });
-  
-  renderSupplierTable(filtered);
-}
-
-// 重置表单
-function resetForm() {
-  document.getElementById('supplier-search').value = '';
-  document.getElementById('status-filter').value = '';
-  document.getElementById('category-filter').value = '';
-  document.getElementById('credit-filter').value = '';
-  renderSupplierTable(suppliers);
-}
-
-// 打开供应商模态框
-function openSupplierModal(supplier = null) {
-  const modal = document.getElementById('supplier-modal');
-  const title = document.getElementById('modal-title');
-  const form = document.getElementById('supplier-form');
-  
-  // 重置表单
-  form.reset();
-  
-  if (supplier) {
-    // 编辑模式
-    title.textContent = '编辑供应商';
-    document.getElementById('supplier-id').value = supplier.id;
-    document.getElementById('supplier-code').value = supplier.id;
-    document.getElementById('supplier-name').value = supplier.name;
-    document.getElementById('supplier-shortname').value = supplier.shortName;
-    document.getElementById('contact-person').value = supplier.contactPerson;
-    document.getElementById('contact-phone').value = supplier.phone;
-    document.getElementById('backup-phone').value = supplier.backupPhone || '';
-    document.getElementById('address').value = supplier.address || '';
-    document.getElementById('category').value = supplier.category;
-    document.getElementById('main-products').value = supplier.mainProducts;
-    document.getElementById('start-date').value = supplier.startDate;
-    document.getElementById('status').value = supplier.status;
-    document.getElementById('credit-rating').value = supplier.creditRating;
-    document.getElementById('remarks').value = supplier.remarks || '';
-  } else {
-    // 添加模式
-    title.textContent = '添加供应商';
-    document.getElementById('supplier-id').value = '';
-    // 生成新的供应商编号
-    const maxId = Math.max(...suppliers.map(s => parseInt(s.id)), 0);
-    document.getElementById('supplier-code').value = String(maxId + 1).padStart(5, '0');
-  }
-  
-  modal.classList.remove('hidden');
-}
-
-// 关闭供应商模态框
-function closeSupplierModal() {
-  document.getElementById('supplier-modal').classList.add('hidden');
-}
-
-// 保存供应商
-function saveSupplier(e) {
-  e.preventDefault();
-  
-  const id = document.getElementById('supplier-id').value;
-  const code = document.getElementById('supplier-code').value;
-  const name = document.getElementById('supplier-name').value;
-  const shortName = document.getElementById('supplier-shortname').value;
-  const contactPerson = document.getElementById('contact-person').value;
-  const phone = document.getElementById('contact-phone').value;
-  const backupPhone = document.getElementById('backup-phone').value;
-  const address = document.getElementById('address').value;
-  const category = document.getElementById('category').value;
-  const mainProducts = document.getElementById('main-products').value;
-  const startDate = document.getElementById('start-date').value;
-  const status = document.getElementById('status').value;
-  const creditRating = document.getElementById('credit-rating').value;
-  const remarks = document.getElementById('remarks').value;
-  
-  // 验证必填字段
-  if (!code || !name || !shortName || !contactPerson || !phone || !category || !mainProducts || !startDate || !status || !creditRating) {
-    alert('请填写所有必填字段！');
-    return;
-  }
-  
-  const supplierData = {
-    id: code,
-    name,
-    shortName,
-    contactPerson,
-    phone,
-    backupPhone,
-    address,
-    category,
-    mainProducts,
-    startDate,
-    status,
-    creditRating,
-    remarks
-  };
-  
-  if (id) {
-    // 更新现有供应商
-    const index = suppliers.findIndex(s => s.id === id);
-    if (index !== -1) {
-      suppliers[index] = supplierData;
-    }
-  } else {
-    // 添加新供应商
-    suppliers.push(supplierData);
-  }
-  
-  // 保存到本地存储
-  localStorage.setItem('suppliers', JSON.stringify(suppliers));
-  
-  // 重新渲染列表
-  renderSupplierTable(suppliers);
-  
-  // 更新统计信息
-  updateStatistics();
-  
-  // 关闭模态框
-  closeSupplierModal();
-  
-  alert('供应商信息已保存！');
-}
-
-// 删除供应商
-function deleteSupplier(id) {
-  if (confirm('确定要删除这个供应商吗？')) {
-    suppliers = suppliers.filter(s => s.id !== id);
-    
-    // 保存到本地存储
-    localStorage.setItem('suppliers', JSON.stringify(suppliers));
-    
-    // 重新渲染列表
-    renderSupplierTable(suppliers);
-    
-    // 更新统计信息
-    updateStatistics();
-    
-    alert('供应商已删除！');
-  }
-}
-
-// 渲染供应商表格
-function renderSupplierTable(supplierList) {
-  const container = document.getElementById('result');
-  
-  if (supplierList.length === 0) {
-    container.innerHTML = '<p class="text-center text-gray-500 py-8">未找到匹配的供应商</p>';
-    return;
-  }
-  
-  // 状态徽章文本
-  function getStatusText(status) {
-    switch(status) {
-      case 'active': return '合作中';
-      case 'pending': return '待审核';
-      case 'inactive': return '暂停合作';
-      case 'terminated': return '已终止';
-      default: return status;
-    }
-  }
-  
-  // 状态徽章类
-  function getStatusClass(status) {
-    switch(status) {
-      case 'active': return 'status-active';
-      case 'pending': return 'status-pending';
-      case 'inactive': return 'status-inactive';
-      case 'terminated': return 'status-terminated';
-      default: return '';
-    }
-  }
-  
-  // 信用等级徽章类
-  function getCreditClass(credit) {
-    switch(credit) {
-      case 'A': return 'credit-a';
-      case 'B': return 'credit-b';
-      case 'C': return 'credit-c';
-      case 'D': return 'credit-d';
-      default: return '';
-    }
-  }
-  
-  let tableHTML = `
-    <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
-      <thead class="bg-gray-100 font-semibold sticky top-0">
-        <tr>
-          <th class="p-2 border-b">供应商编号</th>
-          <th class="p-2 border-b">供应商名称</th>
-          <th class="p-2 border-b">简称</th>
-          <th class="p-2 border-b">联系人</th>
-          <th class="p-2 border-b">联系电话</th>
-          <th class="p-2 border-b">供应品类</th>
-          <th class="p-2 border-b">主营产品</th>
-          <th class="p-2 border-b">合作状态</th>
-          <th class="p-2 border-b">信用等级</th>
-          <th class="p-2 border-b">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${supplierList.map((supplier, i) => `
-          <tr class="${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-red-50 transition">
-            <td class="p-2 border-b">${supplier.id}</td>
-            <td class="p-2 border-b">${supplier.name}</td>
-            <td class="p-2 border-b">${supplier.shortName}</td>
-            <td class="p-2 border-b">${supplier.contactPerson}</td>
-            <td class="p-2 border-b">${supplier.phone}</td>
-            <td class="p-2 border-b">${supplier.category}</td>
-            <td class="p-2 border-b">${supplier.mainProducts}</td>
-            <td class="p-2 border-b"><span class="status-badge ${getStatusClass(supplier.status)}">${getStatusText(supplier.status)}</span></td>
-            <td class="p-2 border-b"><span class="status-badge ${getCreditClass(supplier.creditRating)}">${supplier.creditRating}级</span></td>
-            <td class="p-2 border-b">
-              <button class="edit-supplier text-blue-600 hover:text-blue-800 mx-1" data-id="${supplier.id}">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="delete-supplier text-red-600 hover:text-red-800 mx-1" data-id="${supplier.id}">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </td>
+    <!-- 表格 -->
+    <div class="overflow-x-auto">
+      <table id="supplierTable" class="min-w-full border border-gray-300 text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-2 border">编号</th>
+            <th class="p-2 border">名称</th>
+            <th class="p-2 border">联系人</th>
+            <th class="p-2 border">电话</th>
+            <th class="p-2 border">供应品类</th>
+            <th class="p-2 border">合作状态</th>
+            <th class="p-2 border">起始日期</th>
+            <th class="p-2 border">信用等级</th>
+            <th class="p-2 border">操作</th>
           </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-  container.innerHTML = tableHTML;
-  
-  // 添加编辑和删除事件
-  document.querySelectorAll('.edit-supplier').forEach(button => {
-    button.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      const supplier = suppliers.find(s => s.id === id);
-      if (supplier) {
-        openSupplierModal(supplier);
+        </thead>
+        <tbody id="supplierTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 编辑窗口 -->
+    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-lg font-bold mb-3 text-blue-600">编辑供应商信息</h2>
+        <form id="editForm" class="space-y-2">
+          <input type="hidden" id="editId">
+          <div>
+            <label class="block text-sm">名称</label>
+            <input id="editName" type="text" class="w-full border p-2 rounded">
+          </div>
+          <div>
+            <label class="block text-sm">联系人</label>
+            <input id="editContactPerson" type="text" class="w-full border p-2 rounded">
+          </div>
+          <div>
+            <label class="block text-sm">电话</label>
+            <input id="editPhone" type="text" class="w-full border p-2 rounded">
+          </div>
+          <div>
+            <label class="block text-sm">供应品类</label>
+            <input id="editCategory" type="text" class="w-full border p-2 rounded">
+          </div>
+          <div>
+            <label class="block text-sm">合作状态</label>
+            <select id="editStatus" class="w-full border p-2 rounded">
+              <option value="active">合作中</option>
+              <option value="pending">待审核</option>
+              <option value="inactive">暂停合作</option>
+              <option value="terminated">已终止</option>
+            </select>
+          </div>
+          <div class="flex justify-end mt-4 space-x-2">
+            <button type="button" id="cancelEdit" class="px-3 py-1 bg-gray-300 rounded">取消</button>
+            <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let suppliers = JSON.parse(localStorage.getItem("suppliers") || "[]");
+
+    // 加载 JSON 数据并转换字段
+    async function loadSuppliersFromJSON() {
+      try {
+        const response = await fetch("data.json");
+        const raw = await response.json();
+
+        suppliers = raw.map(item => ({
+          id: item["供应商编号"],
+          name: item["名称"],
+          contactPerson: item["联系人"],
+          phone: item["联系电话"],
+          category: item["供应品类"],
+          startDate: excelDateToISO(item["合作起始日期"]),
+          status: mapStatus(item["合作状态"]),
+          credit: item["信用等级"]
+        }));
+
+        localStorage.setItem("suppliers", JSON.stringify(suppliers));
+        renderSupplierTable();
+        updateStatistics();
+        document.getElementById("loading").style.display = "none";
+      } catch (e) {
+        document.getElementById("loading").textContent = "⚠️ 加载本地存储数据";
+        renderSupplierTable();
       }
-    });
-  });
-  
-  document.querySelectorAll('.delete-supplier').forEach(button => {
-    button.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      deleteSupplier(id);
-    });
-  });
-}
+    }
 
-// 更新统计信息
-function updateStatistics() {
-  const totalCount = suppliers.length;
-  const activeCount = suppliers.filter(s => s.status === 'active').length;
-  const pendingCount = suppliers.filter(s => s.status === 'pending').length;
-  const aCount = suppliers.filter(s => s.creditRating === 'A').length;
-  
-  document.getElementById('total-count').textContent = totalCount;
-  document.getElementById('active-count').textContent = activeCount;
-  document.getElementById('pending-count').textContent = pendingCount;
-  document.getElementById('a-count').textContent = aCount;
-}
+    function excelDateToISO(serial) {
+      if (!serial || isNaN(serial)) return "";
+      const utc_days = Math.floor(serial - 25569);
+      const utc_value = utc_days * 86400;
+      const date_info = new Date(utc_value * 1000);
+      return date_info.toISOString().split("T")[0];
+    }
 
-// 导出为Excel
-function exportToExcel() {
-  if (!suppliers.length) {
-    alert('暂无数据可导出！');
-    return;
-  }
-  
-  const data = suppliers.map(supplier => ({
-    '供应商编号': supplier.id,
-    '供应商名称': supplier.name,
-    '供应商简称': supplier.shortName,
-    '联系人': supplier.contactPerson,
-    '联系电话': supplier.phone,
-    '备用电话': supplier.backupPhone || '',
-    '公司地址': supplier.address || '',
-    '供应品类': supplier.category,
-    '主营产品': supplier.mainProducts,
-    '合作起始日期': supplier.startDate,
-    '合作状态': getStatusText(supplier.status),
-    '信用等级': supplier.creditRating + '级',
-    '备注信息': supplier.remarks || ''
-  }));
-  
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "供应商信息");
-  XLSX.writeFile(wb, "供应商信息.xlsx");
-}
+    function mapStatus(status) {
+      switch (status) {
+        case "合作中": return "active";
+        case "待审核": return "pending";
+        case "暂停合作": return "inactive";
+        case "已终止": return "terminated";
+        default: return "";
+      }
+    }
 
-// 状态徽章文本
-function getStatusText(status) {
-  switch(status) {
-    case 'active': return '合作中';
-    case 'pending': return '待审核';
-    case 'inactive': return '暂停合作';
-    case 'terminated': return '已终止';
-    default: return status;
-  }
-}
-</script>
+    // 渲染表格
+    function renderSupplierTable() {
+      const tbody = document.getElementById("supplierTableBody");
+      tbody.innerHTML = "";
+      suppliers.forEach((s, index) => {
+        const tr = document.createElement("tr");
+        tr.className = index % 2 === 0 ? "bg-white" : "bg-gray-50";
+        tr.innerHTML = `
+          <td class="border p-2">${s.id}</td>
+          <td class="border p-2">${s.name}</td>
+          <td class="border p-2">${s.contactPerson}</td>
+          <td class="border p-2">${s.phone}</td>
+          <td class="border p-2">${s.category}</td>
+          <td class="border p-2">${formatStatus(s.status)}</td>
+          <td class="border p-2">${s.startDate}</td>
+          <td class="border p-2">${s.credit}</td>
+          <td class="border p-2 text-center">
+            <button class="text-blue-600 hover:underline" onclick="editSupplier('${s.id}')">编辑</button>
+            <button class="text-red-600 hover:underline ml-2" onclick="deleteSupplier('${s.id}')">删除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
+    function formatStatus(status) {
+      const map = {
+        active: "✅ 合作中",
+        pending: "🕓 待审核",
+        inactive: "⏸️ 暂停",
+        terminated: "❌ 终止"
+      };
+      return map[status] || status;
+    }
+
+    // 编辑功能
+    function editSupplier(id) {
+      const supplier = suppliers.find(s => s.id == id);
+      if (!supplier) return;
+      document.getElementById("editModal").classList.remove("hidden");
+      document.getElementById("editId").value = supplier.id;
+      document.getElementById("editName").value = supplier.name;
+      document.getElementById("editContactPerson").value = supplier.contactPerson;
+      document.getElementById("editPhone").value = supplier.phone;
+      document.getElementById("editCategory").value = supplier.category;
+      document.getElementById("editStatus").value = supplier.status;
+    }
+
+    document.getElementById("cancelEdit").onclick = () => {
+      document.getElementById("editModal").classList.add("hidden");
+    };
+
+    document.getElementById("editForm").onsubmit = (e) => {
+      e.preventDefault();
+      const id = document.getElementById("editId").value;
+      const index = suppliers.findIndex(s => s.id == id);
+      if (index !== -1) {
+        suppliers[index].name = document.getElementById("editName").value;
+        suppliers[index].contactPerson = document.getElementById("editContactPerson").value;
+        suppliers[index].phone = document.getElementById("editPhone").value;
+        suppliers[index].category = document.getElementById("editCategory").value;
+        suppliers[index].status = document.getElementById("editStatus").value;
+        localStorage.setItem("suppliers", JSON.stringify(suppliers));
+        renderSupplierTable();
+      }
+      document.getElementById("editModal").classList.add("hidden");
+    };
+
+    // 删除功能
+    function deleteSupplier(id) {
+      if (!confirm("确定要删除该供应商吗？")) return;
+      suppliers = suppliers.filter(s => s.id != id);
+      localStorage.setItem("suppliers", JSON.stringify(suppliers));
+      renderSupplierTable();
+    }
+
+    // 统计信息
+    function updateStatistics() {
+      const total = suppliers.length;
+      const active = suppliers.filter(s => s.status === "active").length;
+      const inactive = suppliers.filter(s => s.status === "inactive").length;
+      document.getElementById("statistics").textContent =
+        `共有供应商 ${total} 家，其中合作中 ${active} 家，暂停合作 ${inactive} 家`;
+    }
+
+    loadSuppliersFromJSON();
+  </script>
 </body>
 </html>
