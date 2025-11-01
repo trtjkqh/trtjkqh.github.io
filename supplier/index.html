@@ -1,213 +1,131 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>供应商信息管理</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供应商管理升级版</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <div class="max-w-6xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-    <h1 class="text-2xl font-bold mb-4 text-blue-700">供应商信息管理</h1>
+<body class="bg-gray-100 font-sans p-4">
 
-    <div id="loading" class="text-gray-500 mb-4">⏳ 正在加载数据...</div>
-    <div id="statistics" class="mb-4 text-sm text-gray-600"></div>
-
-    <!-- 表格 -->
-    <div class="overflow-x-auto">
-      <table id="supplierTable" class="min-w-full border border-gray-300 text-sm">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="p-2 border">编号</th>
-            <th class="p-2 border">名称</th>
-            <th class="p-2 border">联系人</th>
-            <th class="p-2 border">电话</th>
-            <th class="p-2 border">供应品类</th>
-            <th class="p-2 border">合作状态</th>
-            <th class="p-2 border">起始日期</th>
-            <th class="p-2 border">信用等级</th>
-            <th class="p-2 border">操作</th>
-          </tr>
-        </thead>
-        <tbody id="supplierTableBody"></tbody>
-      </table>
-    </div>
-
-    <!-- 编辑窗口 -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 class="text-lg font-bold mb-3 text-blue-600">编辑供应商信息</h2>
-        <form id="editForm" class="space-y-2">
-          <input type="hidden" id="editId">
-          <div>
-            <label class="block text-sm">名称</label>
-            <input id="editName" type="text" class="w-full border p-2 rounded">
-          </div>
-          <div>
-            <label class="block text-sm">联系人</label>
-            <input id="editContactPerson" type="text" class="w-full border p-2 rounded">
-          </div>
-          <div>
-            <label class="block text-sm">电话</label>
-            <input id="editPhone" type="text" class="w-full border p-2 rounded">
-          </div>
-          <div>
-            <label class="block text-sm">供应品类</label>
-            <input id="editCategory" type="text" class="w-full border p-2 rounded">
-          </div>
-          <div>
-            <label class="block text-sm">合作状态</label>
-            <select id="editStatus" class="w-full border p-2 rounded">
-              <option value="active">合作中</option>
-              <option value="pending">待审核</option>
-              <option value="inactive">暂停合作</option>
-              <option value="terminated">已终止</option>
-            </select>
-          </div>
-          <div class="flex justify-end mt-4 space-x-2">
-            <button type="button" id="cancelEdit" class="px-3 py-1 bg-gray-300 rounded">取消</button>
-            <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded">保存</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
+<div class="mb-4">
+  <!-- 筛选区 -->
+  <div class="flex flex-wrap gap-2 items-center">
+    <select id="categoryFilter" class="border rounded px-2 py-1">
+      <option value="">全部供应品类</option>
+      <option value="包装">包装</option>
+      <option value="辅料">辅料</option>
+    </select>
+    <input type="text" id="supplierFilter" placeholder="供应商名称" class="border rounded px-2 py-1 flex-1">
+    <button id="exportBtn" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">导出Excel</button>
   </div>
+</div>
 
-  <script>
-    let suppliers = JSON.parse(localStorage.getItem("suppliers") || "[]");
+<!-- 统计区 -->
+<div class="grid grid-cols-4 gap-4 mb-4">
+  <div class="bg-white p-4 rounded shadow text-center">
+    <div class="text-gray-500">供应商总数</div>
+    <div id="totalSuppliers" class="text-xl font-bold">0</div>
+  </div>
+  <div class="bg-white p-4 rounded shadow text-center">
+    <div class="text-gray-500">合作中供应商</div>
+    <div id="activeSuppliers" class="text-xl font-bold">0</div>
+  </div>
+  <div class="bg-white p-4 rounded shadow text-center">
+    <div class="text-gray-500">A级供应商</div>
+    <div id="aSuppliers" class="text-xl font-bold">0</div>
+  </div>
+  <div class="bg-white p-4 rounded shadow text-center">
+    <div class="text-gray-500">采购总金额</div>
+    <div id="totalAmount" class="text-xl font-bold">0</div>
+  </div>
+</div>
 
-    // 加载 JSON 数据并转换字段
-    async function loadSuppliersFromJSON() {
-      try {
-        const response = await fetch("data.json");
-        const raw = await response.json();
+<!-- 表格区 -->
+<div class="overflow-x-auto bg-white p-2 rounded shadow">
+  <table class="min-w-full table-auto border-collapse border border-gray-200" id="supplierTable">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border px-2 py-1">供应品类</th>
+        <th class="border px-2 py-1">供应商名称</th>
+        <th class="border px-2 py-1">供应商等级</th>
+        <th class="border px-2 py-1">合作状态</th>
+        <th class="border px-2 py-1">采购金额</th>
+        <th class="border px-2 py-1">其他字段1</th>
+        <th class="border px-2 py-1">其他字段2</th>
+        <!-- 可根据 tz/data.json 增加全部字段 -->
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
 
-        suppliers = raw.map(item => ({
-          id: item["供应商编号"],
-          name: item["名称"],
-          contactPerson: item["联系人"],
-          phone: item["联系电话"],
-          category: item["供应品类"],
-          startDate: excelDateToISO(item["合作起始日期"]),
-          status: mapStatus(item["合作状态"]),
-          credit: item["信用等级"]
-        }));
+<script>
+let supplierData = [];
 
-        localStorage.setItem("suppliers", JSON.stringify(suppliers));
-        renderSupplierTable();
-        updateStatistics();
-        document.getElementById("loading").style.display = "none";
-      } catch (e) {
-        document.getElementById("loading").textContent = "⚠️ 加载本地存储数据";
-        renderSupplierTable();
-      }
-    }
+// 加载数据
+async function loadData() {
+  const res = await fetch('tz/data.json');
+  supplierData = await res.json();
+  renderTable();
+  updateStats();
+}
 
-    function excelDateToISO(serial) {
-      if (!serial || isNaN(serial)) return "";
-      const utc_days = Math.floor(serial - 25569);
-      const utc_value = utc_days * 86400;
-      const date_info = new Date(utc_value * 1000);
-      return date_info.toISOString().split("T")[0];
-    }
+// 渲染表格
+function renderTable() {
+  const category = document.getElementById('categoryFilter').value;
+  const supplier = document.getElementById('supplierFilter').value.trim().toLowerCase();
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
 
-    function mapStatus(status) {
-      switch (status) {
-        case "合作中": return "active";
-        case "待审核": return "pending";
-        case "暂停合作": return "inactive";
-        case "已终止": return "terminated";
-        default: return "";
-      }
-    }
+  const filtered = supplierData.filter(item => {
+    const matchCategory = category ? item['供应品类'] === category : ['包装','辅料'].includes(item['供应品类']);
+    const matchSupplier = supplier ? item['供应商名称'].toLowerCase().includes(supplier) : true;
+    return matchCategory && matchSupplier;
+  });
 
-    // 渲染表格
-    function renderSupplierTable() {
-      const tbody = document.getElementById("supplierTableBody");
-      tbody.innerHTML = "";
-      suppliers.forEach((s, index) => {
-        const tr = document.createElement("tr");
-        tr.className = index % 2 === 0 ? "bg-white" : "bg-gray-50";
-        tr.innerHTML = `
-          <td class="border p-2">${s.id}</td>
-          <td class="border p-2">${s.name}</td>
-          <td class="border p-2">${s.contactPerson}</td>
-          <td class="border p-2">${s.phone}</td>
-          <td class="border p-2">${s.category}</td>
-          <td class="border p-2">${formatStatus(s.status)}</td>
-          <td class="border p-2">${s.startDate}</td>
-          <td class="border p-2">${s.credit}</td>
-          <td class="border p-2 text-center">
-            <button class="text-blue-600 hover:underline" onclick="editSupplier('${s.id}')">编辑</button>
-            <button class="text-red-600 hover:underline ml-2" onclick="deleteSupplier('${s.id}')">删除</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+  filtered.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="border px-2 py-1">${item['供应品类'] || ''}</td>
+      <td class="border px-2 py-1">${item['供应商名称'] || ''}</td>
+      <td class="border px-2 py-1">${item['供应商等级'] || ''}</td>
+      <td class="border px-2 py-1">${item['合作状态'] || ''}</td>
+      <td class="border px-2 py-1">${item['采购金额'] || 0}</td>
+      <td class="border px-2 py-1">${item['其他字段1'] || ''}</td>
+      <td class="border px-2 py-1">${item['其他字段2'] || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-    function formatStatus(status) {
-      const map = {
-        active: "✅ 合作中",
-        pending: "🕓 待审核",
-        inactive: "⏸️ 暂停",
-        terminated: "❌ 终止"
-      };
-      return map[status] || status;
-    }
+  updateStats(filtered);
+}
 
-    // 编辑功能
-    function editSupplier(id) {
-      const supplier = suppliers.find(s => s.id == id);
-      if (!supplier) return;
-      document.getElementById("editModal").classList.remove("hidden");
-      document.getElementById("editId").value = supplier.id;
-      document.getElementById("editName").value = supplier.name;
-      document.getElementById("editContactPerson").value = supplier.contactPerson;
-      document.getElementById("editPhone").value = supplier.phone;
-      document.getElementById("editCategory").value = supplier.category;
-      document.getElementById("editStatus").value = supplier.status;
-    }
+// 更新统计
+function updateStats(filteredData) {
+  const data = filteredData || supplierData.filter(item => ['包装','辅料'].includes(item['供应品类']));
+  document.getElementById('totalSuppliers').textContent = data.length;
+  document.getElementById('activeSuppliers').textContent = data.filter(d => d['合作状态'] === '合作中').length;
+  document.getElementById('aSuppliers').textContent = data.filter(d => d['供应商等级'] === 'A').length;
+  const total = data.reduce((sum, d) => sum + (Number(d['采购金额']) || 0), 0);
+  document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
 
-    document.getElementById("cancelEdit").onclick = () => {
-      document.getElementById("editModal").classList.add("hidden");
-    };
+// Excel 导出
+function exportExcel() {
+  const table = document.getElementById('supplierTable');
+  const wb = XLSX.utils.table_to_book(table, {sheet:"Sheet1"});
+  XLSX.writeFile(wb, '供应商数据.xlsx');
+}
 
-    document.getElementById("editForm").onsubmit = (e) => {
-      e.preventDefault();
-      const id = document.getElementById("editId").value;
-      const index = suppliers.findIndex(s => s.id == id);
-      if (index !== -1) {
-        suppliers[index].name = document.getElementById("editName").value;
-        suppliers[index].contactPerson = document.getElementById("editContactPerson").value;
-        suppliers[index].phone = document.getElementById("editPhone").value;
-        suppliers[index].category = document.getElementById("editCategory").value;
-        suppliers[index].status = document.getElementById("editStatus").value;
-        localStorage.setItem("suppliers", JSON.stringify(suppliers));
-        renderSupplierTable();
-      }
-      document.getElementById("editModal").classList.add("hidden");
-    };
+// 事件绑定
+document.getElementById('categoryFilter').addEventListener('change', renderTable);
+document.getElementById('supplierFilter').addEventListener('input', renderTable);
+document.getElementById('exportBtn').addEventListener('click', exportExcel);
 
-    // 删除功能
-    function deleteSupplier(id) {
-      if (!confirm("确定要删除该供应商吗？")) return;
-      suppliers = suppliers.filter(s => s.id != id);
-      localStorage.setItem("suppliers", JSON.stringify(suppliers));
-      renderSupplierTable();
-    }
-
-    // 统计信息
-    function updateStatistics() {
-      const total = suppliers.length;
-      const active = suppliers.filter(s => s.status === "active").length;
-      const inactive = suppliers.filter(s => s.status === "inactive").length;
-      document.getElementById("statistics").textContent =
-        `共有供应商 ${total} 家，其中合作中 ${active} 家，暂停合作 ${inactive} 家`;
-    }
-
-    loadSuppliersFromJSON();
-  </script>
+// 初始化
+loadData();
+</script>
 </body>
 </html>
