@@ -53,7 +53,7 @@
   </select>
   <select id="category-filter" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
     <option value="">全部品类</option>
-    <option value="包装材料">包装材料</option>
+    <option value="包装">包装</option>
     <option value="原料">原料</option>
     <option value="辅料">辅料</option>
     <option value="设备">设备</option>
@@ -169,7 +169,7 @@
           <label for="category" class="block text-sm font-medium text-gray-700 mb-1">供应品类 *</label>
           <select id="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
             <option value="">请选择品类</option>
-            <option value="包装材料">包装材料</option>
+            <option value="包装">包装</option>
             <option value="原料">原料</option>
             <option value="辅料">辅料</option>
             <option value="设备">设备</option>
@@ -239,9 +239,26 @@ async function loadSuppliersFromJSON() {
     if (!response.ok) throw new Error('Network response was not ok');
     const data = await response.json();
     
+    // 转换数据格式，将中文字段映射到英文字段
+    const convertedData = data.map(item => ({
+      id: item["供应商编号"].toString(),
+      name: item["名称"],
+      shortName: item["简称"],
+      contactPerson: item["联系人"],
+      phone: item["联系电话"].toString(),
+      backupPhone: item["备用电话"] ? item["备用电话"].toString() : '',
+      address: item["公司地址"],
+      category: item["供应品类"],
+      mainProducts: item["主要产品"],
+      startDate: convertExcelDate(item["合作起始日期"]),
+      status: convertStatus(item["合作状态"]),
+      creditRating: item["信用等级"],
+      remarks: item["备注信息"] || ''
+    }));
+    
     // 如果本地存储没有数据，使用JSON文件中的数据
     if (suppliers.length === 0) {
-      suppliers = data;
+      suppliers = convertedData;
       localStorage.setItem('suppliers', JSON.stringify(suppliers));
     }
     
@@ -269,57 +286,12 @@ async function loadSuppliersFromJSON() {
           phone: '13800138000',
           backupPhone: '0571-12345678',
           address: '浙江省杭州市西湖区文三路100号',
-          category: '包装材料',
+          category: '包装',
           mainProducts: '纸箱,纸盒,包装纸',
           startDate: '2023-01-15',
-          status: 'active',
+          status: 'terminated',
           creditRating: 'A',
           remarks: '合作稳定，质量可靠'
-        },
-        {
-          id: '23002',
-          name: '北方原料供应集团',
-          shortName: '北方原料',
-          contactPerson: '李总监',
-          phone: '13900139000',
-          backupPhone: '0311-87654321',
-          address: '河北省石家庄市长安区中山东路200号',
-          category: '原料',
-          mainProducts: '化工原料,食品添加剂',
-          startDate: '2022-08-10',
-          status: 'active',
-          creditRating: 'B',
-          remarks: '价格优势明显，交货准时'
-        },
-        {
-          id: '23003',
-          name: '华南设备科技有限公司',
-          shortName: '华南设备',
-          contactPerson: '王总',
-          phone: '13700137000',
-          backupPhone: '0755-23456789',
-          address: '广东省深圳市南山区科技园南区',
-          category: '设备',
-          mainProducts: '生产设备,检测仪器',
-          startDate: '2023-03-20',
-          status: 'pending',
-          creditRating: 'C',
-          remarks: '新供应商，正在评估中'
-        },
-        {
-          id: '23004',
-          name: '西部辅料制品厂',
-          shortName: '西部辅料',
-          contactPerson: '刘厂长',
-          phone: '13600136000',
-          backupPhone: '028-34567890',
-          address: '四川省成都市金牛区金府路88号',
-          category: '辅料',
-          mainProducts: '标签,说明书,包装辅料',
-          startDate: '2021-11-05',
-          status: 'inactive',
-          creditRating: 'B',
-          remarks: '暂时停止合作，质量问题需要改进'
         }
       ];
       localStorage.setItem('suppliers', JSON.stringify(suppliers));
@@ -327,6 +299,27 @@ async function loadSuppliersFromJSON() {
       updateStatistics();
       renderSupplierTable(suppliers);
     }
+  }
+}
+
+// 转换Excel日期序列为YYYY-MM-DD格式
+function convertExcelDate(excelDate) {
+  if (typeof excelDate === 'number') {
+    // Excel日期序列是从1900-01-01开始
+    const date = new Date((excelDate - 25569) * 86400 * 1000);
+    return date.toISOString().split('T')[0];
+  }
+  return excelDate;
+}
+
+// 转换状态从中文到英文
+function convertStatus(chineseStatus) {
+  switch(chineseStatus) {
+    case '合作中': return 'active';
+    case '待审核': return 'pending';
+    case '暂停合作': return 'inactive';
+    case '已终止': return 'terminated';
+    default: return 'active';
   }
 }
 
