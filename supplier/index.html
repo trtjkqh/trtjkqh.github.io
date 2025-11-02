@@ -48,46 +48,31 @@
 
 <script>
 let dataCache = [];
-const categoryList = [
-  "内包-食品级塑料包装（PET, PP, PE等）",
-  "内包-食品级包装内衬材料",
-  "内包-吸塑包装与泡罩包装",
-  "内包-食品直接接触内包装材料",
-  "内包-真空包装袋与复合膜",
-  "包装",
-  "保温箱",
-  "车载冰箱",
-  "瓷器",
-  "防伪标签",
-  "硅胶塞",
-  "金属管、塑料罐",
-  "内包-玻璃容器（食品瓶、罐）",
-  "内包-金属包装（罐、盖、箔）",
-  "外包-保鲜包装与功能性包装",
-  "外包-各类精装盒、礼品盒、皮盒、木盒等",
-  "外包-各种材质手提袋",
-  "外包-食品标签/RFID标签",
-  "外包-运输包装与外箱",
-  "外包-纸质包装（卡纸、裱坑盒等）",
-  "食品生产相关设备",
-  "内包-干燥剂与保鲜剂"
-];
 
-// 初始化下拉菜单
-const select = document.getElementById("mainCategory");
-categoryList.forEach(c => {
-  const option = document.createElement("option");
-  option.value = c;
-  option.textContent = c;
-  select.appendChild(option);
-});
-
+// 先加载数据
 fetch('supplier/data.json')
   .then(res => res.json())
   .then(data => {
     dataCache = data;
     document.getElementById("loading").style.display = "none";
     console.log("✅ 数据已加载:", dataCache.length, "条");
+
+    // 自动生成主营下拉列表，去重并排序
+    const categorySet = new Set();
+    dataCache.forEach(item => {
+      if(item["主营"]) {
+        const categories = item["主营"].split(',').map(c => c.trim()).filter(c=>c);
+        categories.forEach(c => categorySet.add(c));
+      }
+    });
+    const sortedCategories = Array.from(categorySet).sort();
+    const select = document.getElementById("mainCategory");
+    sortedCategories.forEach(c => {
+      const option = document.createElement("option");
+      option.value = c;
+      option.textContent = c;
+      select.appendChild(option);
+    });
   })
   .catch(err => {
     console.error("❌ 数据加载失败:", err);
