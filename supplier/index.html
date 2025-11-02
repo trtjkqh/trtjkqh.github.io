@@ -1,123 +1,151 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>供应商信息查询</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供应商信息查询</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  .fade-in { animation: fadeIn 0.4s ease-in; }
+  table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <div class="max-w-7xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4 text-center">供应商信息查询</h1>
+<body class="bg-gray-50 font-sans text-gray-800">
 
-    <!-- 查询条件区 -->
-    <div class="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-center">
-      <div>
-        <label class="mr-2 font-medium">类别：</label>
-        <select id="categorySelect" class="border rounded p-1">
-          <option value="">全部类别</option>
-        </select>
-      </div>
-      <div>
-        <label class="mr-2 font-medium">是否支持询比价：</label>
-        <select id="inquirySelect" class="border rounded p-1">
-          <option value="">全部</option>
-          <option value="是">是</option>
-          <option value="否">否</option>
-        </select>
-      </div>
-      <div>
-        <label class="mr-2 font-medium">是否支持打样：</label>
-        <select id="sampleSelect" class="border rounded p-1">
-          <option value="">全部</option>
-          <option value="是">是</option>
-          <option value="否">否</option>
-        </select>
-      </div>
-      <button id="searchBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded">
-        查询
-      </button>
-    </div>
-
-    <!-- 表格显示区 -->
-    <div class="bg-white rounded-lg shadow overflow-x-auto">
-      <table id="resultTable" class="min-w-full border border-gray-300 text-sm">
-        <thead class="bg-gray-100"></thead>
-        <tbody></tbody>
-      </table>
-    </div>
+<!-- 标题栏 -->
+<div class="max-w-7xl mx-auto bg-white rounded-xl shadow p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 fade-in">
+  <div class="flex items-center gap-3">
+    <img src="/assets/img/trtlogo.png" alt="LOGO" class="h-12 w-auto object-contain">
+    <h1 class="text-xl md:text-2xl font-bold text-gray-900">供应商信息查询</h1>
   </div>
+  <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
+    <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 支持按主营、名称、产品模糊查询</span>
+    <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 内部数据，请勿外传</span>
+  </div>
+</div>
 
-  <script>
-    let supplierData = [];
+<!-- 查询栏 -->
+<div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+  <select id="mainCategory" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+    <option value="">主营分类（可选）</option>
+  </select>
+  <input id="supplierName" type="text" placeholder="供应商名称（可模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+  <input id="mainProduct" type="text" placeholder="主要产品（可模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+  <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+  <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+</div>
 
-    // 加载数据
-    async function loadData() {
-      try {
-        const res = await fetch("../supplier/data.json");
-        supplierData = await res.json();
-        initCategoryOptions();
-        renderTable(supplierData); // 初始显示全部
-      } catch (e) {
-        console.error("数据加载失败", e);
-      }
-    }
+<!-- 查询结果 -->
+<div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+<div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
 
-    // 初始化类别下拉框
-    function initCategoryOptions() {
-      const categorySelect = document.getElementById("categorySelect");
-      categorySelect.innerHTML = `<option value="">全部类别</option>`;
-      const categories = [...new Set(
-        supplierData
-          .map(item => (item["类别"] || "").trim())
-          .filter(c => c && c.length > 0)
-      )].sort((a, b) => a.localeCompare(b, "zh-Hans-CN"));
-      
-      categories.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.textContent = cat;
-        categorySelect.appendChild(opt);
-      });
-    }
+<footer class="text-center text-gray-500 text-sm mt-8 mb-4">
+  © 2025 采购部 |
+  <a href="/" class="hover:underline">首页</a>
+</footer>
 
-    // 渲染表格
-    function renderTable(data) {
-      const tableHead = document.querySelector("#resultTable thead");
-      const tableBody = document.querySelector("#resultTable tbody");
-      tableBody.innerHTML = "";
+<script>
+let dataCache = [];
+const categoryList = [
+  "内包-食品级塑料包装（PET, PP, PE等）",
+  "内包-食品级包装内衬材料",
+  "内包-吸塑包装与泡罩包装",
+  "内包-食品直接接触内包装材料",
+  "内包-真空包装袋与复合膜",
+  "包装",
+  "保温箱",
+  "车载冰箱",
+  "瓷器",
+  "防伪标签",
+  "硅胶塞",
+  "金属管、塑料罐",
+  "内包-玻璃容器（食品瓶、罐）",
+  "内包-金属包装（罐、盖、箔）",
+  "外包-保鲜包装与功能性包装",
+  "外包-各类精装盒、礼品盒、皮盒、木盒等",
+  "外包-各种材质手提袋",
+  "外包-食品标签/RFID标签",
+  "外包-运输包装与外箱",
+  "外包-纸质包装（卡纸、裱坑盒等）",
+  "食品生产相关设备",
+  "内包-干燥剂与保鲜剂"
+];
 
-      if (!data.length) {
-        tableHead.innerHTML = "";
-        tableBody.innerHTML = `<tr><td class="p-3 text-center text-gray-500">无匹配数据</td></tr>`;
-        return;
-      }
+// 初始化下拉菜单
+const select = document.getElementById("mainCategory");
+categoryList.forEach(c => {
+  const option = document.createElement("option");
+  option.value = c;
+  option.textContent = c;
+  select.appendChild(option);
+});
 
-      const headers = Object.keys(data[0]);
-      tableHead.innerHTML = `<tr>${headers.map(h => `<th class='border p-2 bg-gray-100 text-left whitespace-nowrap'>${h}</th>`).join("")}</tr>`;
+fetch('data.json')
+  .then(res => res.json())
+  .then(data => {
+    dataCache = data;
+    document.getElementById("loading").style.display = "none";
+    console.log("✅ 数据已加载:", dataCache.length, "条");
+  })
+  .catch(err => {
+    console.error("❌ 数据加载失败:", err);
+    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
+  });
 
-      data.forEach(item => {
-        const row = `<tr>${headers.map(h => `<td class='border p-2 whitespace-nowrap'>${item[h] ?? ""}</td>`).join("")}</tr>`;
-        tableBody.innerHTML += row;
-      });
-    }
+function searchData() {
+  const mainCat = document.getElementById("mainCategory").value.trim().toLowerCase();
+  const nameInput = document.getElementById("supplierName").value.trim().toLowerCase();
+  const productInput = document.getElementById("mainProduct").value.trim().toLowerCase();
 
-    // 查询
-    document.getElementById("searchBtn").addEventListener("click", () => {
-      const category = document.getElementById("categorySelect").value;
-      const inquiry = document.getElementById("inquirySelect").value;
-      const sample = document.getElementById("sampleSelect").value;
+  if (!mainCat && !nameInput && !productInput) {
+    alert("请输入至少一项查询条件！");
+    return;
+  }
 
-      const filtered = supplierData.filter(item =>
-        (!category || (item["类别"] || "").trim() === category) &&
-        (!inquiry || item["是否支持询比价"] === inquiry) &&
-        (!sample || item["是否支持打样"] === sample)
-      );
+  const filtered = dataCache.filter(item => {
+    const mainMatch = mainCat ? (item["主营"]||"").toLowerCase().includes(mainCat) : true;
+    const nameMatch = nameInput ? (item["名称"]||"").toLowerCase().includes(nameInput) : true;
+    const productMatch = productInput ? (item["主营"]||"").toLowerCase().includes(productInput) : true;
+    return mainMatch && nameMatch && productMatch;
+  });
 
-      renderTable(filtered);
-    });
+  if (filtered.length === 0) {
+    document.getElementById("result").innerHTML = "<p class='text-center text-gray-500'>未找到匹配的供应商。</p>";
+    return;
+  }
 
-    loadData();
-  </script>
+  let tableHTML = `
+    <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
+      <thead class="bg-gray-100 font-semibold sticky top-0">
+        <tr>
+          <th class="p-2 border-b">名称</th>
+          <th class="p-2 border-b">联系人</th>
+          <th class="p-2 border-b">主营</th>
+          <th class="p-2 border-b">备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map((row,i)=>`
+          <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
+            <td class="p-2 border-b">${row["名称"]||""}</td>
+            <td class="p-2 border-b">${row["主要联系人（姓名）"]||""}</td>
+            <td class="p-2 border-b">${row["主营"]||""}</td>
+            <td class="p-2 border-b">${row["备注信息"]||""}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  document.getElementById("result").innerHTML = tableHTML;
+}
+
+function resetForm() {
+  ["supplierName","mainProduct"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("mainCategory").value = "";
+  document.getElementById("result").innerHTML = "";
+}
+</script>
+
 </body>
 </html>
