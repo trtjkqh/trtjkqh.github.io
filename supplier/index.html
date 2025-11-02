@@ -10,7 +10,7 @@
   <div class="max-w-7xl mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4 text-center">供应商信息查询</h1>
 
-    <!-- 查询区 -->
+    <!-- 查询条件区 -->
     <div class="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-center">
       <div>
         <label class="mr-2 font-medium">类别：</label>
@@ -39,7 +39,7 @@
       </button>
     </div>
 
-    <!-- 表格区 -->
+    <!-- 表格显示区 -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
       <table id="resultTable" class="min-w-full border border-gray-300 text-sm">
         <thead class="bg-gray-100"></thead>
@@ -51,12 +51,13 @@
   <script>
     let supplierData = [];
 
+    // 加载数据
     async function loadData() {
       try {
         const res = await fetch("../supplier/data.json");
         supplierData = await res.json();
         initCategoryOptions();
-        renderTable(supplierData);
+        renderTable(supplierData); // 初始显示所有数据
       } catch (e) {
         console.error("数据加载失败", e);
       }
@@ -67,14 +68,16 @@
       const categorySelect = document.getElementById("categorySelect");
       const categories = [...new Set(supplierData.map(item => item["类别"]))];
       categories.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.textContent = cat;
-        categorySelect.appendChild(opt);
+        if (cat) {
+          const opt = document.createElement("option");
+          opt.value = cat;
+          opt.textContent = cat;
+          categorySelect.appendChild(opt);
+        }
       });
     }
 
-    // 渲染表格
+    // 渲染表格（展示所有字段）
     function renderTable(data) {
       const tableHead = document.querySelector("#resultTable thead");
       const tableBody = document.querySelector("#resultTable tbody");
@@ -86,18 +89,18 @@
         return;
       }
 
-      // 表头
+      // 取第一个对象的所有字段名作为表头
       const headers = Object.keys(data[0]);
       tableHead.innerHTML = `<tr>${headers.map(h => `<th class='border p-2 bg-gray-100 text-left whitespace-nowrap'>${h}</th>`).join("")}</tr>`;
 
-      // 内容
+      // 渲染每一行
       data.forEach(item => {
         const row = `<tr>${headers.map(h => `<td class='border p-2 whitespace-nowrap'>${item[h] ?? ""}</td>`).join("")}</tr>`;
         tableBody.innerHTML += row;
       });
     }
 
-    // 查询功能
+    // 查询按钮事件
     document.getElementById("searchBtn").addEventListener("click", () => {
       const category = document.getElementById("categorySelect").value;
       const inquiry = document.getElementById("inquirySelect").value;
@@ -108,6 +111,7 @@
         (!inquiry || item["是否支持询比价"] === inquiry) &&
         (!sample || item["是否支持打样"] === sample)
       );
+
       renderTable(filtered);
     });
 
