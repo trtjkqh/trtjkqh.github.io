@@ -49,8 +49,8 @@
 <script>
 let dataCache = [];
 
-// 先加载数据
-fetch('supplier/data.json')
+// 加载同级目录的 data.json
+fetch('data.json')
   .then(res => res.json())
   .then(data => {
     dataCache = data;
@@ -76,7 +76,7 @@ fetch('supplier/data.json')
   })
   .catch(err => {
     console.error("❌ 数据加载失败:", err);
-    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 supplier/data.json 文件路径。";
+    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
   });
 
 function searchData() {
