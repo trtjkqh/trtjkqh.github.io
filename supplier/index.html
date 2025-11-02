@@ -20,22 +20,132 @@
     <h1 class="text-xl md:text-2xl font-bold text-gray-900">供应商信息查询</h1>
   </div>
   <div class="flex flex-col md:flex-row flex-wrap gap-2 text-gray-700 text-sm md:text-base">
-    <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 支持模糊搜索供应商名称和主要产品</span>
+    <span class="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-yellow-700">🔍 支持类别选择与模糊搜索</span>
     <span class="px-2 py-1 bg-red-50 border border-red-200 rounded font-semibold text-red-600">⚠️ 内部数据，请勿外传</span>
   </div>
 </div>
 
 <!-- 查询区域 -->
 <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
-  <input id="supplierName" type="text" placeholder="供应商名称（可模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-  <input id="mainProduct" type="text" placeholder="主要产品（可模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-  <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
-  <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+  <!-- 类别下拉框 -->
+  <select id="category" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+    <option value="">全部类别</option>
+    <option>内包-食品级塑料包装（PET, PP, PE等）</option>
+    <option>内包-食品级包装内衬材料</option>
+    <option>内包-吸塑包装与泡罩包装</option>
+    <option>内包-食品直接接触内包装材料</option>
+    <option>内包-真空包装袋与复合膜</option>
+    <option>内包-玻璃容器（食品瓶、罐）</option>
+    <option>内包-金属包装（罐、盖、箔）</option>
+    <option>外包-各类精装盒、礼品盒、皮盒、木盒等</option>
+    <option>外包-纸质包装（卡纸、裱坑盒等）</option>
+    <option>外包-各种材质手提袋</option>
+    <option>外包-食品标签/RFID标签</option>
+    <option>外包-运输包装与外箱</option>
+    <option>外包-保鲜包装与功能性包装</option>
+    <option>食品生产相关设备</option>
+    <option>保温箱</option>
+    <option>车载冰箱</option>
+    <option>硅胶塞</option>
+    <option>瓷器</option>
+    <option>防伪标签</option>
+    <option>金属管、塑料罐</option>
+  </select>
+
+  <!-- 供应商名称 -->
+  <input id="supplierName" type="text" placeholder="供应商名称（可模糊搜索）"
+         class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+
+  <!-- 主要产品 -->
+  <input id="mainProduct" type="text" placeholder="主要产品（可模糊搜索）"
+         class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+
+  <!-- 询比价 -->
+  <select id="inquirySupport" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+    <option value="">询比价（不限）</option>
+    <option value="支持">支持</option>
+    <option value="不支持">不支持</option>
+  </select>
+
+  <!-- 打样 -->
+  <select id="sampleSupport" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+    <option value="">打样（不限）</option>
+    <option value="支持">支持</option>
+    <option value="不支持">不支持</option>
+  </select>
+
+  <!-- 按钮 -->
+  <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">
+    查询
+  </button>
+  <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">
+    重置
+  </button>
 </div>
 
-<!-- 查询结果 -->
-<div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
-<div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+<script>
+function searchData() {
+  const nameInput = document.getElementById("supplierName").value.trim().toLowerCase();
+  const productInput = document.getElementById("mainProduct").value.trim().toLowerCase();
+  const category = document.getElementById("category").value.trim();
+  const inquiry = document.getElementById("inquirySupport").value.trim();
+  const sample = document.getElementById("sampleSupport").value.trim();
+
+  if (!nameInput && !productInput && !category && !inquiry && !sample) {
+    alert("请输入或选择至少一项查询条件！");
+    return;
+  }
+
+  const filtered = dataCache.filter(item => {
+    const nameMatch = nameInput ? (item["名称"]||"").toLowerCase().includes(nameInput) : true;
+    const productMatch = productInput ? (item["主营"]||"").toLowerCase().includes(productInput) : true;
+    const categoryMatch = category ? (item["主营"]||"").includes(category) : true;
+    const inquiryMatch = inquiry ? (item["询比价"]||"").includes(inquiry) : true;
+    const sampleMatch = sample ? (item["能否支持免费打样"]||"").includes(sample) : true;
+    return nameMatch && productMatch && categoryMatch && inquiryMatch && sampleMatch;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById("result").innerHTML =
+      "<p class='text-center text-gray-500'>未找到匹配的供应商。</p>";
+    return;
+  }
+
+  let tableHTML = `
+    <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
+      <thead class="bg-gray-100 font-semibold sticky top-0">
+        <tr>
+          <th class="p-2 border-b">名称</th>
+          <th class="p-2 border-b">联系人</th>
+          <th class="p-2 border-b">主营</th>
+          <th class="p-2 border-b">询比价</th>
+          <th class="p-2 border-b">打样</th>
+          <th class="p-2 border-b">备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map((row,i)=>`
+          <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
+            <td class="p-2 border-b">${row["名称"]||""}</td>
+            <td class="p-2 border-b">${row["主要联系人（姓名）"]||""}</td>
+            <td class="p-2 border-b">${row["主营"]||""}</td>
+            <td class="p-2 border-b">${row["询比价"]||""}</td>
+            <td class="p-2 border-b">${row["能否支持免费打样"]||""}</td>
+            <td class="p-2 border-b">${row["备注信息"]||""}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  document.getElementById("result").innerHTML = tableHTML;
+}
+
+function resetForm() {
+  ["supplierName","mainProduct","category","inquirySupport","sampleSupport"]
+    .forEach(id=>document.getElementById(id).value="");
+  document.getElementById("result").innerHTML = "";
+}
+</script>
 
 <footer class="text-center text-gray-500 text-sm mt-8 mb-4">
   © 2025 采购部 |
@@ -45,6 +155,40 @@
 <script>
 let dataCache = [];
 
+// 定义所有类别选项
+const categories = [
+"内包-食品级塑料包装（PET, PP, PE等）",
+"内包-食品级包装内衬材料",
+"内包-吸塑包装与泡罩包装",
+"内包-食品直接接触内包装材料",
+"内包-真空包装袋与复合膜",
+"内包-玻璃容器（食品瓶、罐）",
+"内包-金属包装（罐、盖、箔）",
+"外包-保鲜包装与功能性包装",
+"外包-各类精装盒、礼品盒、皮盒、木盒等",
+"外包-各种材质手提袋",
+"外包-食品标签/RFID标签",
+"外包-运输包装与外箱",
+"外包-纸质包装（卡纸、裱坑盒等）",
+"食品生产相关设备",
+"硅胶塞",
+"金属管、塑料罐",
+"防伪标签",
+"保温箱",
+"车载冰箱",
+"瓷器"
+];
+
+// 将类别加载到下拉菜单
+const categorySelect = document.getElementById("categorySelect");
+categories.forEach(c => {
+  const opt = document.createElement("option");
+  opt.value = c;
+  opt.textContent = c;
+  categorySelect.appendChild(opt);
+});
+
+// 加载数据
 fetch('data.json')
   .then(res => res.json())
   .then(data => {
@@ -58,18 +202,20 @@ fetch('data.json')
   });
 
 function searchData() {
+  const category = document.getElementById("categorySelect").value.trim();
   const nameInput = document.getElementById("supplierName").value.trim().toLowerCase();
   const productInput = document.getElementById("mainProduct").value.trim().toLowerCase();
 
-  if (!nameInput && !productInput) {
+  if (!category && !nameInput && !productInput) {
     alert("请输入至少一项查询条件！");
     return;
   }
 
   const filtered = dataCache.filter(item => {
-    const nameMatch = nameInput ? (item["名称"]||"").toLowerCase().includes(nameInput) : true;
-    const productMatch = productInput ? (item["主要产品"]||"").toLowerCase().includes(productInput) : true;
-    return nameMatch && productMatch;
+    const nameMatch = nameInput ? (item["名称"] || "").toLowerCase().includes(nameInput) : true;
+    const productMatch = productInput ? (item["主营"] || "").toLowerCase().includes(productInput) : true;
+    const categoryMatch = category ? (item["主营"] || "").includes(category) : true;
+    return nameMatch && productMatch && categoryMatch;
   });
 
   if (filtered.length === 0) {
@@ -82,8 +228,8 @@ function searchData() {
       <thead class="bg-gray-100 font-semibold sticky top-0">
         <tr>
           <th class="p-2 border-b">名称</th>
-          <th class="p-2 border-b">联系人</th>
-          <th class="p-2 border-b">主要产品</th>
+          <th class="p-2 border-b">主要联系人</th>
+          <th class="p-2 border-b">主营</th>
           <th class="p-2 border-b">备注</th>
         </tr>
       </thead>
@@ -91,8 +237,8 @@ function searchData() {
         ${filtered.map((row,i)=>`
           <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
             <td class="p-2 border-b">${row["名称"]||""}</td>
-            <td class="p-2 border-b">${row["联系人"]||""}</td>
-            <td class="p-2 border-b">${row["主要产品"]||""}</td>
+            <td class="p-2 border-b">${row["主要联系人（姓名）"]||""}</td>
+            <td class="p-2 border-b">${row["主营"]||""}</td>
             <td class="p-2 border-b">${row["备注信息"]||""}</td>
           </tr>
         `).join('')}
@@ -104,6 +250,7 @@ function searchData() {
 
 function resetForm() {
   ["supplierName","mainProduct"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("categorySelect").value = "";
   document.getElementById("result").innerHTML = "";
 }
 </script>
