@@ -9,6 +9,7 @@
   @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
   .fade-in { animation: fadeIn 0.4s ease-in; }
   table th { position: sticky; top: 0; background-color: white; z-index: 10; }
+  table td, table th { font-size: 0.75rem; } /* 小字体 */
 </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -28,7 +29,7 @@
 <!-- 查询栏 -->
 <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
   <select id="mainCategory" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
-    <option value="">主营分类（可选）</option>
+    <option value="">全部主营分类</option>
   </select>
   <input id="supplierName" type="text" placeholder="供应商名称（可模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
   <input id="mainProduct" type="text" placeholder="主要产品（可模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
@@ -81,7 +82,7 @@ categoryList.forEach(c => {
   select.appendChild(option);
 });
 
-fetch('data.json')
+fetch('supplier/data.json')
   .then(res => res.json())
   .then(data => {
     dataCache = data;
@@ -90,7 +91,7 @@ fetch('data.json')
   })
   .catch(err => {
     console.error("❌ 数据加载失败:", err);
-    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
+    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 supplier/data.json 文件路径。";
   });
 
 function searchData() {
@@ -116,22 +117,36 @@ function searchData() {
   }
 
   let tableHTML = `
-    <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
+    <table class="w-full text-xs text-center border border-gray-200 rounded-lg shadow-sm">
       <thead class="bg-gray-100 font-semibold sticky top-0">
         <tr>
+          <th class="p-2 border-b">主营</th>
           <th class="p-2 border-b">名称</th>
           <th class="p-2 border-b">联系人</th>
-          <th class="p-2 border-b">主营</th>
-          <th class="p-2 border-b">备注</th>
+          <th class="p-2 border-b">电话</th>
+          <th class="p-2 border-b">微信</th>
+          <th class="p-2 border-b">询比价</th>
+          <th class="p-2 border-b">打样</th>
+          <th class="p-2 border-b">供货周期</th>
+          <th class="p-2 border-b">付款方式</th>
+          <th class="p-2 border-b">开票类型</th>
+          <th class="p-2 border-b">税率</th>
         </tr>
       </thead>
       <tbody>
         ${filtered.map((row,i)=>`
           <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
+            <td class="p-2 border-b">${row["主营"]||""}</td>
             <td class="p-2 border-b">${row["名称"]||""}</td>
             <td class="p-2 border-b">${row["主要联系人（姓名）"]||""}</td>
-            <td class="p-2 border-b">${row["主营"]||""}</td>
-            <td class="p-2 border-b">${row["备注信息"]||""}</td>
+            <td class="p-2 border-b">${row["手机号"]||""}</td>
+            <td class="p-2 border-b">${row["微信"]||""}</td>
+            <td class="p-2 border-b">${row["询比价"]||""}</td>
+            <td class="p-2 border-b">${row["能否支持免费打样"]||""}</td>
+            <td class="p-2 border-b">${row["供货周期"]||""}</td>
+            <td class="p-2 border-b">${row["付款方式"]||""}</td>
+            <td class="p-2 border-b">${row["开票类型"]||""}</td>
+            <td class="p-2 border-b">${row["税率"]||""}</td>
           </tr>
         `).join('')}
       </tbody>
