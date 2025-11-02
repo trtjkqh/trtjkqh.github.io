@@ -6,35 +6,52 @@
   <title>供应商信息查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen p-6">
-  <div class="max-w-6xl mx-auto bg-white p-6 rounded-2xl shadow-md">
-    <h1 class="text-2xl font-bold text-center mb-4 text-gray-700">供应商信息查询</h1>
-    <div class="flex items-center mb-4">
-      <input id="searchInput" type="text" placeholder="输入供应商名称关键字查询" class="flex-1 border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring focus:ring-blue-200" />
-      <button onclick="searchSupplier()" class="ml-3 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">查询</button>
-      <button onclick="loadSuppliers()" class="ml-2 px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">重置</button>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-gray-700 mb-4">供应商信息查询</h1>
+
+    <!-- 查询区 -->
+    <div class="flex flex-wrap gap-3 mb-6">
+      <input id="searchInput" type="text" placeholder="输入供应商名称或简称查询"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+
+      <select id="categorySelect" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none">
+        <option value="">全部类别</option>
+        <option value="包装">包装</option>
+        <option value="原料">原料</option>
+        <option value="设备">设备</option>
+        <option value="辅料">辅料</option>
+      </select>
+
+      <!-- 新增两个下拉框 -->
+      <select id="compareSelect" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none">
+        <option value="">是否支持询比价</option>
+        <option value="是">是</option>
+        <option value="否">否</option>
+      </select>
+
+      <select id="sampleSelect" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none">
+        <option value="">是否支持打样</option>
+        <option value="是">是</option>
+        <option value="否">否</option>
+      </select>
+
+      <button id="searchBtn"
+        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">查询</button>
     </div>
 
-    <div class="overflow-x-auto">
-      <table id="supplierTable" class="min-w-full border border-gray-200 text-sm text-left text-gray-700">
+    <!-- 表格区 -->
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+      <table class="min-w-full table-auto">
         <thead class="bg-gray-100">
           <tr>
-            <th class="border px-3 py-2">序号</th>
-            <th class="border px-3 py-2">供应商编号</th>
-            <th class="border px-3 py-2">名称</th>
-            <th class="border px-3 py-2">简称</th>
-            <th class="border px-3 py-2">联系人</th>
-            <th class="border px-3 py-2">联系电话</th>
-            <th class="border px-3 py-2">备用电话</th>
-            <th class="border px-3 py-2">公司地址</th>
-            <th class="border px-3 py-2">主要产品</th>
-            <th class="border px-3 py-2">备注</th>
-            <th class="border px-3 py-2">供应品类</th>
-            <th class="border px-3 py-2">询比价</th>
-            <th class="border px-3 py-2">打样</th>
+            <th class="px-4 py-2 text-left text-gray-600 font-medium">名称</th>
+            <th class="px-4 py-2 text-left text-gray-600 font-medium">联系人</th>
+            <th class="px-4 py-2 text-left text-gray-600 font-medium">主要产品</th>
+            <th class="px-4 py-2 text-left text-gray-600 font-medium">备注</th>
           </tr>
         </thead>
-        <tbody id="supplierBody"></tbody>
+        <tbody id="supplierTable"></tbody>
       </table>
     </div>
   </div>
@@ -42,62 +59,66 @@
   <script>
     let supplierData = [];
 
-    async function loadSuppliers() {
+    // 只加载 supplier/data.json
+    async function loadData() {
       try {
-        const res = await fetch("supplier/data.json");
-        supplierData = await res.json();
-        renderTable(supplierData);
+        const supplierRes = await fetch("supplier/data.json");
+        if (!supplierRes.ok) throw new Error("加载 supplier/data.json 失败");
+        supplierData = await supplierRes.json();
       } catch (error) {
-        console.error("加载 supplier/data.json 出错：", error);
+        console.error("数据加载出错:", error);
       }
     }
 
     function renderTable(data) {
-      const tbody = document.getElementById("supplierBody");
-      tbody.innerHTML = "";
+      const tableBody = document.getElementById("supplierTable");
+      tableBody.innerHTML = "";
 
-      data.forEach((item, index) => {
-        const row = document.createElement("tr");
-        row.classList.add("hover:bg-gray-50");
-
-        row.innerHTML = `
-          <td class="border px-3 py-2">${index + 1}</td>
-          <td class="border px-3 py-2">${item["供应商编号"] || ""}</td>
-          <td class="border px-3 py-2">${item["名称"] || ""}</td>
-          <td class="border px-3 py-2">${item["简称"] || ""}</td>
-          <td class="border px-3 py-2">${item["联系人"] || ""}</td>
-          <td class="border px-3 py-2">${item["联系电话"] || ""}</td>
-          <td class="border px-3 py-2">${item["备用电话"] || ""}</td>
-          <td class="border px-3 py-2">${item["公司地址"] || ""}</td>
-          <td class="border px-3 py-2">${item["主要产品"] || ""}</td>
-          <td class="border px-3 py-2">${item["备注"] || ""}</td>
-          <td class="border px-3 py-2">${item["供应品类"] || ""}</td>
-          <td class="border px-3 py-2">
-            <select class="border rounded p-1">
-              <option value="">请选择</option>
-              <option value="是">是</option>
-              <option value="否">否</option>
-            </select>
-          </td>
-          <td class="border px-3 py-2">
-            <select class="border rounded p-1">
-              <option value="">请选择</option>
-              <option value="是">是</option>
-              <option value="否">否</option>
-            </select>
-          </td>
-        `;
-        tbody.appendChild(row);
+      data.forEach(item => {
+        const row = `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-4 py-2">${item["名称"] || ""}</td>
+            <td class="px-4 py-2">${item["联系人"] || ""}</td>
+            <td class="px-4 py-2">${item["主要产品"] || ""}</td>
+            <td class="px-4 py-2">${item["备注"] || ""}</td>
+          </tr>`;
+        tableBody.insertAdjacentHTML("beforeend", row);
       });
     }
 
-    function searchSupplier() {
+    function filterData() {
       const keyword = document.getElementById("searchInput").value.trim();
-      const filtered = supplierData.filter(item => item["名称"] && item["名称"].includes(keyword));
+      const category = document.getElementById("categorySelect").value;
+      const compare = document.getElementById("compareSelect").value;
+      const sample = document.getElementById("sampleSelect").value;
+
+      let filtered = supplierData;
+
+      if (keyword) {
+        filtered = filtered.filter(item =>
+          (item["名称"] && item["名称"].includes(keyword)) ||
+          (item["简称"] && item["简称"].includes(keyword))
+        );
+      }
+
+      if (category) {
+        filtered = filtered.filter(item => item["供应品类"] === category);
+      }
+
+      if (compare) {
+        filtered = filtered.filter(item => item["是否支持询比价"] === compare);
+      }
+
+      if (sample) {
+        filtered = filtered.filter(item => item["是否支持打样"] === sample);
+      }
+
       renderTable(filtered);
     }
 
-    window.onload = loadSuppliers;
+    document.getElementById("searchBtn").addEventListener("click", filterData);
+
+    loadData().then(() => renderTable(supplierData));
   </script>
 </body>
 </html>
