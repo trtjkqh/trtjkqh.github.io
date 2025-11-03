@@ -105,8 +105,8 @@ function searchData() {
     <table class="w-full text-xs text-center border border-gray-200 rounded-lg shadow-sm">
       <thead class="bg-gray-100 font-semibold sticky top-0">
         <tr>
-          <th class="p-2 border-b">主营</th>
           <th class="p-2 border-b">名称</th>
+          <th class="p-2 border-b">主营</th>
           <th class="p-2 border-b">联系人</th>
           <th class="p-2 border-b">电话</th>
           <th class="p-2 border-b">微信</th>
@@ -120,8 +120,8 @@ function searchData() {
       <tbody>
         ${filtered.map((row,i)=>`
           <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
+            <td class="p-2 border-b">${row["名称"]||""}</td>          
             <td class="p-2 border-b">${row["主营"]||""}</td>
-            <td class="p-2 border-b">${row["名称"]||""}</td>
             <td class="p-2 border-b">${row["主要联系人（姓名）"]||""}</td>
             <td class="p-2 border-b">${row["手机号"]||""}</td>
             <td class="p-2 border-b">${row["微信"]||""}</td>
