@@ -11,10 +11,11 @@
   table th { position: sticky; top: 0; background-color: white; z-index: 10; }
 </style>
 </head>
+
 <body class="bg-gray-50 font-sans text-gray-800">
 
-<!-- 主内容 -->
-<div id="mainContent" class="opacity-0 transition-opacity duration-500">
+<!-- 主内容，无遮罩 -->
+<div id="mainContent" class="transition-opacity duration-500">
 
   <!-- 查询区域 -->
   <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
@@ -28,6 +29,7 @@
     <input id="projectName" type="text" placeholder="物料名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
     <input id="projectNo" type="text" placeholder="物料项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
     <input id="supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+
     <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
     <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
     <button onclick="exportTableToExcel('查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
@@ -49,21 +51,9 @@
 
 </div>
 
+
 <script>
-const correctPassword = "666888"; // 设置访问密码
-
-function checkPassword() {
-  const input = document.getElementById("passwordInput").value.trim();
-  if(input === correctPassword) {
-    document.getElementById("passwordOverlay").style.display = "none";
-    document.getElementById("mainContent").style.opacity = 1;
-  } else {
-    const err = document.getElementById("passwordError");
-    err.classList.remove("hidden");
-  }
-}
-
-// 数据加载
+// 数据缓存
 let dataCache = [];
 
 fetch('data.json')
@@ -78,7 +68,7 @@ fetch('data.json')
     document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
   });
 
-// 查询函数
+// 查询
 function searchData() {
   const year = document.getElementById("year").value.trim();
   const supplier = document.getElementById("supplier").value.trim();
@@ -106,6 +96,7 @@ function searchData() {
 
   filtered.sort((a,b)=>b["合同编号"].localeCompare(a["合同编号"]));
 
+  // 无结果
   if (filtered.length === 0) {
     document.getElementById("summary").classList.add("hidden");
     document.getElementById("result").innerHTML = "<p class='text-center text-gray-500'>未找到匹配的数据。</p>";
@@ -157,14 +148,12 @@ function searchData() {
   document.getElementById("result").innerHTML = tableHTML;
 }
 
-// 重置
 function resetForm() {
   ["year","supplier","projectNo","projectName"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("result").innerHTML = "";
   document.getElementById("summary").classList.add("hidden");
 }
 
-// 导出 Excel
 function exportTableToExcel(filename) {
   const table = document.querySelector("#result table");
   if (!table) { alert("请先执行查询！"); return; }
