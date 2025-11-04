@@ -15,7 +15,7 @@
       height: 100%;
       border: none;
     }
-    /* 卡片淡入 + 悬停动画 */
+
     .card {
       transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
     }
@@ -23,7 +23,6 @@
       transform: scale(1.05);
       box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
     }
-    /* 顺序淡入动画 */
     @keyframes fadeIn {
       to { opacity: 1; transform: translateY(0); }
     }
@@ -31,10 +30,9 @@
     .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
     .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
 
-    /* Tooltip 样式 */
     .tooltip {
       position: absolute;
-      background: #f87171; /* 红色背景 */
+      background: #f87171;
       color: white;
       padding: 0.25rem 0.5rem;
       border-radius: 0.25rem;
@@ -45,63 +43,74 @@
       transition: opacity 0.2s ease;
       z-index: 50;
     }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-6px); }
+      100% { transform: translateX(0); }
+    }
+    .shake {
+      animation: shake 0.4s ease;
+    }
   </style>
 </head>
+
 <body class="flex flex-col h-screen">
 
+<!-- ✅ 密码遮罩 -->
+<div id="passwordOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center z-50">
+  <div id="passwordBox" class="bg-white rounded-xl p-6 shadow-lg w-80 text-center fade-in transition-all">
+    <h2 class="text-xl font-semibold mb-4">请输入访问密码</h2>
+    <input id="passwordInput" type="password" placeholder="密码"
+      class="border border-gray-300 rounded-lg p-2 w-full mb-4 focus:ring-2 focus:ring-red-400 transition-all" />
+    <button onclick="checkPassword()" 
+      class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow w-full">确认</button>
+    <p id="passwordError" class="text-red-600 mt-2 text-sm hidden">密码错误，请重试</p>
+  </div>
+</div>
+
+<!-- 主体 -->
 <main class="flex flex-1 overflow-hidden h-full">
 
-  <!-- 左侧导航栏 -->
-  <aside id="sidebar" class="w-16 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300 relative">
-    <!-- 折叠按钮 -->
-    <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white">
-      ☰
-    </button>
+  <!--左侧导航-->
+  <aside id="sidebar" class="w-16 bg-red-600 flex flex-col p-4 space-y-4 text-white overflow-y-auto shadow-md transition-all duration-300 relative">
+    <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white">☰</button>
 
-    <!-- Logo -->
     <div id="logoContainer" class="flex justify-center mb-4">
       <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" style="display:none;" />
     </div>
 
-    <!-- 导航按钮 -->
     <div id="navBtns" class="flex flex-col space-y-2 relative">
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/CP/index.html" data-tooltip="成品查询">
-        <span class="btn-text" style="display:none;">成品查询</span>
-        <span class="btn-icon text-xl">📦</span>
+        <span class="btn-text" style="display:none;">成品查询</span><span class="btn-icon text-xl">📦</span>
       </button>
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/bom/index.html" data-tooltip="产品BOM">
-        <span class="btn-text" style="display:none;">产品BOM</span>
-        <span class="btn-icon text-xl">📝</span>
+        <span class="btn-text" style="display:none;">产品BOM</span><span class="btn-icon text-xl">📝</span>
       </button>
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/tz/index.html" data-tooltip="物料查询">
-        <span class="btn-text" style="display:none;">物料查询</span>
-        <span class="btn-icon text-xl">🔍</span>
+        <span class="btn-text" style="display:none;">物料查询</span><span class="btn-icon text-xl">🔍</span>
       </button>
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/supplier/index.html" data-tooltip="供应商查询">
-        <span class="btn-text" style="display:none;">供应商查询</span>
-        <span class="btn-icon text-xl">🏭</span>
+        <span class="btn-text" style="display:none;">供应商查询</span><span class="btn-icon text-xl">🏭</span>
       </button>
     </div>
   </aside>
 
-  <!-- 右侧内容区 -->
+  <!-- 内容区 -->
   <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
     <div class="flex flex-wrap justify-center gap-8 mt-10">
-      <!-- 保障供应 -->
       <div class="card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
         <div class="text-5xl mb-3">📦</div>
         <div class="text-red-600 font-bold text-lg">保障供应</div>
         <div class="text-gray-700 text-sm mt-2 text-center">确保物料稳定供应，满足生产需求</div>
       </div>
-
-      <!-- 控制成本 -->
       <div class="card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
         <div class="text-5xl mb-3">💰</div>
         <div class="text-red-600 font-bold text-lg">控制成本</div>
         <div class="text-gray-700 text-sm mt-2 text-center">在保证质量前提下，降低采购成本</div>
       </div>
-
-      <!-- 保证质量 -->
       <div class="card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
         <div class="text-5xl mb-3">✅</div>
         <div class="text-red-600 font-bold text-lg">保证质量</div>
@@ -109,7 +118,6 @@
       </div>
     </div>
   </section>
-
 </main>
 
 <footer class="bg-white py-3">
@@ -118,29 +126,50 @@
   </div>
 </footer>
 
-
-<!-- Tooltip 元素 -->
+<!-- Tooltip -->
 <div id="tooltip" class="tooltip"></div>
 
 <script>
+  const correctPassword = "666888"; 
+  const overlay = document.getElementById('passwordOverlay');
+  const input = document.getElementById('passwordInput');
+  const errorText = document.getElementById('passwordError');
+  const box = document.getElementById('passwordBox');
+
+  if (sessionStorage.getItem("authPassed") === "true") {
+    overlay.style.display = "none";
+  }
+
+  function checkPassword() {
+    const val = input.value.trim();
+    if (val === correctPassword) {
+      sessionStorage.setItem("authPassed","true");
+      overlay.style.opacity = "0";
+      setTimeout(() => overlay.style.display = "none", 300);
+    } else {
+      errorText.classList.remove("hidden");
+      box.classList.add("shake");
+      input.classList.add("border-red-500","ring-red-400");
+      setTimeout(()=>{ box.classList.remove("shake"); input.classList.remove("ring-red-400"); },400);
+    }
+  }
+  input.addEventListener("keydown", e => { if (e.key === "Enter") checkPassword(); });
+
   const buttons = document.querySelectorAll('.nav-btn');
   const contentArea = document.getElementById('contentArea');
   const tooltip = document.getElementById('tooltip');
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggleBtn');
   const logo = document.getElementById('logoContainer');
-  const title = document.getElementById('titleContainer');
-  const tip = document.getElementById('tipContainer');
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       const url = btn.getAttribute('data-url');
       contentArea.innerHTML = `<iframe src="${url}"></iframe>`;
-      buttons.forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700'));
-      btn.classList.add('bg-blue-100', 'text-blue-700');
+      buttons.forEach(b => b.classList.remove('bg-blue-100','text-blue-700'));
+      btn.classList.add('bg-blue-100','text-blue-700');
     });
 
-    // tooltip 悬停显示
     btn.addEventListener('mouseenter', () => {
       if (btn.querySelector('.btn-text').style.display === 'none') {
         tooltip.textContent = btn.getAttribute('data-tooltip');
@@ -150,41 +179,27 @@
         tooltip.style.left = rect.right + 8 + 'px';
       }
     });
-    btn.addEventListener('mouseleave', () => {
-      tooltip.style.opacity = '0';
-    });
+    btn.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
   });
 
-  // 折叠功能函数
   function collapseSidebar() {
     sidebar.classList.remove('w-64');
     sidebar.classList.add('w-16');
-    logo.querySelector('img').style.display = 'none';
-    title.style.display = 'none';
-    tip.style.display = 'none';
-    document.querySelectorAll('.btn-text').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'inline');
+    logo.querySelector('img').style.display='none';
+    document.querySelectorAll('.btn-text').forEach(el => el.style.display='none');
+    document.querySelectorAll('.btn-icon').forEach(el => el.style.display='inline');
   }
-
   function expandSidebar() {
     sidebar.classList.remove('w-16');
     sidebar.classList.add('w-64');
-    logo.querySelector('img').style.display = '';
-    title.style.display = '';
-    tip.style.display = '';
-    document.querySelectorAll('.btn-text').forEach(el => el.style.display = '');
-    document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'none');
+    logo.querySelector('img').style.display='';
+    document.querySelectorAll('.btn-text').forEach(el => el.style.display='');
+    document.querySelectorAll('.btn-icon').forEach(el => el.style.display='none');
   }
 
-  // 页面加载默认折叠
   collapseSidebar();
-
   toggleBtn.addEventListener('click', () => {
-    if (sidebar.classList.contains('w-64')) {
-      collapseSidebar();
-    } else {
-      expandSidebar();
-    }
+    sidebar.classList.contains('w-64') ? collapseSidebar() : expandSidebar();
   });
 </script>
 
