@@ -47,29 +47,41 @@
     <div class="mt-auto text-center text-xs text-white/70">© 2025 青海基地采购管理部</div>
   </aside>
 
-  <!-- 右侧内容区 -->
+ <!-- 右侧内容区 -->
 <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
-  <div class="relative w-80 h-80">
+  <div class="relative w-96 h-96">
     <!-- 三角形边框 -->
     <svg viewBox="0 0 200 200" class="w-full h-full">
       <polygon points="100,10 190,170 10,170" stroke="#EF4444" stroke-width="3" fill="none" />
     </svg>
 
-    <!-- 顶点内容 -->
-    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-red-600 font-semibold">
-      保障供应
+    <!-- 顶点节点 -->
+    <!-- 保障供应 -->
+    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+      <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
+        📦
+      </div>
+      <span class="mt-2 text-red-600 font-semibold">保障供应</span>
     </div>
 
-    <div class="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2 text-center text-red-600 font-semibold">
-      控制成本
+    <!-- 控制成本 -->
+    <div class="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2 flex flex-col items-center">
+      <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
+        💰
+      </div>
+      <span class="mt-2 text-red-600 font-semibold">控制成本</span>
     </div>
 
-    <div class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 text-center text-red-600 font-semibold">
-      保证质量
+    <!-- 保证质量 -->
+    <div class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 flex flex-col items-center">
+      <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
+        ✅
+      </div>
+      <span class="mt-2 text-red-600 font-semibold">保证质量</span>
     </div>
 
     <!-- 中心 -->
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-700 font-bold">
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-700 font-bold text-lg">
       采购铁三角
     </div>
   </div>
