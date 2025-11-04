@@ -7,64 +7,54 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+      min-height: 100vh;
     }
-    .active {
-      background-color: #4b5563;
+    .sidebar-item {
+      transition: all 0.3s ease;
+    }
+    .sidebar-item:hover {
+      background-color: #e5e7eb;
+      transform: translateX(4px);
     }
   </style>
 </head>
-<body class="flex h-screen">
+<body class="flex flex-col h-screen">
+  <!-- 顶部标题栏 -->
+  <header class="bg-blue-600 text-white py-4 shadow-lg">
+    <h1 class="text-center text-2xl font-semibold tracking-wide">
+      青海厂内部采购管理系统
+    </h1>
+  </header>
 
-  <!-- 左侧导航栏 -->
-  <aside class="w-64 bg-gray-800 text-gray-100 flex flex-col">
-    <div class="text-center text-2xl font-bold py-6 border-b border-gray-700">
-      内部查询中心
-    </div>
-    <nav id="nav" class="flex-1 p-4 space-y-3">
-      <button data-page="CP/index.html" class="nav-btn w-full text-left px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition active">
-        成品查询
-      </button>
-      <button data-page="bom/index.html" class="nav-btn w-full text-left px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
-        产品BOM
-      </button>
-      <button data-page="tz/index.html" class="nav-btn w-full text-left px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
-        物料查询
-      </button>
-      <button data-page="supplier/index.html" class="nav-btn w-full text-left px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">
-        供应商查询
-      </button>
-    </nav>
+  <!-- 主体部分 -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- 左侧导航 -->
+    <aside class="w-56 bg-gray-100 border-r border-gray-300 p-4 overflow-y-auto">
+      <nav class="space-y-2">
+        <button onclick="loadPage('CP/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">成品查询</button>
+        <button onclick="loadPage('bom/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">产品BOM</button>
+        <button onclick="loadPage('tz/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">物料查询</button>
+        <button onclick="loadPage('supplier/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">供应商查询</button>
+      </nav>
+    </aside>
 
-    <footer class="text-center text-gray-400 text-xs py-4 border-t border-gray-700">
-      © 2025 德令哈采购管理部
-    </footer>
-  </aside>
+    <!-- 右侧内容区域 -->
+    <main id="content" class="flex-1 overflow-auto p-6 bg-white shadow-inner">
+      <div class="text-gray-500 animate-pulse">页面加载中...</div>
+    </main>
+  </div>
 
-  <!-- 右侧内容区 -->
-  <main class="flex-1 p-6 overflow-auto">
-    <div id="content" class="bg-white rounded-xl shadow p-4 min-h-[80vh]">
-      加载中...
-    </div>
-  </main>
+  <!-- 底部版权 -->
+  <footer class="text-center text-gray-500 text-sm py-3 border-t border-gray-300">
+    © 2025 德令哈采购管理部提供技术和数据支持 |
+    <a href="index.html" class="hover:underline">首页</a> |
+    <a href="tz/index.html" class="hover:underline">物料单价查询</a> |
+    <a href="bom/index.html" class="hover:underline">BOM</a> |
+    <a href="supplier/index.html" class="hover:underline">供应商</a>
+  </footer>
 
   <script>
-    // 默认加载第一个模块
-    window.addEventListener('DOMContentLoaded', () => {
-      loadPage('CP/index.html');
-    });
-
-    // 点击切换模块
-    document.getElementById('nav').addEventListener('click', (e) => {
-      if (e.target.classList.contains('nav-btn')) {
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-        const page = e.target.getAttribute('data-page');
-        loadPage(page);
-      }
-    });
-
-    // 动态加载页面
     async function loadPage(url) {
       const contentDiv = document.getElementById('content');
       contentDiv.innerHTML = '<div class="text-gray-500 animate-pulse">页面加载中...</div>';
@@ -72,14 +62,17 @@
         const response = await fetch(url);
         if (!response.ok) throw new Error('加载失败');
         const text = await response.text();
-        // 提取body内部内容（避免重复<head>样式）
-        const inner = text.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-        contentDiv.innerHTML = inner ? inner[1] : text;
+        // 尝试提取 <body> 内容，若失败则直接显示全部
+        const bodyMatch = text.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        const extracted = bodyMatch ? bodyMatch[1] : text;
+        contentDiv.innerHTML = extracted || '<div class="text-red-500">页面内容为空</div>';
       } catch (error) {
         contentDiv.innerHTML = `<div class="text-red-500">❌ 无法加载页面：${url}</div>`;
       }
     }
-  </script>
 
+    // 默认加载第一个页面
+    window.addEventListener('DOMContentLoaded', () => loadPage('CP/index.html'));
+  </script>
 </body>
 </html>
