@@ -15,13 +15,34 @@
       height: 100%;
       border: none;
     }
+    /* 卡片淡入 + 悬停动画 */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+    }
+    /* 顺序淡入动画 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
+    .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
+    .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
   </style>
 </head>
 <body class="flex flex-col h-screen">
 
 <main class="flex flex-1 overflow-hidden h-full">
-  <!-- 左侧导航栏 + 系统信息 -->
-  <aside class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto">
+
+  <!-- 左侧导航栏 -->
+  <aside id="sidebar" class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300">
+    <!-- 折叠按钮 -->
+    <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white">
+      ☰
+    </button>
+
     <!-- Logo -->
     <div class="flex justify-center mb-4">
       <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" />
@@ -38,71 +59,43 @@
     </div>
 
     <!-- 导航按钮 -->
-    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/CP/index.html">成品查询</button>
-    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
-    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
-    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
+    <div id="navBtns" class="flex flex-col space-y-2">
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/CP/index.html">成品查询</button>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
+    </div>
 
-    <!-- 模拟更多内容滚动 -->
     <div class="mt-auto text-center text-xs text-white/70">© 2025 青海基地采购管理部</div>
   </aside>
 
-<!-- 右侧内容区 -->
-<section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
-  <div class="flex flex-wrap justify-center gap-8 mt-10">
-    <!-- 保障供应 -->
-    <div class="card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
-      <div class="text-5xl mb-3">📦</div>
-      <div class="text-red-600 font-bold text-lg">保障供应</div>
-      <div class="text-gray-700 text-sm mt-2 text-center">确保物料稳定供应，满足生产需求</div>
+  <!-- 右侧内容区 -->
+  <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
+    <div class="flex flex-wrap justify-center gap-8 mt-10">
+      <!-- 保障供应 -->
+      <div class="card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
+        <div class="text-5xl mb-3">📦</div>
+        <div class="text-red-600 font-bold text-lg">保障供应</div>
+        <div class="text-gray-700 text-sm mt-2 text-center">确保物料稳定供应，满足生产需求</div>
+      </div>
+
+      <!-- 控制成本 -->
+      <div class="card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
+        <div class="text-5xl mb-3">💰</div>
+        <div class="text-red-600 font-bold text-lg">控制成本</div>
+        <div class="text-gray-700 text-sm mt-2 text-center">在保证质量前提下，降低采购成本</div>
+      </div>
+
+      <!-- 保证质量 -->
+      <div class="card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
+        <div class="text-5xl mb-3">✅</div>
+        <div class="text-red-600 font-bold text-lg">保证质量</div>
+        <div class="text-gray-700 text-sm mt-2 text-center">严格把控采购物料质量，降低风险</div>
+      </div>
     </div>
-
-    <!-- 控制成本 -->
-    <div class="card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
-      <div class="text-5xl mb-3">💰</div>
-      <div class="text-red-600 font-bold text-lg">控制成本</div>
-      <div class="text-gray-700 text-sm mt-2 text-center">在保证质量前提下，降低采购成本</div>
-    </div>
-
-    <!-- 保证质量 -->
-    <div class="card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
-      <div class="text-5xl mb-3">✅</div>
-      <div class="text-red-600 font-bold text-lg">保证质量</div>
-      <div class="text-gray-700 text-sm mt-2 text-center">严格把控采购物料质量，降低风险</div>
-    </div>
-  </div>
-</section>
-
-<style>
-  /* 卡片淡入 + 悬停动画 */
-  .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
-  }
-
-  .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
-  }
-
-  /* 顺序淡入动画 */
-  @keyframes fadeIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
-  .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
-  .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
-</style>
+  </section>
 
 </main>
-
-<!-- 页脚 -->
-<footer class="text-center text-gray-500 text-sm py-3 border-t">
-  <a href="/" class="hover:underline">首页</a> |
-  <a href="/tz/index.html" class="hover:underline">物料单价</a> |
-  <a href="/bom/index.html" class="hover:underline">BOM</a> |
-  <a href="/supplier/index.html" class="hover:underline">供应商</a>
-</footer>
 
 <script>
   const buttons = document.querySelectorAll('.nav-btn');
@@ -115,6 +108,26 @@
       buttons.forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700'));
       btn.classList.add('bg-blue-100', 'text-blue-700');
     });
+  });
+
+  // 折叠功能
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggleBtn');
+
+  toggleBtn.addEventListener('click', () => {
+    if (sidebar.classList.contains('w-64')) {
+      sidebar.classList.remove('w-64');
+      sidebar.classList.add('w-16');
+      sidebar.querySelectorAll('span, .nav-btn, .text-sm, img').forEach(el => {
+        el.style.display = 'none';
+      });
+    } else {
+      sidebar.classList.remove('w-16');
+      sidebar.classList.add('w-64');
+      sidebar.querySelectorAll('span, .nav-btn, .text-sm, img').forEach(el => {
+        el.style.display = '';
+      });
+    }
   });
 </script>
 
