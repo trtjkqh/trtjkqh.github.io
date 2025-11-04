@@ -52,7 +52,7 @@
 <main class="flex flex-1 overflow-hidden h-full">
 
   <!-- 左侧导航栏 -->
-  <aside id="sidebar" class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300 relative">
+  <aside id="sidebar" class="w-16 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300 relative">
     <!-- 折叠按钮 -->
     <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white">
       ☰
@@ -60,36 +60,36 @@
 
     <!-- Logo -->
     <div id="logoContainer" class="flex justify-center mb-4">
-      <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" />
+      <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" style="display:none;" />
     </div>
 
     <!-- 系统标题 -->
-    <div id="titleContainer" class="text-center mb-2">
+    <div id="titleContainer" class="text-center mb-2" style="display:none;">
       <span class="text-xl font-semibold">采购管理查询工具</span>
     </div>
 
     <!-- 系统提示 -->
-    <div id="tipContainer" class="text-sm mb-4 text-center">
+    <div id="tipContainer" class="text-sm mb-4 text-center" style="display:none;">
       ⚠️ 保密：内部数据严禁外传
     </div>
 
     <!-- 导航按钮 -->
     <div id="navBtns" class="flex flex-col space-y-2 relative">
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/CP/index.html" data-tooltip="成品查询">
-        <span class="btn-text">成品查询</span>
-        <span class="btn-icon hidden text-xl">📦</span>
+        <span class="btn-text" style="display:none;">成品查询</span>
+        <span class="btn-icon text-xl">📦</span>
       </button>
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/bom/index.html" data-tooltip="产品BOM">
-        <span class="btn-text">产品BOM</span>
-        <span class="btn-icon hidden text-xl">📝</span>
+        <span class="btn-text" style="display:none;">产品BOM</span>
+        <span class="btn-icon text-xl">📝</span>
       </button>
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/tz/index.html" data-tooltip="物料查询">
-        <span class="btn-text">物料查询</span>
-        <span class="btn-icon hidden text-xl">🔍</span>
+        <span class="btn-text" style="display:none;">物料查询</span>
+        <span class="btn-icon text-xl">🔍</span>
       </button>
       <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/supplier/index.html" data-tooltip="供应商查询">
-        <span class="btn-text">供应商查询</span>
-        <span class="btn-icon hidden text-xl">🏭</span>
+        <span class="btn-text" style="display:none;">供应商查询</span>
+        <span class="btn-icon text-xl">🏭</span>
       </button>
     </div>
   </aside>
@@ -129,6 +129,11 @@
   const buttons = document.querySelectorAll('.nav-btn');
   const contentArea = document.getElementById('contentArea');
   const tooltip = document.getElementById('tooltip');
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const logo = document.getElementById('logoContainer');
+  const title = document.getElementById('titleContainer');
+  const tip = document.getElementById('tipContainer');
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -139,7 +144,7 @@
     });
 
     // tooltip 悬停显示
-    btn.addEventListener('mouseenter', e => {
+    btn.addEventListener('mouseenter', () => {
       if (btn.querySelector('.btn-text').style.display === 'none') {
         tooltip.textContent = btn.getAttribute('data-tooltip');
         tooltip.style.opacity = '1';
@@ -153,38 +158,35 @@
     });
   });
 
-  // 折叠功能
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggleBtn');
-  const logo = document.getElementById('logoContainer');
-  const title = document.getElementById('titleContainer');
-  const tip = document.getElementById('tipContainer');
+  // 折叠功能函数
+  function collapseSidebar() {
+    sidebar.classList.remove('w-64');
+    sidebar.classList.add('w-16');
+    logo.querySelector('img').style.display = 'none';
+    title.style.display = 'none';
+    tip.style.display = 'none';
+    document.querySelectorAll('.btn-text').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'inline');
+  }
+
+  function expandSidebar() {
+    sidebar.classList.remove('w-16');
+    sidebar.classList.add('w-64');
+    logo.querySelector('img').style.display = '';
+    title.style.display = '';
+    tip.style.display = '';
+    document.querySelectorAll('.btn-text').forEach(el => el.style.display = '');
+    document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'none');
+  }
+
+  // 页面加载默认折叠
+  collapseSidebar();
 
   toggleBtn.addEventListener('click', () => {
-    const isExpanded = sidebar.classList.contains('w-64');
-
-    if (isExpanded) {
-      sidebar.classList.remove('w-64');
-      sidebar.classList.add('w-16');
-
-      // 隐藏文字，显示图标
-      logo.querySelector('img').style.display = 'none';
-      title.style.display = 'none';
-      tip.style.display = 'none';
-
-      document.querySelectorAll('.btn-text').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'inline');
+    if (sidebar.classList.contains('w-64')) {
+      collapseSidebar();
     } else {
-      sidebar.classList.remove('w-16');
-      sidebar.classList.add('w-64');
-
-      // 显示文字，隐藏图标
-      logo.querySelector('img').style.display = '';
-      title.style.display = '';
-      tip.style.display = '';
-
-      document.querySelectorAll('.btn-text').forEach(el => el.style.display = '');
-      document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'none');
+      expandSidebar();
     }
   });
 </script>
