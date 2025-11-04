@@ -13,38 +13,67 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-<!-- 查询区域 -->
-<div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
-  <select id="year" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
-    <option value="">全部年份</option>
-    <option value="2025">2025</option>
-    <option value="2024">2024</option>
-    <option value="2023">2023</option>
-    <option value="2022">2022</option>
-  </select>
-  <input id="projectName" type="text" placeholder="物料名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-  <input id="projectNo" type="text" placeholder="物料项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-  <input id="supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-  <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
-  <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
-  <button onclick="exportTableToExcel('查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
-</div>
-
-<!-- 汇总区 -->
-<div id="summary" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in">
-  <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
-    匹配结果：<span id="count"></span> 条
-  </div>
-  <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
-    金额总计：<span id="total"></span> 元
+<!-- 遮罩层 -->
+<div id="passwordOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center z-50">
+  <div class="bg-white rounded-xl p-6 shadow-lg w-80 text-center fade-in">
+    <h2 class="text-xl font-semibold mb-4">请输入访问密码</h2>
+    <input id="passwordInput" type="password" placeholder="密码" class="border border-gray-300 rounded-lg p-2 w-full mb-4 focus:ring-2 focus:ring-red-400" />
+    <button onclick="checkPassword()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow w-full">确认</button>
+    <p id="passwordError" class="text-red-600 mt-2 text-sm hidden">密码错误，请重试</p>
   </div>
 </div>
 
-<!-- 查询结果 -->
-<div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
-<div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+<!-- 主内容 -->
+<div id="mainContent" class="opacity-0 transition-opacity duration-500">
+
+  <!-- 查询区域 -->
+  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+    <select id="year" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
+      <option value="">全部年份</option>
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+    </select>
+    <input id="projectName" type="text" placeholder="物料名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="projectNo" type="text" placeholder="物料项目号（需精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="supplier" type="text" placeholder="供应商名称（可简称）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <button onclick="searchData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+    <button onclick="resetForm()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+    <button onclick="exportTableToExcel('查询结果.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
+  </div>
+
+  <!-- 汇总区 -->
+  <div id="summary" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in">
+    <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
+      匹配结果：<span id="count"></span> 条
+    </div>
+    <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
+      金额总计：<span id="total"></span> 元
+    </div>
+  </div>
+
+  <!-- 查询结果 -->
+  <div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+
+</div>
 
 <script>
+const correctPassword = "666888"; // 设置访问密码
+
+function checkPassword() {
+  const input = document.getElementById("passwordInput").value.trim();
+  if(input === correctPassword) {
+    document.getElementById("passwordOverlay").style.display = "none";
+    document.getElementById("mainContent").style.opacity = 1;
+  } else {
+    const err = document.getElementById("passwordError");
+    err.classList.remove("hidden");
+  }
+}
+
+// 数据加载
 let dataCache = [];
 
 fetch('data.json')
@@ -59,6 +88,7 @@ fetch('data.json')
     document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
   });
 
+// 查询函数
 function searchData() {
   const year = document.getElementById("year").value.trim();
   const supplier = document.getElementById("supplier").value.trim();
@@ -137,12 +167,14 @@ function searchData() {
   document.getElementById("result").innerHTML = tableHTML;
 }
 
+// 重置
 function resetForm() {
   ["year","supplier","projectNo","projectName"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("result").innerHTML = "";
   document.getElementById("summary").classList.add("hidden");
 }
 
+// 导出 Excel
 function exportTableToExcel(filename) {
   const table = document.querySelector("#result table");
   if (!table) { alert("请先执行查询！"); return; }
