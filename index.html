@@ -6,9 +6,9 @@
   <title>青海厂内部采购查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-      height: 100vh;
+    body, html {
+      height: 100%;
+      margin: 0;
     }
     iframe {
       width: 100%;
@@ -17,11 +17,11 @@
     }
   </style>
 </head>
-<body class="flex flex-col">
+<body class="flex flex-col h-screen">
 
-<main class="flex flex-1 overflow-hidden">
+<main class="flex flex-1 overflow-hidden h-full">
   <!-- 左侧导航栏 + 系统信息 -->
-  <aside class="w-64 bg-white border-r border-gray-300 p-4 flex flex-col space-y-4 shadow-md">
+  <aside class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto">
     <!-- Logo -->
     <div class="flex justify-center mb-4">
       <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" />
@@ -29,23 +29,27 @@
 
     <!-- 系统标题 -->
     <div class="text-center mb-2">
-      <span class="text-xl font-semibold">查询工具</span>
+      <span class="text-xl font-semibold">采购管理查询工具</span>
     </div>
 
     <!-- 系统提示 -->
-    <div class="text-sm text-gray-600 mb-4 text-center">
+    <div class="text-sm mb-4 text-center">
+      在保障稳定供应的前提下，以最优的总拥有成本，获得符合要求的质量。<br>
       ⚠️ 保密：内部数据严禁外传
     </div>
 
     <!-- 导航按钮 -->
-    <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/CP/index.html">成品查询</button>
-    <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
-    <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
-    <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
+    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/CP/index.html">成品查询</button>
+    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
+    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
+    <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
+
+    <!-- 模拟更多内容滚动 -->
+    <div class="mt-auto text-center text-xs text-white/70">© 2025 德令哈采购管理部</div>
   </aside>
 
   <!-- 右侧内容区 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center">
+  <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
     <div class="text-center text-1xl font-bold text-gray-700">
       保障供应，控制成本，保证质量
     </div>
@@ -54,7 +58,6 @@
 
 <!-- 页脚 -->
 <footer class="text-center text-gray-500 text-sm py-3 border-t">
-  © 2025 德令哈采购管理部提供技术和数据支持 |
   <a href="/" class="hover:underline">首页</a> |
   <a href="/tz/index.html" class="hover:underline">物料单价</a> |
   <a href="/bom/index.html" class="hover:underline">BOM</a> |
