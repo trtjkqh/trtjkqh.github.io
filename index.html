@@ -48,11 +48,33 @@
   </aside>
 
   <!-- 右侧内容区 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
-    <div class="text-center text-1xl font-bold text-gray-700">
-      保障供应，控制成本，保证质量
+<section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
+  <div class="relative w-80 h-80">
+    <!-- 三角形边框 -->
+    <svg viewBox="0 0 200 200" class="w-full h-full">
+      <polygon points="100,10 190,170 10,170" stroke="#EF4444" stroke-width="3" fill="none" />
+    </svg>
+
+    <!-- 顶点内容 -->
+    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-red-600 font-semibold">
+      保障供应
     </div>
-  </section>
+
+    <div class="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2 text-center text-red-600 font-semibold">
+      控制成本
+    </div>
+
+    <div class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 text-center text-red-600 font-semibold">
+      保证质量
+    </div>
+
+    <!-- 中心 -->
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-700 font-bold">
+      采购铁三角
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!-- 页脚 -->
