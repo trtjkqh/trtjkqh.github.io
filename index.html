@@ -27,31 +27,35 @@
   <main class="flex flex-1 overflow-hidden">
     <!-- 左侧导航栏 -->
     <aside class="w-56 bg-white border-r border-gray-300 p-4 flex flex-col space-y-4 shadow-md">
-      <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/CP/index.html">成品查询</button>
+      <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/cp/index.html">成品查询</button>
       <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
       <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
       <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
     </aside>
 
     <!-- 右侧内容区 -->
-    <section class="flex-1 bg-gray-50">
-      <iframe id="contentFrame" src="/cp/index.html"></iframe>
+    <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center">
+      <img src="/assets/img/trtdoor.jpg" alt="青海厂大门" class="max-h-[80%] rounded-2xl shadow-lg" />
     </section>
   </main>
 
   <!-- 页脚 -->
   <footer class="text-center text-gray-500 text-sm py-3 border-t">
-    © 2025 采购管理部提供技术和数据支持 
+    © 2025 德令哈采购管理部提供技术和数据支持 |
+    <a href="/" class="hover:underline">首页</a> |
+    <a href="/tz/index.html" class="hover:underline">物料单价</a> |
+    <a href="/bom/index.html" class="hover:underline">BOM</a> |
+    <a href="/supplier/index.html" class="hover:underline">供应商</a>
   </footer>
 
   <script>
     const buttons = document.querySelectorAll('.nav-btn');
-    const frame = document.getElementById('contentFrame');
+    const contentArea = document.getElementById('contentArea');
 
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const url = btn.getAttribute('data-url');
-        frame.src = url;
+        contentArea.innerHTML = `<iframe src="${url}"></iframe>`;
         buttons.forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700'));
         btn.classList.add('bg-blue-100', 'text-blue-700');
       });
