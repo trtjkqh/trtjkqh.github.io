@@ -50,17 +50,13 @@
  <!-- 右侧内容区 -->
 <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
   <div class="relative w-96 h-96">
-    <!-- 三角形边线 SVG -->
+    <!-- 三角形边框 -->
     <svg viewBox="0 0 200 200" class="w-full h-full">
-      <line x1="100" y1="20" x2="180" y2="170" stroke="#EF4444" stroke-width="3"
-            stroke-dasharray="200" stroke-dashoffset="200" class="edge edge1" />
-      <line x1="180" y1="170" x2="20" y2="170" stroke="#EF4444" stroke-width="3"
-            stroke-dasharray="200" stroke-dashoffset="200" class="edge edge2" />
-      <line x1="20" y1="170" x2="100" y2="20" stroke="#EF4444" stroke-width="3"
-            stroke-dasharray="200" stroke-dashoffset="200" class="edge edge3" />
+      <polygon points="100,10 190,170 10,170" stroke="#EF4444" stroke-width="3" fill="none" />
     </svg>
 
     <!-- 顶点节点 -->
+    <!-- 保障供应 -->
     <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center node delay-0">
       <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
         📦
@@ -68,6 +64,7 @@
       <span class="mt-2 text-red-600 font-semibold">保障供应</span>
     </div>
 
+    <!-- 控制成本 -->
     <div class="absolute bottom-0 left-0 transform -translate-x-1/2 translate-y-1/2 flex flex-col items-center node delay-1">
       <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
         💰
@@ -75,6 +72,7 @@
       <span class="mt-2 text-red-600 font-semibold">控制成本</span>
     </div>
 
+    <!-- 保证质量 -->
     <div class="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2 flex flex-col items-center node delay-2">
       <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
         ✅
@@ -82,7 +80,7 @@
       <span class="mt-2 text-red-600 font-semibold">保证质量</span>
     </div>
 
-    <!-- 中心文字 -->
+    <!-- 中心 -->
     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-700 font-bold text-lg">
       采购铁三角
     </div>
@@ -90,40 +88,31 @@
 </section>
 
 <style>
-  /* 节点样式 */
+  /* 节点淡入 + 缩放动画 */
   .node {
     opacity: 0;
     transform: scale(0.5);
-    transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.5s ease, opacity 0.5s ease, box-shadow 0.3s ease;
+    animation: fadeInScale 0.6s forwards;
   }
 
-  .node div {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* 不同延迟 */
+  .delay-0 { animation-delay: 0s; }
+  .delay-1 { animation-delay: 0.3s; }
+  .delay-2 { animation-delay: 0.6s; }
+
+  @keyframes fadeInScale {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
+  /* 鼠标悬停效果 */
   .node:hover div {
     transform: scale(1.15);
     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6);
   }
-
-  /* 动画关键帧 */
-  @keyframes fadeInScale {
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes drawLine {
-    to { stroke-dashoffset: 0; }
-  }
-
-  /* 三角形边线循环动画 */
-  .edge1 { animation: drawLine 0.5s forwards infinite alternate; animation-delay: 0.2s; }
-  .edge2 { animation: drawLine 0.5s forwards infinite alternate; animation-delay: 0.7s; }
-  .edge3 { animation: drawLine 0.5s forwards infinite alternate; animation-delay: 1.2s; }
-
-  /* 顶点节点循环动画 */
-  .delay-0 { animation: fadeInScale 0.5s forwards infinite alternate; animation-delay: 0.7s; }
-  .delay-1 { animation: fadeInScale 0.5s forwards infinite alternate; animation-delay: 1.2s; }
-  .delay-2 { animation: fadeInScale 0.5s forwards infinite alternate; animation-delay: 1.7s; }
 </style>
 
 </main>
