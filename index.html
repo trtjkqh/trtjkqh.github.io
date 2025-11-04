@@ -30,6 +30,21 @@
     .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
     .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
     .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
+
+    /* Tooltip 样式 */
+    .tooltip {
+      position: absolute;
+      background: #f87171; /* 红色背景 */
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 50;
+    }
   </style>
 </head>
 <body class="flex flex-col h-screen">
@@ -37,36 +52,46 @@
 <main class="flex flex-1 overflow-hidden h-full">
 
   <!-- 左侧导航栏 -->
-  <aside id="sidebar" class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300">
+  <aside id="sidebar" class="w-64 bg-red-600 flex flex-col p-4 space-y-4 shadow-md text-white overflow-y-auto transition-all duration-300 relative">
     <!-- 折叠按钮 -->
     <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white">
       ☰
     </button>
 
     <!-- Logo -->
-    <div class="flex justify-center mb-4">
+    <div id="logoContainer" class="flex justify-center mb-4">
       <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" />
     </div>
 
     <!-- 系统标题 -->
-    <div class="text-center mb-2">
+    <div id="titleContainer" class="text-center mb-2">
       <span class="text-xl font-semibold">采购管理查询工具</span>
     </div>
 
     <!-- 系统提示 -->
-    <div class="text-sm mb-4 text-center">
+    <div id="tipContainer" class="text-sm mb-4 text-center">
       ⚠️ 保密：内部数据严禁外传
     </div>
 
     <!-- 导航按钮 -->
-    <div id="navBtns" class="flex flex-col space-y-2">
-      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/CP/index.html">成品查询</button>
-      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
-      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
-      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
+    <div id="navBtns" class="flex flex-col space-y-2 relative">
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/CP/index.html" data-tooltip="成品查询">
+        <span class="btn-text">成品查询</span>
+        <span class="btn-icon hidden text-xl">📦</span>
+      </button>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/bom/index.html" data-tooltip="产品BOM">
+        <span class="btn-text">产品BOM</span>
+        <span class="btn-icon hidden text-xl">📝</span>
+      </button>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/tz/index.html" data-tooltip="物料查询">
+        <span class="btn-text">物料查询</span>
+        <span class="btn-icon hidden text-xl">🔍</span>
+      </button>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="/supplier/index.html" data-tooltip="供应商查询">
+        <span class="btn-text">供应商查询</span>
+        <span class="btn-icon hidden text-xl">🏭</span>
+      </button>
     </div>
-
-    <div class="mt-auto text-center text-xs text-white/70">© 2025 青海基地采购管理部</div>
   </aside>
 
   <!-- 右侧内容区 -->
@@ -97,9 +122,13 @@
 
 </main>
 
+<!-- Tooltip 元素 -->
+<div id="tooltip" class="tooltip"></div>
+
 <script>
   const buttons = document.querySelectorAll('.nav-btn');
   const contentArea = document.getElementById('contentArea');
+  const tooltip = document.getElementById('tooltip');
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -108,25 +137,54 @@
       buttons.forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700'));
       btn.classList.add('bg-blue-100', 'text-blue-700');
     });
+
+    // tooltip 悬停显示
+    btn.addEventListener('mouseenter', e => {
+      if (btn.querySelector('.btn-text').style.display === 'none') {
+        tooltip.textContent = btn.getAttribute('data-tooltip');
+        tooltip.style.opacity = '1';
+        const rect = btn.getBoundingClientRect();
+        tooltip.style.top = rect.top + rect.height / 2 - tooltip.offsetHeight / 2 + 'px';
+        tooltip.style.left = rect.right + 8 + 'px';
+      }
+    });
+    btn.addEventListener('mouseleave', () => {
+      tooltip.style.opacity = '0';
+    });
   });
 
   // 折叠功能
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggleBtn');
+  const logo = document.getElementById('logoContainer');
+  const title = document.getElementById('titleContainer');
+  const tip = document.getElementById('tipContainer');
 
   toggleBtn.addEventListener('click', () => {
-    if (sidebar.classList.contains('w-64')) {
+    const isExpanded = sidebar.classList.contains('w-64');
+
+    if (isExpanded) {
       sidebar.classList.remove('w-64');
       sidebar.classList.add('w-16');
-      sidebar.querySelectorAll('span, .nav-btn, .text-sm, img').forEach(el => {
-        el.style.display = 'none';
-      });
+
+      // 隐藏文字，显示图标
+      logo.querySelector('img').style.display = 'none';
+      title.style.display = 'none';
+      tip.style.display = 'none';
+
+      document.querySelectorAll('.btn-text').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'inline');
     } else {
       sidebar.classList.remove('w-16');
       sidebar.classList.add('w-64');
-      sidebar.querySelectorAll('span, .nav-btn, .text-sm, img').forEach(el => {
-        el.style.display = '';
-      });
+
+      // 显示文字，隐藏图标
+      logo.querySelector('img').style.display = '';
+      title.style.display = '';
+      tip.style.display = '';
+
+      document.querySelectorAll('.btn-text').forEach(el => el.style.display = '');
+      document.querySelectorAll('.btn-icon').forEach(el => el.style.display = 'none');
     }
   });
 </script>
