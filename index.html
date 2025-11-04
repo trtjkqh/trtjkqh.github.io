@@ -7,72 +7,60 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
-      min-height: 100vh;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      height: 100vh;
     }
-    .sidebar-item {
-      transition: all 0.3s ease;
-    }
-    .sidebar-item:hover {
-      background-color: #e5e7eb;
-      transform: translateX(4px);
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
-<body class="flex flex-col h-screen">
-  <!-- 顶部标题栏 -->
-  <header class="bg-blue-600 text-white py-4 shadow-lg">
-    <h1 class="text-center text-2xl font-semibold tracking-wide">
-      青海厂内部采购管理系统
-    </h1>
+<body class="flex flex-col">
+
+  <!-- 系统标题栏 -->
+  <header class="bg-gray-800 text-white p-4 text-center text-2xl font-semibold shadow-md">
+    青海厂内部采购管理系统
   </header>
 
-  <!-- 主体部分 -->
-  <div class="flex flex-1 overflow-hidden">
-    <!-- 左侧导航 -->
-    <aside class="w-56 bg-gray-100 border-r border-gray-300 p-4 overflow-y-auto">
-      <nav class="space-y-2">
-        <button onclick="loadPage('CP/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">成品查询</button>
-        <button onclick="loadPage('bom/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">产品BOM</button>
-        <button onclick="loadPage('tz/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">物料查询</button>
-        <button onclick="loadPage('supplier/index.html')" class="sidebar-item w-full text-left p-2 rounded hover:bg-blue-200">供应商查询</button>
-      </nav>
+  <main class="flex flex-1 overflow-hidden">
+    <!-- 左侧导航栏 -->
+    <aside class="w-56 bg-white border-r border-gray-300 p-4 flex flex-col space-y-4 shadow-md">
+      <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/cp/index.html">成品查询</button>
+      <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/bom/index.html">产品BOM</button>
+      <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/tz/index.html">物料查询</button>
+      <button class="nav-btn bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg" data-url="/supplier/index.html">供应商查询</button>
     </aside>
 
-    <!-- 右侧内容区域 -->
-    <main id="content" class="flex-1 overflow-auto p-6 bg-white shadow-inner">
-      <div class="text-gray-500 animate-pulse">页面加载中...</div>
-    </main>
-  </div>
+    <!-- 右侧内容区 -->
+    <section class="flex-1 bg-gray-50">
+      <iframe id="contentFrame" src="/cp/index.html"></iframe>
+    </section>
+  </main>
 
-  <!-- 底部版权 -->
-  <footer class="text-center text-gray-500 text-sm py-3 border-t border-gray-300">
+  <!-- 页脚 -->
+  <footer class="text-center text-gray-500 text-sm py-3 border-t">
     © 2025 德令哈采购管理部提供技术和数据支持 |
-    <a href="index.html" class="hover:underline">首页</a> |
-    <a href="tz/index.html" class="hover:underline">物料单价查询</a> |
-    <a href="bom/index.html" class="hover:underline">BOM</a> |
-    <a href="supplier/index.html" class="hover:underline">供应商</a>
+    <a href="/" class="hover:underline">首页</a> |
+    <a href="/tz/index.html" class="hover:underline">物料单价</a> |
+    <a href="/bom/index.html" class="hover:underline">BOM</a> |
+    <a href="/supplier/index.html" class="hover:underline">供应商</a>
   </footer>
 
   <script>
-    async function loadPage(url) {
-      const contentDiv = document.getElementById('content');
-      contentDiv.innerHTML = '<div class="text-gray-500 animate-pulse">页面加载中...</div>';
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('加载失败');
-        const text = await response.text();
-        // 尝试提取 <body> 内容，若失败则直接显示全部
-        const bodyMatch = text.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-        const extracted = bodyMatch ? bodyMatch[1] : text;
-        contentDiv.innerHTML = extracted || '<div class="text-red-500">页面内容为空</div>';
-      } catch (error) {
-        contentDiv.innerHTML = `<div class="text-red-500">❌ 无法加载页面：${url}</div>`;
-      }
-    }
+    const buttons = document.querySelectorAll('.nav-btn');
+    const frame = document.getElementById('contentFrame');
 
-    // 默认加载第一个页面
-    window.addEventListener('DOMContentLoaded', () => loadPage('CP/index.html'));
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = btn.getAttribute('data-url');
+        frame.src = url;
+        buttons.forEach(b => b.classList.remove('bg-blue-100', 'text-blue-700'));
+        btn.classList.add('bg-blue-100', 'text-blue-700');
+      });
+    });
   </script>
+
 </body>
 </html>
