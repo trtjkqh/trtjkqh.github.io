@@ -6,8 +6,15 @@
   <title>内部查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body, html { height: 100%; margin: 0; }
-    iframe { width: 100%; height: 100%; border: none; }
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
     .card {
       transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease;
     }
@@ -15,125 +22,105 @@
       transform: scale(1.05);
       box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
     }
-    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
     .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); }
     .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); }
     .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); }
     .tooltip {
-      position: absolute; background: #f87171; color: white; padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem; font-size: 0.75rem; white-space: nowrap; pointer-events: none;
-      opacity: 0; transition: opacity 0.2s ease; z-index: 50;
+      position: absolute;
+      background: #f87171;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 50;
     }
-    @keyframes shake {
-      0% { transform: translateX(0); } 25% { transform: translateX(-8px); }
-      50% { transform: translateX(8px); } 75% { transform: translateX(-6px); }
-      100% { transform: translateX(0); }
-    }
-    .shake { animation: shake 0.4s ease; }
   </style>
 </head>
 
 <body class="flex flex-col h-screen">
 
-<!-- ✅ 密码遮罩 -->
-<div id="passwordOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center z-50">
-  <div id="passwordBox" class="bg-white rounded-xl p-6 shadow-lg w-80 text-center fade-in transition-all">
-    <h2 class="text-xl font-semibold mb-4">请输入访问密码</h2>
-    <input id="passwordInput" type="password" placeholder="密码"
-      class="border border-gray-300 rounded-lg p-2 w-full mb-4 focus:ring-2 focus:ring-red-400 transition-all" />
-    <button onclick="checkPassword()" 
-      class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow w-full">确认</button>
-    <p id="passwordError" class="text-red-600 mt-2 text-sm hidden">密码错误，请重试</p>
-  </div>
-</div>
-
 <main class="flex flex-1 overflow-hidden h-full">
 
-  <!-- ✅ 左侧导航调整 -->
+  <!-- 左侧导航 -->
   <aside id="sidebar" class="w-16 bg-red-600 flex flex-col p-4 space-y-4 text-white overflow-y-auto shadow-md transition-all duration-300 relative">
-    <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg">☰</button>
+    <button id="toggleBtn" class="mb-4 bg-red-500 hover:bg-red-400 p-2 rounded-lg text-white">☰</button>
 
     <div id="logoContainer" class="flex justify-center mb-4">
       <img src="/assets/img/trtlogo.png" alt="Logo" class="h-16 w-auto" style="display:none;" />
     </div>
 
     <div id="navBtns" class="flex flex-col space-y-2 relative">
-      <button class="nav-btn bg-red-500 hover:bg-red-400 p-2 rounded-lg flex items-center justify-center" 
-              data-url="/kanban/index.html" data-tooltip="内部查询">
+
+      <!-- ✅ 修改1：内部查询 → kanban -->
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative"
+        data-url="/kanban/index.html" data-tooltip="内部查询">
         <span class="btn-text" style="display:none;">内部查询</span><span class="btn-icon text-xl">📊</span>
       </button>
 
-      <button class="nav-btn bg-red-500 hover:bg-red-400 p-2 rounded-lg flex items-center justify-center" 
-              data-url="#" data-tooltip="占位">
-        <span class="btn-text" style="display:none;">占位一</span><span class="btn-icon text-xl">📎</span>
+      <!-- ✅ 占位3个 -->
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="#" data-tooltip="占位">
+        <span class="btn-text" style="display:none;">占位</span><span class="btn-icon text-xl">📝</span>
       </button>
-
-      <button class="nav-btn bg-red-500 hover:bg-red-400 p-2 rounded-lg flex items-center justify-center" 
-              data-url="#" data-tooltip="占位">
-        <span class="btn-text" style="display:none;">占位二</span><span class="btn-icon text-xl">🧾</span>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="#" data-tooltip="占位">
+        <span class="btn-text" style="display:none;">占位</span><span class="btn-icon text-xl">🔍</span>
       </button>
-
-      <button class="nav-btn bg-red-500 hover:bg-red-400 p-2 rounded-lg flex items-center justify-center" 
-              data-url="#" data-tooltip="占位">
-        <span class="btn-text" style="display:none;">占位三</span><span class="btn-icon text-xl">🏭</span>
+      <button class="nav-btn bg-red-500 hover:bg-red-400 text-white p-2 rounded-lg flex items-center justify-center relative" data-url="#" data-tooltip="占位">
+        <span class="btn-text" style="display:none;">占位</span><span class="btn-icon text-xl">🏭</span>
       </button>
     </div>
   </aside>
 
-  <!-- ✅ 右侧内容：上方加 Logo，卡片换成3大板块 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 flex flex-col items-center justify-start overflow-auto pt-10">
+  <!-- 内容区 -->
+  <section id="contentArea" class="flex-1 bg-gray-50 flex flex-col items-center justify-start overflow-auto">
 
-    <img src="/assets/img/trtlogo.png" alt="TRT Logo" class="h-24 mb-6 opacity-90" />
+    <!-- ✅ LOGO在卡片上方 -->
+    <div class="mt-10 mb-6 flex justify-center">
+      <img src="/assets/img/trtlogo.png" class="h-24 opacity-80">
+    </div>
 
-    <div class="flex flex-wrap justify-center gap-8">
-      <a href="#" class="card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center cursor-pointer">
+    <div class="flex flex-wrap justify-center gap-8 mb-12">
+
+      <div class="card opacity-0 delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center cursor-pointer"
+           onclick="alert('集团介绍，功能待上线');">
         <div class="text-5xl mb-3">🏢</div>
         <div class="text-red-600 font-bold text-lg">集团介绍</div>
-        <div class="text-gray-700 text-sm mt-2 text-center">集团背景与业务布局</div>
-      </a>
-      <a href="#" class="card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center cursor-pointer">
+        <div class="text-gray-700 text-sm mt-2 text-center">集团概况、历史与发展</div>
+      </div>
+
+      <div class="card opacity-0 delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center cursor-pointer"
+           onclick="alert('青海基地，功能待上线');">
         <div class="text-5xl mb-3">🏭</div>
         <div class="text-red-600 font-bold text-lg">青海基地</div>
-        <div class="text-gray-700 text-sm mt-2 text-center">生产基地规模与发展</div>
-      </a>
-      <a href="#" class="card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center cursor-pointer">
+        <div class="text-gray-700 text-sm mt-2 text-center">基地环境、产能介绍</div>
+      </div>
+
+      <div class="card opacity-0 delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center cursor-pointer"
+           onclick="alert('青海产品，功能待上线');">
         <div class="text-5xl mb-3">📦</div>
         <div class="text-red-600 font-bold text-lg">青海产品</div>
-        <div class="text-gray-700 text-sm mt-2 text-center">产品体系与代表项目</div>
-      </a>
+        <div class="text-gray-700 text-sm mt-2 text-center">主要产品与展示</div>
+      </div>
+
     </div>
   </section>
 </main>
 
 <footer class="bg-white py-3">
   <div class="text-center text-xs text-gray-500">
-    © 2025 青海基地采购管理部提供数据和技术支持 | ⚠️ 保密：内部数据严禁外传
+    © 2025 青海基地采购管理部 | ⚠️ 内部资料 禁止外传
   </div>
 </footer>
 
 <div id="tooltip" class="tooltip"></div>
 
 <script>
-  const correctPassword = "666888";
-  const overlay = document.getElementById('passwordOverlay');
-  const input = document.getElementById('passwordInput');
-  const errorText = document.getElementById('passwordError');
-  const box = document.getElementById('passwordBox');
-
-  if (sessionStorage.getItem("authPassed") === "true") overlay.style.display = "none";
-  function checkPassword() {
-    if (input.value.trim() === correctPassword) {
-      sessionStorage.setItem("authPassed","true");
-      overlay.style.opacity = "0";
-      setTimeout(() => overlay.style.display = "none", 300);
-    } else {
-      errorText.classList.remove("hidden"); box.classList.add("shake");
-      input.classList.add("border-red-500","ring-red-400");
-      setTimeout(()=>{ box.classList.remove("shake"); input.classList.remove("ring-red-400"); },400);
-    }
-  }
-  input.addEventListener("keydown", e => { if (e.key === "Enter") checkPassword(); });
-
   const buttons = document.querySelectorAll('.nav-btn');
   const contentArea = document.getElementById('contentArea');
   const tooltip = document.getElementById('tooltip');
@@ -144,9 +131,9 @@
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       const url = btn.getAttribute('data-url');
-      if(url !== "#") contentArea.innerHTML = `<iframe src="${url}"></iframe>`;
-      buttons.forEach(b => b.classList.remove('bg-blue-100','text-blue-700'));
-      btn.classList.add('bg-blue-100','text-blue-700');
+      if(url && url !== "#"){
+        contentArea.innerHTML = `<iframe src="${url}"></iframe>`;
+      }
     });
 
     btn.addEventListener('mouseenter', () => {
@@ -162,17 +149,20 @@
   });
 
   function collapseSidebar() {
-    sidebar.classList.remove('w-64'); sidebar.classList.add('w-16');
+    sidebar.classList.remove('w-64');
+    sidebar.classList.add('w-16');
     logo.querySelector('img').style.display='none';
     document.querySelectorAll('.btn-text').forEach(el => el.style.display='none');
     document.querySelectorAll('.btn-icon').forEach(el => el.style.display='inline');
   }
   function expandSidebar() {
-    sidebar.classList.remove('w-16'); sidebar.classList.add('w-64');
+    sidebar.classList.remove('w-16');
+    sidebar.classList.add('w-64');
     logo.querySelector('img').style.display='';
     document.querySelectorAll('.btn-text').forEach(el => el.style.display='');
     document.querySelectorAll('.btn-icon').forEach(el => el.style.display='none');
   }
+
   collapseSidebar();
   toggleBtn.addEventListener('click', () => {
     sidebar.classList.contains('w-64') ? collapseSidebar() : expandSidebar();
