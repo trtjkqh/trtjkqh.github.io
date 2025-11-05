@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同仁堂健康药业（青海）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .section { max-width:1200px; margin:auto; padding:40px 20px; }
+  .card { background:white; border:1.5px solid #d1d5db; border-radius:12px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.08); transition:transform 0.2s; }
+  .card:hover { transform:translateY(-4px); }
+  .highlight { border-color:#ef4444; background:#fee2e2; font-weight:700; }
+  .title { font-weight:700; font-size:1.25rem; margin-bottom:8px; }
+  .subtitle { color:#6b7280; font-size:0.9rem; }
+  .grid-3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<header class="bg-red-600 text-white py-12 text-center">
+  <h1 class="text-3xl font-bold">传承同仁堂精髓，创新健康产业</h1>
+  <p class="mt-2 text-lg opacity-90">
+    自2017年扎根于金色德令哈，我们肩负着将青藏高原"净土、净水、净空、净心"孕育的特色生物资源，
+    通过同仁堂355年的匠心工艺，惠及天下众生的使命。
+  </p>
+</header>
+
+<section class="section">
+  <h2 class="text-2xl font-bold mb-6">🎬 企业介绍视频</h2>
+  <video 
+    controls 
+    width="100%" 
+    poster="/assets/images/video-poster.jpg"
+    class="rounded-lg shadow-lg"
+  >
+    <source src="https://www.tongrentang.com/file/upload/jkqinghai.mp4" type="video/mp4">
+    您的浏览器不支持 HTML5 视频播放。
+  </video>
+  <p class="mt-2 text-gray-600 text-sm">点击播放，深入了解同仁堂健康药业（青海）的现代化生产基地与严格的质量控制流程</p>
+</section>
+
+<section class="section">
+  <h2 class="text-2xl font-bold mb-6">🏔️ 我们的核心优势</h2>
+  <div class="grid-3">
+    <div class="card">
+      <div class="title">🏭 现代化生产基地</div>
+      <div class="subtitle">
+        10万级洁净车间，6条现代化生产线，年产能达XX吨，确保每一件产品都符合最高质量标准。
+      </div>
+    </div>
+    <div class="card">
+      <div class="title">🔬 严格质量体系</div>
+      <div class="subtitle">
+        建立56道质检工序，第三方权威机构月度抽检，产品合格率持续保持100%。
+      </div>
+    </div>
+    <div class="card">
+      <div class="title">🌿 青藏特色资源</div>
+      <div class="subtitle">
+        深度开发冬虫夏草、黑枸杞、藜麦等青藏高原特有生物资源，原料溯源，品质保证。
+      </div>
+    </div>
+    <div class="card">
+      <div class="title">🎯 专业研发团队</div>
+      <div class="subtitle">
+        依托同仁堂强大的研发实力，拥有博士、硕士研发团队，不断创新产品配方和工艺。
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="text-2xl font-bold mb-6">💼 核心业务领域</h2>
+  <div class="grid-3">
+    <div class="card">
+      <div class="title">青藏特色健康产品</div>
+      <div class="subtitle">冬虫夏草系列、黑果枸杞系列、高原藜麦系列、特色健康食品</div>
+    </div>
+    <div class="card">
+      <div class="title">OEM/ODM合作</div>
+      <div class="subtitle">配方定制开发、包装一体化设计、灵活生产订量、资质文件支持</div>
+    </div>
+    <div class="card">
+      <div class="title">质量认证服务</div>
+      <div class="subtitle">ISO22000认证、绿色食品认证、有机产品认证、出口资质备案</div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="text-2xl font-bold mb-6">🏛️ 企业文化传承</h2>
+  <div class="card highlight">
+    <p class="text-lg font-semibold">"炮制虽繁必不敢省人工，品味虽贵必不敢减物力"</p>
+    <p class="mt-2 text-gray-700">
+      —— 同仁堂古训
+    </p>
+    <p class="mt-4 text-gray-800">
+      企业精神：{{ site.corporate_spirit }}<br>
+      我们恪守"{{ site.self_discipline }}"的自律意识，秉承"{{ site.product_tenet }}"的产品宗旨。
+    </p>
+  </div>
+</section>
+
+<section class="section mb-12">
+  <h2 class="text-2xl font-bold mb-6">📞 立即联系合作</h2>
+  <div class="grid-3">
+    <div class="card">
+      <div class="title">电话</div>
+      <div class="subtitle">{{ site.phone }}</div>
+    </div>
+    <div class="card">
+      <div class="title">邮箱</div>
+      <div class="subtitle">{{ site.email }}</div>
+    </div>
+    <div class="card">
+      <div class="title">地址</div>
+      <div class="subtitle">{{ site.location }}</div>
+    </div>
+  </div>
+</section>
+<div style="background: #e8f5e8; padding: 2rem; border-radius: 8px; text-align: center;">
+  <h3 style="margin-top: 0;">工厂位置</h3>
+  <p><strong>地址：</strong>{{ site.location }}</p>
+  
+  <!-- 百度地图容器 -->
+  <div id="baidu-map" style="height: 300px; width: 100%; margin: 1rem 0; border-radius: 8px; overflow: hidden;"></div>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+    <div>
+      <h4>📞 联系电话</h4>
+      <p>{{ site.phone }}</p>
+    </div>
+    <div>
+      <h4>📧 业务邮箱</h4>
+      <p>{{ site.email }}</p>
+    </div>
+    <div>
+      <h4>🌍 经纬度</h4>
+      <p>97.37°E, 37.37°N</p>
+    </div>
+  </div>
+</div>
+
+<!-- 百度地图API -->
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=MhTYdGeVAWodsIQjscfDkPKl5dYoYgz8"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 创建地图实例
+  var map = new BMap.Map("baidu-map");
+  
+  // 创建点坐标（青海德令哈市的大致坐标）
+  var point = new BMap.Point(97.354474,37.342089);
+  
+  // 初始化地图，设置中心点坐标和地图级别
+  map.centerAndZoom(point, 15);
+  
+  // 添加标注
+  var marker = new BMap.Marker(point);
+  map.addOverlay(marker);
+  
+  // 添加标注文字
+  var label = new BMap.Label("北京同仁堂健康药业（青海）有限公司", {
+    offset: new BMap.Size(20, -10)
+  });
+  marker.setLabel(label);
+  
+  // 启用滚轮缩放
+  map.enableScrollWheelZoom(true);
+});
+</script>
+  
+<footer class="bg-gray-900 text-white py-6 text-center text-sm">
+  © 2025 北京同仁堂健康药业（青海）
+</footer>
+
+</body>
+</html>
