@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北京同仁堂集团卡片式组织图</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .card {
+    background:white;
+    border:1.5px solid #d1d5db;
+    border-radius:12px;
+    padding:16px 20px;
+    text-align:center;
+    min-width:160px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.08);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow:0 8px 16px rgba(0,0,0,0.15);
+  }
+  .highlight {
+    border-color:#ef4444 !important;
+    background:#fee2e2;
+    font-weight:700;
+  }
+  .title { font-weight:600; margin-bottom:4px; }
+  .subtitle { font-size:0.85rem; color:#6b7280; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<header class="bg-red-600 text-white py-8 mb-10 text-center">
+  <h1 class="text-3xl font-bold">北京同仁堂集团组织架构</h1>
+  <p class="mt-1 opacity-90">卡片式展示 · 主营业务信息</p>
+</header>
+
+<div class="max-w-full overflow-x-auto px-4">
+
+  <!-- 总集团卡片 -->
+  <div class="flex justify-center mb-8">
+    <div class="card border-2 border-red-600 min-w-[280px]">
+      <div class="title text-lg">北京同仁堂（集团）有限责任公司</div>
+      <div class="subtitle">中医药全产业链集团，涵盖科研、种植、生产、销售、健康服务</div>
+    </div>
+  </div>
+
+  <!-- 二级集团卡片 -->
+  <h2 class="text-xl font-bold mb-4">七大二级集团</h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-8">
+    <div class="card">
+      <div class="title">股份集团</div>
+      <div class="subtitle">核心工业及商业平台，上交所上市</div>
+    </div>
+    <div class="card">
+      <div class="title">科技发展集团</div>
+      <div class="subtitle">医药研发与制造，港交所上市</div>
+    </div>
+    <div class="card">
+      <div class="title">国药集团</div>
+      <div class="subtitle">海外业务平台，拓展国际市场</div>
+    </div>
+    <div class="card highlight">
+      <div class="title">健康药业集团</div>
+      <div class="subtitle">主营保健食品、健康产品，大健康核心力量</div>
+    </div>
+    <div class="card">
+      <div class="title">商业投资集团</div>
+      <div class="subtitle">药品零售连锁与批发，庞大终端网络</div>
+    </div>
+    <div class="card">
+      <div class="title">药材参茸投资集团</div>
+      <div class="subtitle">中药材种植、中药饮片及参茸贵细产品</div>
+    </div>
+    <div class="card">
+      <div class="title">医养集团</div>
+      <div class="subtitle">中医医疗与健康养老产业</div>
+    </div>
+  </div>
+
+  <!-- 健康药业集团卡片 -->
+  <div class="flex justify-center mb-8">
+    <div class="card border-2 border-red-600 min-w-[280px]">
+      <div class="title">北京同仁堂健康药业股份有限公司</div>
+      <div class="subtitle">大健康产业核心主体，覆盖保健食品、功能食品、中药饮片等</div>
+    </div>
+  </div>
+
+  <!-- 健康药业基地卡片，两行 -->
+  <h2 class="text-xl font-bold mb-4">健康药业基地布局</h2>
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-6 mb-12">
+
+    <div class="card"><div class="title">北京大兴基地</div><div class="subtitle">总部研发与智造，智慧工厂</div></div>
+    <div class="card"><div class="title">福州基地</div><div class="subtitle">滋补品与精制饮片</div></div>
+    <div class="card"><div class="title">辽宁桓仁基地</div><div class="subtitle">人参、西洋参精深加工</div></div>
+    <div class="card"><div class="title">大连基地</div><div class="subtitle">海洋健康食品、海参加工</div></div>
+    <div class="card"><div class="title">江山基地</div><div class="subtitle">蜂产品研发、生产、销售</div></div>
+
+    <div class="card highlight"><div class="title">青海德令哈基地</div><div class="subtitle">西北特色生物资源，枸杞精深加工</div></div>
+    <div class="card"><div class="title">海南基地</div><div class="subtitle">有机药材产业，160+种饮片供应</div></div>
+    <div class="card"><div class="title">普洱基地</div><div class="subtitle">有机普洱茶种植与生产</div></div>
+    <div class="card"><div class="title">山西基地</div><div class="subtitle">药食同源膏方及零食化产品</div></div>
+    <div class="card"><div class="title">宁夏银川基地</div><div class="subtitle">有机洁净饮片全产业链标杆</div></div>
+
+  </div>
+
+</div>
+
+<footer class="bg-gray-900 text-white py-6 text-center text-sm">
+  © 2025 北京同仁堂集团展示页
+</footer>
+
+</body>
+</html>
