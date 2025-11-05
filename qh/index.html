@@ -12,7 +12,6 @@
   .highlight { border-color:#ef4444; background:#fee2e2; font-weight:700; }
   .title { font-weight:700; font-size:1.25rem; margin-bottom:8px; }
   .subtitle { color:#6b7280; font-size:0.9rem; }
-  .grid-3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
 </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -25,6 +24,7 @@
   </p>
 </header>
 
+<!-- 企业介绍视频 -->
 <section class="section">
   <h2 class="text-2xl font-bold mb-6">🎬 企业介绍视频</h2>
   <video 
@@ -39,9 +39,10 @@
   <p class="mt-2 text-gray-600 text-sm">点击播放，深入了解同仁堂健康药业（青海）的现代化生产基地与严格的质量控制流程</p>
 </section>
 
+<!-- 核心优势 -->
 <section class="section">
   <h2 class="text-2xl font-bold mb-6">🏔️ 我们的核心优势</h2>
-  <div class="grid-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="card">
       <div class="title">🏭 现代化生产基地</div>
       <div class="subtitle">
@@ -69,9 +70,10 @@
   </div>
 </section>
 
+<!-- 核心业务领域 -->
 <section class="section">
   <h2 class="text-2xl font-bold mb-6">💼 核心业务领域</h2>
-  <div class="grid-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <div class="card">
       <div class="title">青藏特色健康产品</div>
       <div class="subtitle">冬虫夏草系列、黑果枸杞系列、高原藜麦系列、特色健康食品</div>
@@ -87,88 +89,52 @@
   </div>
 </section>
 
+<!-- 企业文化 -->
 <section class="section">
   <h2 class="text-2xl font-bold mb-6">🏛️ 企业文化传承</h2>
   <div class="card highlight">
     <p class="text-lg font-semibold">"炮制虽繁必不敢省人工，品味虽贵必不敢减物力"</p>
-    <p class="mt-2 text-gray-700">
-      —— 同仁堂古训
-    </p>
+    <p class="mt-2 text-gray-700">—— 同仁堂古训</p>
     <p class="mt-4 text-gray-800">
-      企业精神：{{ site.corporate_spirit }}<br>
-      我们恪守"{{ site.self_discipline }}"的自律意识，秉承"{{ site.product_tenet }}"的产品宗旨。
+      企业精神：敬业、创新、诚信<br>
+      我们恪守"严格自律"的自律意识，秉承"质量为本"的产品宗旨。
     </p>
   </div>
 </section>
 
+<!-- 联系方式 & 地图 -->
 <section class="section mb-12">
-  <h2 class="text-2xl font-bold mb-6">📞 立即联系合作</h2>
-  <div class="grid-3">
+  <h2 class="text-2xl font-bold mb-6">📞 联系方式 & 工厂位置</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="card">
-      <div class="title">电话</div>
-      <div class="subtitle">{{ site.phone }}</div>
+      <h3 class="title">工厂地址</h3>
+      <p>青海省海西蒙古族藏族自治州德令哈市金色大道XXX号</p>
+      <div id="baidu-map" style="height:300px; width:100%; border-radius:8px; margin-top:1rem;"></div>
     </div>
     <div class="card">
-      <div class="title">邮箱</div>
-      <div class="subtitle">{{ site.email }}</div>
-    </div>
-    <div class="card">
-      <div class="title">地址</div>
-      <div class="subtitle">{{ site.location }}</div>
+      <h3 class="title">联系方式</h3>
+      <p>📞 电话：0977-XXXXXXX</p>
+      <p>📧 邮箱：example@tongrentang.com</p>
+      <p>🌍 经纬度：97.354474°E, 37.342089°N</p>
     </div>
   </div>
 </section>
-<div style="background: #e8f5e8; padding: 2rem; border-radius: 8px; text-align: center;">
-  <h3 style="margin-top: 0;">工厂位置</h3>
-  <p><strong>地址：</strong>{{ site.location }}</p>
-  
-  <!-- 百度地图容器 -->
-  <div id="baidu-map" style="height: 300px; width: 100%; margin: 1rem 0; border-radius: 8px; overflow: hidden;"></div>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-    <div>
-      <h4>📞 联系电话</h4>
-      <p>{{ site.phone }}</p>
-    </div>
-    <div>
-      <h4>📧 业务邮箱</h4>
-      <p>{{ site.email }}</p>
-    </div>
-    <div>
-      <h4>🌍 经纬度</h4>
-      <p>97.37°E, 37.37°N</p>
-    </div>
-  </div>
-</div>
 
 <!-- 百度地图API -->
-<script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=MhTYdGeVAWodsIQjscfDkPKl5dYoYgz8"></script>
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=YOUR_OWN_AK"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // 创建地图实例
-  var map = new BMap.Map("baidu-map");
-  
-  // 创建点坐标（青海德令哈市的大致坐标）
-  var point = new BMap.Point(97.354474,37.342089);
-  
-  // 初始化地图，设置中心点坐标和地图级别
-  map.centerAndZoom(point, 15);
-  
-  // 添加标注
-  var marker = new BMap.Marker(point);
-  map.addOverlay(marker);
-  
-  // 添加标注文字
-  var label = new BMap.Label("北京同仁堂健康药业（青海）有限公司", {
-    offset: new BMap.Size(20, -10)
+  document.addEventListener('DOMContentLoaded', function() {
+    var map = new BMap.Map("baidu-map");
+    var point = new BMap.Point(97.354474,37.342089);
+    map.centerAndZoom(point,15);
+    var marker = new BMap.Marker(point);
+    map.addOverlay(marker);
+    var label = new BMap.Label("北京同仁堂健康药业（青海）有限公司",{offset: new BMap.Size(20,-10)});
+    marker.setLabel(label);
+    map.enableScrollWheelZoom(true);
   });
-  marker.setLabel(label);
-  
-  // 启用滚轮缩放
-  map.enableScrollWheelZoom(true);
-});
 </script>
-  
+
 <footer class="bg-gray-900 text-white py-6 text-center text-sm">
   © 2025 北京同仁堂健康药业（青海）
 </footer>
