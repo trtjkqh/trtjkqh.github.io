@@ -26,9 +26,7 @@
   .title { font-weight:600; font-size:1.1rem; margin-bottom:6px; }
   .subtitle { font-size:0.85rem; color:#6b7280; line-height:1.4; }
 
-  /* 连线 */
   svg.connector { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
-  line { stroke:#ef4444; stroke-width:2; stroke-linecap:round; opacity:0.4; }
 </style>
 </head>
 <body>
@@ -39,66 +37,39 @@
 
 <div class="chart" id="chart">
 
-  <!-- 总集团列 -->
   <div class="column" id="col1">
     <div class="card border-2 border-red-600" id="mainGroup">
       <div class="title">北京同仁堂（集团）有限公司</div>
       <div class="subtitle">
-        中医药全产业链集团<br>
-        涵盖科研、种植、生产、销售、健康服务
+        中医药全产业链集团<br>科研｜种植｜生产｜销售｜健康服务
       </div>
     </div>
   </div>
 
-  <!-- 二级集团列 -->
   <div class="column" id="col2">
-    <div class="card" id="g1">
-      <div class="title">股份集团</div>
-      <div class="subtitle">核心工业及商业平台，上交所上市</div>
-    </div>
-    <div class="card" id="g2">
-      <div class="title">科技发展集团</div>
-      <div class="subtitle">医药研发与制造，港交所上市</div>
-    </div>
-    <div class="card" id="g3">
-      <div class="title">国药集团</div>
-      <div class="subtitle">海外业务平台，拓展国际市场</div>
-    </div>
-    <div class="card highlight" id="g4">
-      <div class="title">健康药业集团</div>
-      <div class="subtitle">主营保健食品、健康产品，大健康核心力量</div>
-    </div>
-    <div class="card" id="g5">
-      <div class="title">商业投资集团</div>
-      <div class="subtitle">药品零售连锁与批发，庞大终端网络</div>
-    </div>
-    <div class="card" id="g6">
-      <div class="title">药材参茸投资集团</div>
-      <div class="subtitle">中药材种植、中药饮片及参茸贵细产品</div>
-    </div>
-    <div class="card" id="g7">
-      <div class="title">医养集团</div>
-      <div class="subtitle">中医医疗与健康养老产业</div>
-    </div>
+    <div class="card" id="g1"><div class="title">股份集团</div><div class="subtitle">工业与商业平台｜上交所上市</div></div>
+    <div class="card" id="g2"><div class="title">科技发展集团</div><div class="subtitle">医药研发制造｜港交所上市</div></div>
+    <div class="card" id="g3"><div class="title">国药集团</div><div class="subtitle">海外业务平台｜国际市场</div></div>
+    <div class="card highlight" id="g4"><div class="title">健康药业集团</div><div class="subtitle">大健康核心平台｜健康食品</div></div>
+    <div class="card" id="g5"><div class="title">商业投资集团</div><div class="subtitle">零售连锁与批发</div></div>
+    <div class="card" id="g6"><div class="title">药材参茸投资集团</div><div class="subtitle">中药材｜参茸贵细</div></div>
+    <div class="card" id="g7"><div class="title">医养集团</div><div class="subtitle">中医医疗与养老</div></div>
   </div>
 
-  <!-- 健康药业基地列 -->
   <div class="column" id="col3">
-    <div class="card highlight">北京大兴基地<div class="subtitle">总部研发与智造，智慧工厂</div></div>
-    <div class="card highlight">福州基地<div class="subtitle">滋补品与精制饮片</div></div>
-    <div class="card highlight">辽宁桓仁基地<div class="subtitle">人参、西洋参精深加工</div></div>
-    <div class="card highlight">大连基地<div class="subtitle">海洋健康食品、海参加工</div></div>
-    <div class="card highlight">江山基地<div class="subtitle">蜂产品研发、生产、销售</div></div>
-    <div class="card highlight">青海德令哈基地<div class="subtitle">西北特色生物资源，枸杞精深加工</div></div>
-    <div class="card highlight">海南基地<div class="subtitle">有机药材产业，160+种饮片供应</div></div>
-    <div class="card highlight">普洱基地<div class="subtitle">有机普洱茶种植与生产</div></div>
-    <div class="card highlight">山西基地<div class="subtitle">药食同源膏方及零食化产品</div></div>
-    <div class="card highlight">宁夏银川基地<div class="subtitle">有机洁净饮片全产业链标杆</div></div>
+    <div class="card highlight">北京大兴基地<div class="subtitle">总部研发与智造</div></div>
+    <div class="card highlight">福州基地<div class="subtitle">滋补品｜饮片</div></div>
+    <div class="card highlight">辽宁桓仁基地<div class="subtitle">人参｜西洋参</div></div>
+    <div class="card highlight">大连基地<div class="subtitle">海洋健康产品</div></div>
+    <div class="card highlight">江山基地<div class="subtitle">蜂产品研发生产</div></div>
+    <div class="card highlight">青海德令哈基地<div class="subtitle">枸杞精深加工</div></div>
+    <div class="card highlight">海南基地<div class="subtitle">有机饮片</div></div>
+    <div class="card highlight">普洱基地<div class="subtitle">普洱茶</div></div>
+    <div class="card highlight">山西基地<div class="subtitle">膏方及零食</div></div>
+    <div class="card highlight">宁夏银川基地<div class="subtitle">洁净饮片链</div></div>
   </div>
 
-  <!-- SVG连线 -->
   <svg class="connector" id="connector"></svg>
-
 </div>
 
 <footer class="bg-gray-900 text-white py-6 text-center text-sm">
@@ -106,51 +77,54 @@
 </footer>
 
 <script>
-  function drawLine(svg, x1, y1, x2, y2) {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", x1);
-    line.setAttribute("y1", y1);
-    line.setAttribute("x2", x2);
-    line.setAttribute("y2", y2);
-    svg.appendChild(line);
+  function drawSmoothCurve(svg, x1, y1, x2, y2) {
+    const midX = (x1 + x2) / 2;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+    path.setAttribute("d", d);
+    path.setAttribute("stroke", "#ef4444");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("opacity", "0.45");
+
+    svg.appendChild(path);
   }
 
   function connectCards() {
-    const svg = document.getElementById('connector');
-    svg.innerHTML = '';
+    const svg = document.getElementById("connector");
+    svg.innerHTML = "";
 
-    const main = document.getElementById('mainGroup').getBoundingClientRect();
-    const col2 = document.getElementById('col2').getBoundingClientRect();
-    const col3 = document.getElementById('col3').getBoundingClientRect();
+    const chartOffset = document.getElementById("chart").getBoundingClientRect();
+    const main = document.getElementById("mainGroup").getBoundingClientRect();
 
-    const chartOffset = document.getElementById('chart').getBoundingClientRect();
-
-    // 总集团 → 二级集团
-    document.querySelectorAll('#col2 .card').forEach(card => {
+    document.querySelectorAll("#col2 .card").forEach(card => {
       const c = card.getBoundingClientRect();
-      drawLine(svg,
+      drawSmoothCurve(
+        svg,
         main.right - chartOffset.left,
-        main.top + main.height/2 - chartOffset.top,
+        main.top + main.height / 2 - chartOffset.top,
         c.left - chartOffset.left,
-        c.top + c.height/2 - chartOffset.top
+        c.top + c.height / 2 - chartOffset.top
       );
     });
 
-    // 健康药业集团 → 所有基地
-    const healthGroup = document.getElementById('g4').getBoundingClientRect();
-    document.querySelectorAll('#col3 .card').forEach(card => {
+    const health = document.getElementById("g4").getBoundingClientRect();
+    document.querySelectorAll("#col3 .card").forEach(card => {
       const c = card.getBoundingClientRect();
-      drawLine(svg,
-        healthGroup.right - chartOffset.left,
-        healthGroup.top + healthGroup.height/2 - chartOffset.top,
+      drawSmoothCurve(
+        svg,
+        health.right - chartOffset.left,
+        health.top + health.height / 2 - chartOffset.top,
         c.left - chartOffset.left,
-        c.top + c.height/2 - chartOffset.top
+        c.top + c.height / 2 - chartOffset.top
       );
     });
   }
 
-  window.addEventListener('load', connectCards);
-  window.addEventListener('resize', connectCards);
+  window.addEventListener("load", connectCards);
+  window.addEventListener("resize", connectCards);
 </script>
 
 </body>
