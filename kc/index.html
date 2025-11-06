@@ -9,171 +9,122 @@
     body, html {
       height: 100%;
       margin: 0;
-      background-color: #f3f4f6;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 1rem;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-      font-size: 14px;
-    }
-    th {
-      background-color: #b91c1c; /* 深红 */
-      color: white;
-    }
-    tr:nth-child(even) {
       background-color: #f9fafb;
+      font-family: 'Microsoft YaHei', sans-serif;
     }
-    tfoot td {
+    .result-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1rem 1.5rem;
+      margin-top: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      width: 90%;
+      max-width: 900px;
+      animation: fadeIn 0.3s ease;
+    }
+    .highlight {
+      background-color: #fff3cd;
       font-weight: bold;
-      background-color: #e5e7eb;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body class="flex flex-col items-center justify-start p-6">
+<body class="flex flex-col items-center pt-8">
 
-  <!-- 查询区域 -->
-  <div class="w-full max-w-6xl bg-white shadow-md rounded-xl p-6 mt-12">
-    <div class="flex flex-wrap items-center gap-3 justify-center mb-4">
-      <select id="warehouse" class="border rounded px-3 py-2 w-36">
-        <option value="">全部仓库</option>
-        <option value="包材库">包材库</option>
-        <option value="1号库">1号库</option>
-        <option value="2号库">2号库</option>
-        <option value="5号库">5号库</option>
+  <div class="bg-white shadow-md rounded-xl p-6 w-11/12 max-w-3xl">
+    <div class="flex flex-wrap gap-4 items-center mb-4">
+      <select id="warehouse" class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+        <option value="">选择仓库</option>
+        <option>包材库</option>
+        <option>1号库</option>
+        <option>2号库</option>
+        <option>5号库</option>
       </select>
 
-      <input id="projectId" type="text" placeholder="项目号（精准）" class="border rounded px-3 py-2 w-40">
-      <input id="nameSearch" type="text" placeholder="物料名称（模糊）" class="border rounded px-3 py-2 w-48">
+      <input id="projectId" type="text" placeholder="项目号（精准匹配）"
+        class="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-red-400">
 
-      <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">查询</button>
-      <button id="resetBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">重置</button>
-      <span class="text-gray-500 text-sm ml-3">数据基于2025年10月</span>
-    </div>
+      <input id="name" type="text" placeholder="物料名称（模糊搜索）"
+        class="border rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-red-400">
 
-    <!-- 表格容器 -->
-    <div id="tableContainer" class="overflow-x-auto hidden">
-      <table>
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>所在库</th>
-            <th>物料项目号</th>
-            <th>物料名称</th>
-            <th>说明</th>
-            <th>计量单位</th>
-            <th>数量</th>
-            <th>采购单价</th>
-            <th>金额</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-        <tfoot id="tableFooter"></tfoot>
-      </table>
+      <button id="searchBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">查询</button>
+      <button id="resetBtn" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 transition">重置</button>
+      <span class="text-gray-500 text-sm">数据基于2025年10月</span>
     </div>
   </div>
 
+  <div id="results" class="w-full flex flex-col items-center mt-4"></div>
+
   <script>
-    let data = [];
-    let tzData = {};
-
-    async function loadData() {
-      try {
-        const [kcRes, tzRes] = await Promise.all([
-          fetch('data.json'),
-          fetch('../tz/data.json')
-        ]);
-        data = await kcRes.json();
-        tzData = await tzRes.json();
-
-        const priceMap = {};
-        tzData.forEach(item => {
-          if (item["物料项目号"] && item["采购单价"])
-            priceMap[item["物料项目号"]] = item["采购单价"];
-        });
-
-        data.forEach(item => {
-          if (!item["采购单价"] && priceMap[item["物料项目号"]]) {
-            item["采购单价"] = priceMap[item["物料项目号"]];
-          }
-          if (!item["金额"] && item["采购单价"] && item["数量"]) {
-            item["金额"] = (item["采购单价"] * item["数量"]).toFixed(2);
-          }
-        });
-      } catch (err) {
-        alert("数据加载失败，请检查 kc/data.json 与 tz/data.json 是否存在。");
-      }
+    async function fetchData() {
+      const res = await fetch('data.json');
+      return res.json();
     }
 
-    function renderTable(list) {
-      const tbody = document.getElementById("tableBody");
-      const tfoot = document.getElementById("tableFooter");
-      const tableContainer = document.getElementById("tableContainer");
+    async function fetchTzData() {
+      const res = await fetch('../tz/data.json');
+      return res.json();
+    }
 
-      if (list.length === 0) {
-        tableContainer.classList.remove("hidden");
-        tbody.innerHTML = `<tr><td colspan="9" class="py-4 text-gray-500">没有匹配的记录</td></tr>`;
-        tfoot.innerHTML = "";
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+      const warehouse = document.getElementById('warehouse').value.trim();
+      const projectId = document.getElementById('projectId').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+
+      const data = await fetchData();
+      const tzData = await fetchTzData();
+
+      let filtered = data.filter(item => {
+        return (!warehouse || item["所在库"] === warehouse) &&
+               (!projectId || String(item["物料项目号"]) === projectId) &&
+               (!name || item["物料名称"].includes(name));
+      });
+
+      if (filtered.length === 0) {
+        resultsDiv.innerHTML = '<p class="text-gray-500 mt-6">未查询到相关记录</p>';
         return;
       }
 
-      tableContainer.classList.remove("hidden");
-      tbody.innerHTML = list.map(item => `
-        <tr>
-          <td>${item["序号"] || ""}</td>
-          <td>${item["所在库"] || ""}</td>
-          <td>${item["物料项目号"] || ""}</td>
-          <td>${item["物料名称"] || ""}</td>
-          <td>${item["说明"] || ""}</td>
-          <td>${item["计量单位"] || ""}</td>
-          <td>${item["数量"] || ""}</td>
-          <td>${item["采购单价"] || ""}</td>
-          <td>${item["金额"] || ""}</td>
-        </tr>
-      `).join("");
+      filtered.forEach(item => {
+        // 如果采购单价为空，则尝试从 tzData 匹配项目号
+        if (!item["采购单价"] || item["采购单价"] === "") {
+          const match = tzData.find(t => String(t["物料项目号"]) === String(item["物料项目号"]));
+          if (match) {
+            item["采购单价"] = match["采购单价"];
+            item["金额"] = item["数量"] * item["采购单价"];
+          }
+        }
 
-      // 计算总金额
-      const total = list.reduce((sum, item) => {
-        const val = parseFloat(item["金额"]);
-        return sum + (isNaN(val) ? 0 : val);
-      }, 0);
-
-      tfoot.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-right pr-4">合计金额</td>
-          <td>${total.toFixed(2)}</td>
-        </tr>
-      `;
-    }
-
-    document.getElementById("searchBtn").addEventListener("click", () => {
-      const warehouse = document.getElementById("warehouse").value.trim();
-      const projectId = document.getElementById("projectId").value.trim();
-      const name = document.getElementById("nameSearch").value.trim();
-
-      const filtered = data.filter(item => {
-        const matchWarehouse = !warehouse || item["所在库"] === warehouse;
-        const matchProject = !projectId || item["物料项目号"].toString() === projectId;
-        const matchName = !name || item["物料名称"].includes(name);
-        return matchWarehouse && matchProject && matchName;
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-gray-700 text-sm">
+            <div><strong>所在库：</strong>${item["所在库"]}</div>
+            <div><strong>物料项目号：</strong>${item["物料项目号"]}</div>
+            <div><strong>物料名称：</strong>${item["物料名称"]}</div>
+            <div><strong>说明：</strong>${item["说明"]}</div>
+            <div><strong>计量单位：</strong>${item["计量单位"]}</div>
+            <div class="highlight"><strong>数量：</strong>${item["数量"]}</div>
+            <div><strong>采购单价：</strong>${item["采购单价"] ?? '-'}</div>
+            <div><strong>金额：</strong>${item["金额"] ?? '-'}</div>
+          </div>
+        `;
+        resultsDiv.appendChild(card);
       });
-
-      renderTable(filtered);
     });
 
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      document.getElementById("warehouse").value = "";
-      document.getElementById("projectId").value = "";
-      document.getElementById("nameSearch").value = "";
-      document.getElementById("tableContainer").classList.add("hidden");
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('warehouse').value = '';
+      document.getElementById('projectId').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('results').innerHTML = '';
     });
-
-    loadData();
   </script>
+
 </body>
 </html>
