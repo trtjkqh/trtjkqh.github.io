@@ -6,50 +6,77 @@
   <title>库存查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #f9fafb; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background-color: #4f46e5; color: white; }
-    tr:nth-child(even) { background-color: #f2f2f2; }
+    body, html {
+      height: 100%;
+      margin: 0;
+      background-color: #f3f4f6;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #b91c1c; /* 深红 */
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    tfoot td {
+      font-weight: bold;
+      background-color: #e5e7eb;
+    }
   </style>
 </head>
-<body class="p-6">
-  <h1 class="text-2xl font-bold mb-4 text-gray-800">库存查询系统</h1>
+<body class="flex flex-col items-center justify-start p-6">
 
-  <div class="flex flex-wrap gap-4 mb-6">
-    <select id="warehouse" class="border rounded px-3 py-2">
-      <option value="">全部仓库</option>
-      <option value="包材库">包材库</option>
-      <option value="1号库">1号库</option>
-      <option value="2号库">2号库</option>
-      <option value="5号库">5号库</option>
-    </select>
+  <!-- 查询区域 -->
+  <div class="w-full max-w-4xl bg-white shadow-md rounded-xl p-6 mt-12">
+    <div class="flex flex-wrap gap-3 justify-center mb-4">
+      <select id="warehouse" class="border rounded px-3 py-2 w-36">
+        <option value="">全部仓库</option>
+        <option value="包材库">包材库</option>
+        <option value="1号库">1号库</option>
+        <option value="2号库">2号库</option>
+        <option value="5号库">5号库</option>
+      </select>
 
-    <input id="projectId" type="text" placeholder="按项目号查询（精准）" class="border rounded px-3 py-2">
-    <input id="nameSearch" type="text" placeholder="按物料名称查询（模糊）" class="border rounded px-3 py-2">
-    <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">查询</button>
-    <button id="resetBtn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">重置</button>
-  </div>
+      <input id="projectId" type="text" placeholder="项目号（精准）" class="border rounded px-3 py-2 w-40">
+      <input id="nameSearch" type="text" placeholder="物料名称（模糊）" class="border rounded px-3 py-2 w-48">
 
-  <div class="overflow-x-auto">
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>序号</th>
-          <th>所在库</th>
-          <th>物料项目号</th>
-          <th>物料名称</th>
-          <th>说明</th>
-          <th>计量单位</th>
-          <th>数量</th>
-          <th>采购单价</th>
-          <th>金额</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr><td colspan="9" class="py-4 text-gray-500">正在加载数据...</td></tr>
-      </tbody>
-    </table>
+      <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">查询</button>
+      <button id="resetBtn" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">重置</button>
+    </div>
+
+    <p class="text-center text-gray-500 text-sm mb-2">数据基于2025年10月</p>
+
+    <!-- 表格容器 -->
+    <div id="tableContainer" class="overflow-x-auto hidden">
+      <table>
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>所在库</th>
+            <th>物料项目号</th>
+            <th>物料名称</th>
+            <th>说明</th>
+            <th>计量单位</th>
+            <th>数量</th>
+            <th>采购单价</th>
+            <th>金额</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+        <tfoot id="tableFooter"></tfoot>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -65,14 +92,12 @@
         data = await kcRes.json();
         tzData = await tzRes.json();
 
-        // 以物料项目号为键，建立单价映射
         const priceMap = {};
         tzData.forEach(item => {
           if (item["物料项目号"] && item["采购单价"])
             priceMap[item["物料项目号"]] = item["采购单价"];
         });
 
-        // 自动补齐缺失单价和金额
         data.forEach(item => {
           if (!item["采购单价"] && priceMap[item["物料项目号"]]) {
             item["采购单价"] = priceMap[item["物料项目号"]];
@@ -81,20 +106,24 @@
             item["金额"] = (item["采购单价"] * item["数量"]).toFixed(2);
           }
         });
-
-        renderTable(data);
       } catch (err) {
-        document.getElementById("tableBody").innerHTML = 
-          `<tr><td colspan="9" class="text-red-600">数据加载失败，请检查data.json和tz/data.json路径。</td></tr>`;
+        alert("数据加载失败，请检查 kc/data.json 与 tz/data.json 是否存在。");
       }
     }
 
     function renderTable(list) {
       const tbody = document.getElementById("tableBody");
+      const tfoot = document.getElementById("tableFooter");
+      const tableContainer = document.getElementById("tableContainer");
+
       if (list.length === 0) {
+        tableContainer.classList.remove("hidden");
         tbody.innerHTML = `<tr><td colspan="9" class="py-4 text-gray-500">没有匹配的记录</td></tr>`;
+        tfoot.innerHTML = "";
         return;
       }
+
+      tableContainer.classList.remove("hidden");
       tbody.innerHTML = list.map(item => `
         <tr>
           <td>${item["序号"] || ""}</td>
@@ -108,6 +137,19 @@
           <td>${item["金额"] || ""}</td>
         </tr>
       `).join("");
+
+      // 计算总金额
+      const total = list.reduce((sum, item) => {
+        const val = parseFloat(item["金额"]);
+        return sum + (isNaN(val) ? 0 : val);
+      }, 0);
+
+      tfoot.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-right pr-4">合计金额</td>
+          <td>${total.toFixed(2)}</td>
+        </tr>
+      `;
     }
 
     document.getElementById("searchBtn").addEventListener("click", () => {
@@ -129,7 +171,7 @@
       document.getElementById("warehouse").value = "";
       document.getElementById("projectId").value = "";
       document.getElementById("nameSearch").value = "";
-      renderTable(data);
+      document.getElementById("tableContainer").classList.add("hidden");
     });
 
     loadData();
