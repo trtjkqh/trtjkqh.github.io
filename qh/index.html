@@ -104,36 +104,17 @@
 
 <!-- 联系方式 & 地图 -->
 <section class="section mb-12">
-  <h2 class="text-2xl font-bold mb-6">📞 联系方式 & 工厂位置</h2>
+  <h2 class="text-2xl font-bold mb-6">工厂位置</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="card">
       <h3 class="title">工厂地址</h3>
-      <p>青海省海西蒙古族藏族自治州德令哈市金色大道XXX号</p>
+      <p>青海省海西蒙古族藏族自治州德令哈市同仁堂路1号</p>
       <div id="baidu-map" style="height:300px; width:100%; border-radius:8px; margin-top:1rem;"></div>
-    </div>
-    <div class="card">
-      <h3 class="title">联系方式</h3>
-      <p>📞 电话：0977-XXXXXXX</p>
-      <p>📧 邮箱：example@tongrentang.com</p>
-      <p>🌍 经纬度：97.354474°E, 37.342089°N</p>
     </div>
   </div>
 </section>
 
-<!-- 百度地图API -->
-<script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=YOUR_OWN_AK"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var map = new BMap.Map("baidu-map");
-    var point = new BMap.Point(97.354474,37.342089);
-    map.centerAndZoom(point,15);
-    var marker = new BMap.Marker(point);
-    map.addOverlay(marker);
-    var label = new BMap.Label("北京同仁堂健康药业（青海）有限公司",{offset: new BMap.Size(20,-10)});
-    marker.setLabel(label);
-    map.enableScrollWheelZoom(true);
-  });
-</script>
+
 
 <footer class="bg-gray-900 text-white py-6 text-center text-sm">
   © 2025 北京同仁堂健康药业（青海）
