@@ -5,100 +5,105 @@ permalink: /pages/packaging/
 icon: fas fa-box
 ---
 
-
 <div class="media-container">
-  <!-- 进度条 -->
-  <div class="process-progress">
-    <div class="progress-bar"></div>
-  </div>
-
   <div class="media-nav">
     <div class="nav-highlight"></div>
-    <button class="nav-btn active" data-tab="phase1" data-color="#FF6B6B">前期准备</button>
-    <button class="nav-btn" data-tab="phase2" data-color="#FFA94D">寻源与询价</button>
-    <button class="nav-btn" data-tab="phase3" data-color="#FFD43B">决策与签约</button>
-    <button class="nav-btn" data-tab="phase4" data-color="#51CF66">生产与跟单</button>
-    <button class="nav-btn" data-tab="phase5" data-color="#339AF0">验收与结算</button>
+    <button class="nav-btn active" data-tab="stage1">前期准备</button>
+    <button class="nav-btn" data-tab="stage2">设计准备</button>
+    <button class="nav-btn" data-tab="stage3">供应商寻源</button>
+    <button class="nav-btn" data-tab="stage4">合同签订</button>
+    <button class="nav-btn" data-tab="stage5">生产跟单</button>
+    <button class="nav-btn" data-tab="stage6">验收结算</button>
   </div>
 
   <div class="tab-content">
-    <!-- 阶段 1 -->
-    <div id="phase1" class="tab-pane active">
-      <div class="media-item"><span class="item-name">明确需求</span><span class="item-info">产品尺寸、材质、防护要求、数量、预算</span></div>
-      <div class="media-item"><span class="item-name">设计文件准备</span><span class="item-info">结构设计、平面设计稿、刀模图、材质与工艺说明</span></div>
+    <!-- 第一阶段 -->
+    <div id="stage1" class="tab-pane active">
+      <h3>前期准备与需求定义</h3>
+      <ul>
+        <li>明确产品信息：尺寸、重量、形状、易碎性、防潮、防震需求</li>
+        <li>市场定位：包装风格（高端、环保、经济）</li>
+        <li>预算管理：单件成本、总预算、设计打样、运输成本</li>
+        <li>时间规划：倒推设计、打样、生产、物流节点</li>
+        <li>数量规划：首次订单量及未来采购计划</li>
+      </ul>
+      <p><strong>风险项：</strong> 信息不完整、时间不合理、数量估算错误</p>
     </div>
 
-    <!-- 阶段 2 -->
-    <div id="phase2" class="tab-pane">
-      <div class="media-item"><span class="item-name">寻找供应商</span><span class="item-info">渠道、能力评估、口碑、MOQ、地理位置</span></div>
-      <div class="media-item"><span class="item-name">发送询价包 (RFQ)</span><span class="item-info">清晰需求说明、设计稿、样品要求</span></div>
+    <!-- 第二阶段 -->
+    <div id="stage2" class="tab-pane">
+      <h3>设计与文件准备</h3>
+      <ul>
+        <li>结构设计：合理、保护性强、便于操作</li>
+        <li>平面设计：矢量文件，出血3mm，CMYK模式，文字转曲</li>
+        <li>标注材质和工艺要求（烫金、UV、专色等）</li>
+        <li>提供刀模图（Die-line）</li>
+        <li>内部评审：市场、销售、物流确认设计稿</li>
+        <li>合规检查：食品信息、条码、环保标识</li>
+      </ul>
+      <p><strong>风险项：</strong> 设计稿不标准、法规信息缺失、未内部确认</p>
     </div>
 
-    <!-- 阶段 3 -->
-    <div id="phase3" class="tab-pane">
-      <div class="media-item"><span class="item-name">内部评审与供应商确定</span><span class="item-info">根据价格、质量、交期、服务选择供应商</span></div>
-      <div class="media-item"><span class="item-name">签订合同或PO</span><span class="item-info">合同内容：金额、付款方式、交期、质量标准、样品确认</span></div>
+    <!-- 第三阶段 -->
+    <div id="stage3" class="tab-pane">
+      <h3>供应商寻源与报价</h3>
+      <ul>
+        <li>渠道选择：展会、B2B 平台、朋友推荐、现有供应商</li>
+        <li>筛选标准：专业领域、生产能力、质量口碑、MOQ、地理位置</li>
+        <li>RFQ：需求说明、设计稿、刀模文件、材质工艺、样品要求</li>
+        <li>样品评估：数字样确认内容颜色，实体样确认材质工艺尺寸</li>
+        <li>多家报价对比，关注总成本、交期、服务</li>
+      </ul>
+      <p><strong>风险项：</strong> 样品不符合要求、沟通低效、隐性费用、MOQ不满足</p>
     </div>
 
-    <!-- 阶段 4 -->
-    <div id="phase4" class="tab-pane">
-      <div class="media-item"><span class="item-name">预付定金</span><span class="item-info">按合同支付定金，通知供应商生产</span></div>
-      <div class="media-item"><span class="item-name">过程跟进</span><span class="item-info">产前会议、中期跟进、定期沟通</span></div>
+    <!-- 第四阶段 -->
+    <div id="stage4" class="tab-pane">
+      <h3>决策与合同签订</h3>
+      <ul>
+        <li>内部评审综合选择供应商</li>
+        <li>合同/PO 包含：产品描述、价格、付款方式、交货日期、质量标准、违约责任</li>
+        <li>确认样作为大货验收标准</li>
+      </ul>
+      <p><strong>风险项：</strong> 付款方式不合理、合同条款不明确、未保留确认样</p>
     </div>
 
-    <!-- 阶段 5 -->
-    <div id="phase5" class="tab-pane">
-      <div class="media-item"><span class="item-name">安排验货</span><span class="item-info">第三方或内部QC出具验货报告</span></div>
-      <div class="media-item"><span class="item-name">尾款支付与物流安排</span><span class="item-info">验货通过后支付尾款并确认物流</span></div>
+    <!-- 第五阶段 -->
+    <div id="stage5" class="tab-pane">
+      <h3>生产与跟单</h3>
+      <ul>
+        <li>支付定金，安排生产</li>
+        <li>生产过程跟进：产前会议、生产中期验货、定期沟通</li>
+        <li>大货样确认与确认样一致</li>
+      </ul>
+      <p><strong>风险项：</strong> 生产变更未确认、延迟或异常、不符合确认样</p>
+    </div>
+
+    <!-- 第六阶段 -->
+    <div id="stage6" class="tab-pane">
+      <h3>验收与结算</h3>
+      <ul>
+        <li>到厂/到货验货：抽样检查数量、外观、工艺、包装完整性</li>
+        <li>尾款支付，确认物流信息</li>
+        <li>仓库验收：抽检数量、外箱/内包装质量、色差、瑕疵</li>
+        <li>归档合同、PO、设计稿、确认样、沟通记录</li>
+      </ul>
+      <p><strong>风险项：</strong> 到货问题未及时发现、仓库管理不当、发票金额错误</p>
     </div>
   </div>
 </div>
 
 <style>
-/* ✅ Banner 样式 */
-.media-banner {
-  position: relative;
-  width: 100%;
-  height: 240px;
-  overflow: hidden;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-}
-.media-banner img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.85);
-}
-
-/* 主体布局 */
 .media-container {
   max-width: 800px;
   margin: 0 auto;
 }
 
-/* 进度条样式 */
-.process-progress {
-  width: 100%;
-  height: 6px;
-  background: #e0e0e0;
-  border-radius: 3px;
-  margin-bottom: 1rem;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  width: 20%;
-  background: #FF6B6B;
-  transition: all 0.3s ease;
-}
-
-/* Tab 导航 */
 .media-nav {
   position: relative;
   display: flex;
   justify-content: center;
-  margin: 1rem 0 2rem;
+  margin: 2rem 0;
   overflow-x: auto;
   white-space: nowrap;
   background: #f8f9fa;
@@ -116,13 +121,22 @@ icon: fas fa-box
   color: #666;
   border-radius: 6px;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   position: relative;
   z-index: 1;
 }
+
+.nav-btn:hover {
+  color: #111;
+  background-color: #f3f3f3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
 .nav-btn.active {
+  color: #000;
   font-weight: 600;
 }
+
 .nav-highlight {
   position: absolute;
   bottom: 5px;
@@ -133,47 +147,50 @@ icon: fas fa-box
   z-index: 0;
 }
 
-/* Tab 内容 */
 .tab-content {
-  margin: 0 0 2rem;
+  margin: 2rem 0;
+  min-height: 400px;
 }
-.tab-pane { display: none; animation: fadeIn 0.3s ease; }
-.tab-pane.active { display: block; }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.media-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background-color 0.3s ease;
+.tab-pane {
+  display: none;
+  animation: fadeIn 0.3s ease;
 }
-.media-item:hover { background-color: #fafafa; }
 
-.item-name { font-weight: 500; color: #333; }
-.item-info { color: #666; font-size: 0.9rem; }
+.tab-pane.active {
+  display: block;
+}
 
-/* 响应式 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tab-pane ul {
+  padding-left: 1.2rem;
+}
+
+.tab-pane li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
   .media-nav { justify-content: flex-start; padding: 6px; }
   .nav-btn { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
   .media-container { padding: 0 10px; }
-  .media-banner { height: 180px; }
 }
 </style>
 
 <script>
-document.addEventListener("pjax:complete", initMediaTabs);
-document.addEventListener("DOMContentLoaded", initMediaTabs);
+document.addEventListener("pjax:complete", initTabs);
+document.addEventListener("DOMContentLoaded", initTabs);
 
-function initMediaTabs() {
+function initTabs() {
   const navButtons = document.querySelectorAll(".nav-btn");
   const tabPanes = document.querySelectorAll(".tab-pane");
   const highlight = document.querySelector(".nav-highlight");
-  const progressBar = document.querySelector(".progress-bar");
-  if (!navButtons.length || !tabPanes.length || !highlight || !progressBar) return;
+  if (!navButtons.length || !tabPanes.length || !highlight) return;
 
   navButtons.forEach(btn => {
     const newBtn = btn.cloneNode(true);
@@ -187,12 +204,6 @@ function initMediaTabs() {
     const containerRect = btn.parentElement.getBoundingClientRect();
     highlight.style.width = rect.width + "px";
     highlight.style.left = rect.left - containerRect.left + "px";
-
-    // 更新进度条
-    const index = Array.from(newButtons).indexOf(btn);
-    const percent = ((index + 1) / newButtons.length) * 100;
-    progressBar.style.width = percent + "%";
-    progressBar.style.background = btn.dataset.color;
   };
 
   newButtons.forEach(button => {
