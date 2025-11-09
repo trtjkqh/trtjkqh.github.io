@@ -5,10 +5,6 @@ permalink: /pages/packaging/
 icon: fas fa-box
 ---
 
-<!-- ✅ 页面顶部 Banner -->
-<div class="media-banner">
-  <img src="{{ '/assets/banner/packagingbanner.jpg' | relative_url }}" alt="Packaging Banner">
-</div>
 
 <div class="media-container">
   <!-- 进度条 -->
