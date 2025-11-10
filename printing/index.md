@@ -8,10 +8,10 @@ title: 印刷知识库
 欢迎访问我们的印刷知识库，您可以在以下类别中浏览文章：
 
 ## 目录
-- [印刷技术](printing/techniques/index.md)
-- [常见印刷材料](printing/materials/index.md)
-- [印刷工艺流程](printing/process/index.md)
-- [环保印刷技术](printing/environment/index.md)
+- [印刷技术](printing/techniques/)
+- [常见印刷材料](printing/materials/)
+- [印刷工艺流程](printing/process/)
+- [环保印刷技术](printing/environment/)
 
 ## 最新文章
 - [印刷技术概述](printing/techniques/article1.md) - 探讨印刷技术的基本类型及其应用。
