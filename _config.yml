@@ -1,0 +1,13 @@
+title: 印刷知识库
+theme: jekyll-theme-slate  # 选择合适的主题
+collections:
+  printing:
+    output: true
+  techniques:
+    output: true
+  materials:
+    output: true
+  process:
+    output: true
+  environment:
+    output: true
