@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>库存查询</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-start justify-center py-10">
-  <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-[1000px]">
+
+<body class="bg-gray-100 min-h-screen py-10">
+  <div class="max-w-[1000px] mx-auto bg-white p-6 rounded-xl shadow-lg">
+
     <!-- 查询区域 -->
     <div class="flex flex-wrap items-center gap-3 mb-4">
       <span class="text-gray-500 text-sm">数据基于2025年10月</span>
+
       <select id="warehouse" class="border rounded px-3 py-2">
         <option value="">选择仓库</option>
         <option>包材库</option>
@@ -19,8 +22,10 @@
         <option>5号库</option>
         <option>包材库-D</option>
       </select>
+
       <input id="itemId" type="number" placeholder="物料项目号（精准）" class="border rounded px-3 py-2 w-48" />
       <input id="itemName" type="text" placeholder="物料名称（模糊）" class="border rounded px-3 py-2 w-60" />
+
       <button id="searchBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">查询</button>
       <button id="resetBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">重置</button>
     </div>
@@ -118,13 +123,11 @@
       const itemId = document.getElementById('itemId').value.trim();
       const itemName = document.getElementById('itemName').value.trim();
 
-      const filtered = data.filter(item => {
-        return (
-          (warehouse ? item['所在库'] === warehouse : true) &&
-          (itemId ? String(item['物料项目号']) === itemId : true) &&
-          (itemName ? item['物料名称'].includes(itemName) : true)
-        );
-      });
+      const filtered = data.filter(item => (
+        (!warehouse || item['所在库'] === warehouse) &&
+        (!itemId || String(item['物料项目号']) === itemId) &&
+        (!itemName || item['物料名称'].includes(itemName))
+      ));
 
       renderTable(filtered);
     });
