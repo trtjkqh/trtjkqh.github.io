@@ -6,46 +6,43 @@
 <title>BOM查询</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-body { background-color:#f3f4f6; font-family:sans-serif; color:#1f2937; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  .fade-in { animation: fadeIn 0.3s ease-in-out; }
 
-@keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-.fade-in { animation: fadeIn 0.3s ease-in-out; }
-
-table { border-collapse: collapse; width: 100%; font-size:0.9rem; background:white; border-radius:0.5rem; }
-th, td { border:1px solid #e5e7eb; padding:0.5rem; text-align:center; }
-th { background:#e0f2fe; color:#1e3a8a; font-weight:600; position: sticky; top:0; z-index:10; }
-tr:hover { background:#dbeafe; }
-
-.parent-row { background:#e0f2fe; font-weight:600; }
-.child-row { background:#f0f9ff; }
-
-mark { background-color:#fff59d; color:inherit; padding:0; }
-
-input { border:1px solid #d1d5db; border-radius:0.5rem; padding:0.5rem; flex:1; }
-
-.btn { padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer; font-weight:500; transition:all 0.2s; }
-.btn-red { background-color:#ef4444; color:white; }
-.btn-red:hover { background-color:#b91c1c; }
-.btn-gray { background-color:#e5e7eb; color:#1f2937; }
-.btn-gray:hover { background-color:#d1d5db; }
-
-#result { background:white; border-radius:0.5rem; box-shadow:0 2px 6px rgba(0,0,0,0.05); padding:0.5rem; }
+  table th { position: sticky; top: 0; background-color: white; z-index: 10; }
 </style>
 </head>
-<body>
-<!-- Search box -->
-<div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 mb-6 flex flex-wrap gap-2 items-center fade-in">
-  <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" />
-  <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" />
-  <input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" />
-  <input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" />
-  <button id="searchBtn" class="btn btn-red">查询</button>
-  <button id="resetBtn" class="btn btn-gray">重置</button>
-</div>
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen py-10">
 
-<!-- Loading / Result -->
-<div id="loading" class="text-center text-red-600 font-medium my-6">⏳ 正在加载数据，请稍候...</div>
-<div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+<div id="mainContent" class="transition-opacity duration-500">
+
+  <!-- 查询区域 -->
+  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
+    <input id="nameSearch" type="text" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="projectSearch" type="text" placeholder="项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="materialIDSearch" type="text" placeholder="物料项目号（精准搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="materialNameSearch" type="text" placeholder="物料名称（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+
+    <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
+    <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
+    <button onclick="exportTableToExcel('BOM查询.xlsx')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition shadow">导出Excel</button>
+  </div>
+
+  <!-- 汇总区 -->
+  <div id="summary" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in">
+    <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
+      项目数：<span id="projectCount"></span>
+    </div>
+    <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
+      金额总计：<span id="totalAmount"></span> 元
+    </div>
+  </div>
+
+  <!-- 查询结果 -->
+  <div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+
+</div>
 
 <script>
 let bomData=[], priceData={};
@@ -61,7 +58,7 @@ fetch('bom_data.json?_v='+Date.now())
     零售价:String(i["零售价（元）"]??i.零售价??"").trim(),
     物料项目号:String(i.物料项目号||"").trim(),
     物料名称:String(i.物料名称||"").trim(),
-    数量:String(i.数量||"").trim(),
+    数量:Number(i.数量||0),
     计量单位:String(i.计量单位||"").trim()
   }));
   bomLoaded=true; checkAllLoaded();
@@ -75,7 +72,7 @@ fetch('../tz/data.json?_v='+Date.now())
 .then(data=>{
   data.forEach(i=>{
     const id=String(i.物料项目号||"").trim();
-    const price=i.采购单价!==undefined ? i.采购单价 : "-";
+    const price=i.采购单价!==undefined ? Number(i.采购单价) : 0;
     priceData[id]=price;
   });
   priceLoaded=true; checkAllLoaded();
@@ -88,12 +85,6 @@ function checkAllLoaded(){
   if(bomLoaded && priceLoaded){
     document.getElementById("loading").style.display="none";
   }
-}
-
-function highlight(text, keyword){
-  if(!keyword) return text||"";
-  const reg=new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,"gi");
-  return (text||"").replace(reg,"<mark>$1</mark>");
 }
 
 function renderFiltered(){
@@ -126,70 +117,83 @@ function renderFiltered(){
 
   if(filtered.length===0){
     resultDiv.innerHTML="<p class='text-center text-gray-500'>未找到匹配结果。</p>";
+    document.getElementById("summary").classList.add("hidden");
     return;
   }
 
+  // 分组
   const grouped={};
   filtered.forEach(i=>{ if(!grouped[i.项目号]) grouped[i.项目号]=[]; grouped[i.项目号].push(i); });
 
+  let totalAmount=0;
   const table=document.createElement("table");
   table.className="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm";
-
-  const thead=document.createElement("thead");
-  thead.innerHTML=`
-    <tr>
-      <th>项目号</th>
-      <th>品名</th>
-      <th>规格</th>
-      <th>零售价</th>
-      <th>物料项目号</th>
-      <th>物料名称</th>
-      <th>数量</th>
-      <th>计量单位</th>
-      <th>采购单价</th>
-    </tr>
+  table.innerHTML=`
+    <thead class="bg-gray-100 font-semibold sticky top-0">
+      <tr>
+        <th>项目号</th>
+        <th>品名</th>
+        <th>规格</th>
+        <th>零售价</th>
+        <th>物料项目号</th>
+        <th>物料名称</th>
+        <th>数量</th>
+        <th>计量单位</th>
+        <th>采购单价</th>
+        <th>金额</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${Object.entries(grouped).map(([proj, items])=>{
+        const parent=items[0];
+        const childRows=items.map(child=>{
+          const price=priceData[child.物料项目号]??0;
+          const amount=child.数量*price;
+          totalAmount+=amount;
+          return `<tr class="hover:bg-red-50 transition">
+            <td colspan="4" class="bg-gray-50 font-semibold">${proj}</td>
+            <td>${child.物料项目号}</td>
+            <td>${child.物料名称}</td>
+            <td>${child.数量}</td>
+            <td>${child.计量单位}</td>
+            <td>${price.toFixed(2)}</td>
+            <td class="text-red-600 font-semibold">${amount.toFixed(2)}</td>
+          </tr>`;
+        }).join('');
+        return childRows;
+      }).join('')}
+    </tbody>
+    <tfoot class="bg-gray-100 font-semibold">
+      <tr>
+        <td colspan="9" class="text-right p-2">金额总计：</td>
+        <td class="text-red-700 p-2">${totalAmount.toFixed(2)}</td>
+      </tr>
+    </tfoot>
   `;
-  table.appendChild(thead);
-
-  const tbody=document.createElement("tbody");
-  for(const [proj, items] of Object.entries(grouped)){
-    const parent=items[0];
-    const parentRow=document.createElement("tr");
-    parentRow.className="parent-row";
-    parentRow.innerHTML=`
-      <td>${highlight(parent.项目号,projectID)}</td>
-      <td>${highlight(parent.品名,nameKeyword)}</td>
-      <td>${highlight(parent.规格,"")}</td>
-      <td>${highlight(parent.零售价,"")}</td>
-      <td colspan="5"></td>
-    `;
-    tbody.appendChild(parentRow);
-
-    items.forEach(child=>{
-      const tr=document.createElement("tr");
-      tr.className="child-row";
-      const id=child.物料项目号;
-      const purchasePrice=priceData[id]!==undefined ? priceData[id] : "-";
-      tr.innerHTML=`
-        <td colspan="4"></td>
-        <td>${highlight(child.物料项目号,materialID)}</td>
-        <td>${highlight(child.物料名称,materialName)}</td>
-        <td>${highlight(child.数量,"")}</td>
-        <td>${highlight(child.计量单位,"")}</td>
-        <td>${purchasePrice}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  table.appendChild(tbody);
   resultDiv.appendChild(table);
+
+  // 汇总
+  document.getElementById("summary").classList.remove("hidden");
+  document.getElementById("projectCount").textContent=Object.keys(grouped).length;
+  document.getElementById("totalAmount").textContent=totalAmount.toFixed(2);
+}
+
+// 导出 Excel
+function exportTableToExcel(filename){
+  const table=document.querySelector("#result table");
+  if(!table){ alert("请先执行查询！"); return; }
+  const html=table.outerHTML.replace(/ /g,'%20');
+  const link=document.createElement("a");
+  link.href='data:application/vnd.ms-excel,'+html;
+  link.download=filename;
+  link.click();
 }
 
 document.getElementById("searchBtn").addEventListener("click", renderFiltered);
 document.getElementById("resetBtn").addEventListener("click",()=>{
   ["nameSearch","projectSearch","materialIDSearch","materialNameSearch"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("result").innerHTML="";
+  document.getElementById("summary").classList.add("hidden");
 });
 
 document.querySelectorAll("#nameSearch,#projectSearch,#materialIDSearch,#materialNameSearch").forEach(input=>{
