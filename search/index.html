@@ -9,19 +9,14 @@
     html, body { height: 100%; margin: 0; }
     iframe { width: 100%; height: 100%; border: none; }
 
+    /* 导航按钮样式 */
     .nav-btn { transition: background 0.3s, color 0.3s; cursor: pointer; }
     .nav-btn:hover { background-color: #ef4444; }
-
     .nav-btn.active { background-color: #b91c1c; font-weight: bold; } /* 当前高亮按钮 */
+
     footer.highlight { background-color: #fee2e2; } /* 底部背景高亮 */
 
-    .tooltip {
-      position: absolute; background: #f87171; color: white;
-      padding: 0.25rem 0.5rem; border-radius: 0.25rem;
-      font-size: 0.75rem; white-space: nowrap; pointer-events: none;
-      opacity: 0; transition: opacity 0.2s ease; z-index: 50;
-    }
-
+    /* 密码提示动画 */
     @keyframes shake {
       0% { transform: translateX(0);}
       25% {transform: translateX(-8px);}
@@ -30,10 +25,17 @@
       100% {transform: translateX(0);}
     }
     .shake { animation: shake 0.4s ease; }
+
+    .tooltip {
+      position: absolute; background: #f87171; color: white;
+      padding: 0.25rem 0.5rem; border-radius: 0.25rem;
+      font-size: 0.75rem; white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity 0.2s ease; z-index: 50;
+    }
   </style>
 </head>
 
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen bg-gray-100">
 
 <!-- 密码遮罩 -->
 <div id="passwordOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center z-50">
@@ -51,13 +53,15 @@
 <main class="flex-1 flex flex-col overflow-hidden">
 
   <!-- 顶部标题栏 -->
-  <header class="bg-red-600 text-white py-4 text-center">
-    <h1 class="text-2xl font-bold">采购管理系统</h1>
-    <h2 class="text-lg mt-1">一体化采购数据查询平台</h2>
+  <header class="mx-4 mt-4 bg-red-600 text-white rounded-2xl p-4 flex flex-col items-center shadow-md">
+    <div class="flex flex-col items-center">
+      <span class="text-3xl font-bold">采购管理系统</span>
+      <span class="text-lg mt-1">一体化采购数据查询平台</span>
+    </div>
   </header>
 
   <!-- 顶部导航栏 -->
-  <nav class="bg-red-500 flex justify-center space-x-4 py-2 text-white flex-wrap">
+  <nav class="mx-4 mt-3 bg-red-500 rounded-2xl flex justify-center space-x-4 py-2 text-white flex-wrap shadow-md">
     <button class="nav-btn px-4 py-2 rounded-lg" data-url="../CP/index.html">成品查询</button>
     <button class="nav-btn px-4 py-2 rounded-lg" data-url="../bom/index.html">产品BOM</button>
     <button class="nav-btn px-4 py-2 rounded-lg" data-url="../kc/index.html">库存查询</button>
@@ -67,7 +71,7 @@
   </nav>
 
   <!-- 内容区 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 overflow-auto p-4">
+  <section id="contentArea" class="flex-1 bg-gray-50 overflow-auto p-4 mt-3 rounded-2xl shadow-inner">
     <div class="flex flex-wrap justify-center gap-8 mt-10">
       <div class="card bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
         <div class="text-5xl mb-3">📦</div>
@@ -89,7 +93,7 @@
 </main>
 
 <!-- 底部版权信息 -->
-<footer class="bg-white py-3 text-center text-xs text-gray-500">
+<footer class="mx-4 mt-3 bg-white py-3 text-center text-xs text-gray-500 rounded-2xl shadow-md">
   © 2025 青海基地采购管理部提供数据和技术支持 | ⚠️ 保密：内部数据严禁外传
 </footer>
 
@@ -121,7 +125,7 @@
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") checkPassword(); });
 
-  // 顶部导航按钮点击事件
+  // 导航按钮点击事件
   const buttons = document.querySelectorAll('.nav-btn');
   const contentArea = document.getElementById('contentArea');
   const footer = document.querySelector('footer');
@@ -135,7 +139,7 @@
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // 改变底部背景色
+      // 底部背景高亮
       footer.classList.add('highlight');
 
       if(target === "_blank") {
