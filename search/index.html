@@ -52,19 +52,20 @@
 <main class="flex-1 flex flex-col">
 
   <!-- 顶部卡片：标题+导航 -->
-  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 flex items-center justify-between my-6">
-    <div>
-      <h1 class="text-2xl font-bold text-red-600">采购管理系统</h1>
-    </div>
-    <div class="flex space-x-3 flex-wrap">
-      <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../CP/index.html">成品查询</button>
-      <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../bom/index.html">产品BOM</button>
-      <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../kc/index.html">库存查询</button>
-      <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../tz/index.html">物料查询</button>
-      <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../supplier/index.html">供应商查询</button>
-      <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="https://trtjkqh.github.io/tools/" data-target="_blank">工具库</button>
-    </div>
+<div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 flex items-center justify-between my-6 flex-wrap gap-2">
+  <div class="flex-1 min-w-[200px]">
+    <h1 class="text-3xl font-bold text-red-600">采购管理系统</h1>
+    <p class="text-lg text-gray-700 mt-1">一体化采购数据查询平台</p>
   </div>
+  <div class="flex-1 flex flex-wrap gap-2 justify-end min-w-[400px]">
+    <button class="nav-btn flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../CP/index.html">成品查询</button>
+    <button class="nav-btn flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../bom/index.html">产品BOM</button>
+    <button class="nav-btn flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../kc/index.html">库存查询</button>
+    <button class="nav-btn flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../tz/index.html">物料查询</button>
+    <button class="nav-btn flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../supplier/index.html">供应商查询</button>
+    <button class="nav-btn flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="https://trtjkqh.github.io/tools/" data-target="_blank">工具库</button>
+  </div>
+</div>
 
   <!-- 内容区 -->
   <section id="contentArea" class="flex-1 bg-gray-50 flex flex-col items-center justify-start p-6 gap-8">
