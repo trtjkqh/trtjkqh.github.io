@@ -21,7 +21,7 @@
     25% {transform: translateX(-8px);}
     50% {transform: translateX(8px);}
     75% {transform: translateX(-6px);}
-    100% {transform: translateX(0);}
+    100% { transform: translateX(0);}
   }
   .shake { animation: shake 0.4s ease; }
 </style>
@@ -41,7 +41,7 @@
   </div>
 </div>
 
-<main class="flex-1">
+<main class="flex-1 flex flex-col">
 
   <!-- 顶部卡片：标题+导航 -->
   <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 flex items-center justify-between my-6">
@@ -52,7 +52,7 @@
     </div>
 
     <!-- 右侧导航 -->
-    <div class="flex space-x-3">
+    <div class="flex flex-wrap gap-2">
       <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../CP/index.html">成品查询</button>
       <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../bom/index.html">产品BOM</button>
       <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../kc/index.html">库存查询</button>
@@ -62,9 +62,9 @@
     </div>
   </div>
 
-  <!-- 内容区 -->
-  <section id="contentArea" class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 min-h-[60vh]">
-    <p class="text-center text-gray-500">请选择左侧导航打开查询页面</p>
+  <!-- 内容区（自适应宽高，无限制） -->
+  <section id="contentArea" class="flex-1 w-full p-4 bg-white shadow rounded-xl">
+    <p class="text-center text-gray-500">请选择导航按钮打开查询页面</p>
   </section>
 
 </main>
