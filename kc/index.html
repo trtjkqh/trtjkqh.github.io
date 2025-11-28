@@ -16,11 +16,11 @@
 
 <div id="mainContent" class="transition-opacity duration-500">
 
-  <!-- 查询区域 -->
+  <!-- 查询区域（对齐物料查询页） -->
   <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
-    <span class="text-gray-500 text-sm mr-4">数据基于2025年10月</span>
+    <span class="text-gray-500 text-sm">数据基于2025年10月</span>
 
-    <select id="warehouse" class="border border-gray-300 rounded-lg p-2">
+    <select id="warehouse" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
       <option value="">全部仓库</option>
       <option>包材库</option>
       <option>1号库</option>
@@ -29,33 +29,14 @@
       <option>包材库-D</option>
     </select>
 
-    <input id="itemId" type="number" placeholder="物料项目号（精准）" class="border border-gray-300 rounded-lg p-2 flex-1" />
-    <input id="itemName" type="text" placeholder="物料名称（模糊）" class="border border-gray-300 rounded-lg p-2 flex-1" />
+    <input id="itemId" type="number" placeholder="物料项目号（精准）" 
+           class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="itemName" type="text" placeholder="物料名称（模糊）" 
+           class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
 
     <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
     <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
   </div>
-
-  <!-- 默认三张卡片 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 flex items-center justify-center overflow-auto">
-    <div class="flex flex-wrap justify-center gap-8 mt-10">
-      <div class="card opacity-0 fade-in bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
-        <div class="text-5xl mb-3">📦</div>
-        <div class="text-red-600 font-bold text-lg">保障供应</div>
-        <div class="text-gray-700 text-sm mt-2 text-center">确保物料稳定供应，满足生产需求</div>
-      </div>
-      <div class="card opacity-0 fade-in delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
-        <div class="text-5xl mb-3">💰</div>
-        <div class="text-red-600 font-bold text-lg">控制成本</div>
-        <div class="text-gray-700 text-sm mt-2 text-center">在保证质量前提下，降低采购成本</div>
-      </div>
-      <div class="card opacity-0 fade-in delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
-        <div class="text-5xl mb-3">✅</div>
-        <div class="text-red-600 font-bold text-lg">保证质量</div>
-        <div class="text-gray-700 text-sm mt-2 text-center">严格把控采购物料质量，降低风险</div>
-      </div>
-    </div>
-  </section>
 
   <!-- 汇总区 -->
   <div id="summary" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in">
@@ -67,8 +48,8 @@
     </div>
   </div>
 
-  <!-- 查询结果 -->
-  <div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+  <!-- 加载与结果 -->
+  <div id="loading" class="max-w-7xl mx-auto text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
   <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
 
 </div>
