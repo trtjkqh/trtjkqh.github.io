@@ -12,11 +12,10 @@
     /* 导航按钮样式 */
     .nav-btn { transition: background 0.3s, color 0.3s; cursor: pointer; }
     .nav-btn:hover { background-color: #ef4444; }
-    .nav-btn.active { background-color: #b91c1c; font-weight: bold; } /* 当前高亮按钮 */
+    .nav-btn.active { background-color: #b91c1c; font-weight: bold; }
 
-    footer.highlight { background-color: #fee2e2; } /* 底部背景高亮 */
+    footer.highlight { background-color: #fee2e2; }
 
-    /* 密码提示动画 */
     @keyframes shake {
       0% { transform: translateX(0);}
       25% {transform: translateX(-8px);}
@@ -50,28 +49,31 @@
 </div>
 
 <!-- 页面主体 -->
-<main class="flex-1 flex flex-col overflow-hidden">
+<main class="flex-1 flex flex-col overflow-hidden items-center">
 
-  <!-- 顶部标题栏 -->
-  <header class="mx-4 mt-4 bg-red-600 text-white rounded-2xl p-4 flex flex-col items-center shadow-md">
-    <div class="flex flex-col items-center">
-      <span class="text-3xl font-bold">采购管理系统</span>
-      <span class="text-lg mt-1">一体化采购数据查询平台</span>
+  <!-- 顶部卡片：左侧标题 + 右侧导航 -->
+  <div class="mt-6 w-60 bg-red-600 rounded-2xl shadow-md flex flex-col p-4">
+    <div class="flex justify-between items-center">
+      <!-- 左侧标题 -->
+      <div class="flex flex-col text-white">
+        <span class="text-2xl font-bold">采购管理系统</span>
+        <span class="text-base mt-1">一体化采购数据查询平台</span>
+      </div>
+
+      <!-- 右侧导航 -->
+      <div class="flex flex-col space-y-2 ml-4">
+        <button class="nav-btn px-2 py-1 rounded-lg text-white text-sm" data-url="../CP/index.html">成品查询</button>
+        <button class="nav-btn px-2 py-1 rounded-lg text-white text-sm" data-url="../bom/index.html">产品BOM</button>
+        <button class="nav-btn px-2 py-1 rounded-lg text-white text-sm" data-url="../kc/index.html">库存查询</button>
+        <button class="nav-btn px-2 py-1 rounded-lg text-white text-sm" data-url="../tz/index.html">物料查询</button>
+        <button class="nav-btn px-2 py-1 rounded-lg text-white text-sm" data-url="../supplier/index.html">供应商查询</button>
+        <button class="nav-btn px-2 py-1 rounded-lg text-white text-sm" data-url="https://trtjkqh.github.io/tools/" data-target="_blank">工具库</button>
+      </div>
     </div>
-  </header>
-
-  <!-- 顶部导航栏 -->
-  <nav class="mx-4 mt-3 bg-red-500 rounded-2xl flex justify-center space-x-4 py-2 text-white flex-wrap shadow-md">
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../CP/index.html">成品查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../bom/index.html">产品BOM</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../kc/index.html">库存查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../tz/index.html">物料查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../supplier/index.html">供应商查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="https://trtjkqh.github.io/tools/" data-target="_blank">工具库</button>
-  </nav>
+  </div>
 
   <!-- 内容区 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 overflow-auto p-4 mt-3 rounded-2xl shadow-inner">
+  <section id="contentArea" class="flex-1 bg-gray-50 overflow-auto p-4 mt-4 w-60 rounded-2xl shadow-inner">
     <div class="flex flex-wrap justify-center gap-8 mt-10">
       <div class="card bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
         <div class="text-5xl mb-3">📦</div>
@@ -93,7 +95,7 @@
 </main>
 
 <!-- 底部版权信息 -->
-<footer class="mx-4 mt-3 bg-white py-3 text-center text-xs text-gray-500 rounded-2xl shadow-md">
+<footer class="mt-4 bg-white py-3 text-center text-xs text-gray-500 w-60 rounded-2xl shadow-md">
   © 2025 青海基地采购管理部提供数据和技术支持 | ⚠️ 保密：内部数据严禁外传
 </footer>
 
@@ -135,11 +137,9 @@
       const url = btn.getAttribute('data-url');
       const target = btn.getAttribute('data-target');
 
-      // 高亮当前按钮
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // 底部背景高亮
       footer.classList.add('highlight');
 
       if(target === "_blank") {
