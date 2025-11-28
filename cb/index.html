@@ -2,11 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="argin-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>成本核算</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SheetJS for Excel export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
   <style>
     .input-row { @apply flex flex-wrap gap-4 mb-5; }
@@ -142,16 +140,16 @@
   }
 
   function recalculate() {
-    const r = getNum(inputs.r) / 100;
+    const r = getNum(inputs.r) / 100;          // 制费系数，如 12 → 0.12
     const raw = getNum(inputs.raw);
     const pack = getNum(inputs.pack);
     const freight = getNum(inputs.freight);
-    const margin = getNum(inputs.margin) / 100;
-    const disc = getNum(inputs.disc) / 100;
+    const margin = getNum(inputs.margin) / 100; // 毛利率，如 15 → 0.15
+    const discPercent = getNum(inputs.disc);    // 折扣百分比数值，如 45
 
     outputs.error.classList.add('hidden');
 
-    // 计算出厂价（按你提供的公式）
+    // === 计算出厂价（按你提供的公式）===
     const numerator = (raw + pack) / (1 + r) + freight;
     const denominator = (1 - margin) / (1 + r) - r;
 
@@ -164,10 +162,21 @@
     const factoryPrice = numerator / denominator;
     const manufacturingCost = factoryPrice * r;
     const totalCost = (raw + pack) / (1 + r) + freight + manufacturingCost;
-    const retailPrice = disc < 1 ? factoryPrice / (1 - disc) : Infinity;
-    const actualMargin = factoryPrice !== 0 
-      ? ((factoryPrice / (1 + r) - totalCost) / factoryPrice) * (1 + r) 
-      : 0;
+
+    // === 市场零售价 = 出厂价 / 折扣（按你要求）===
+    let retailPrice;
+    if (discPercent > 0) {
+      const discDecimal = discPercent / 100; // 45 → 0.45
+      retailPrice = factoryPrice / discDecimal;
+    } else {
+      retailPrice = Infinity;
+    }
+
+    // === 实际毛利率 ===
+    let actualMargin = 0;
+    if (factoryPrice !== 0) {
+      actualMargin = ((factoryPrice / (1 + r) - totalCost) / factoryPrice) * (1 + r);
+    }
 
     // 更新 UI
     outputs.manu.value = manufacturingCost.toFixed(2);
@@ -177,7 +186,7 @@
     outputs.actual.textContent = (actualMargin * 100).toFixed(2) + '%';
   }
 
-  // 绑定实时计算
+  // 绑定事件
   Object.values(inputs).forEach(inp => inp.addEventListener('input', recalculate));
   recalculate();
 
