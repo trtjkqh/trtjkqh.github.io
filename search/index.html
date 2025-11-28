@@ -9,8 +9,11 @@
     html, body { height: 100%; margin: 0; }
     iframe { width: 100%; height: 100%; border: none; }
 
-    .nav-btn { transition: background 0.3s, color 0.3s; }
+    .nav-btn { transition: background 0.3s, color 0.3s; cursor: pointer; }
     .nav-btn:hover { background-color: #ef4444; }
+
+    .nav-btn.active { background-color: #b91c1c; font-weight: bold; } /* 当前高亮按钮 */
+    footer.highlight { background-color: #fee2e2; } /* 底部背景高亮 */
 
     .tooltip {
       position: absolute; background: #f87171; color: white;
@@ -55,16 +58,16 @@
 
   <!-- 顶部导航栏 -->
   <nav class="bg-red-500 flex justify-center space-x-4 py-2 text-white flex-wrap">
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../CP/index.html" data-tooltip="成品查询">成品查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../bom/index.html" data-tooltip="产品BOM">产品BOM</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../kc/index.html" data-tooltip="库存查询">库存查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../tz/index.html" data-tooltip="物料查询">物料查询</button>
-    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../supplier/index.html" data-tooltip="供应商查询">供应商查询</button>
+    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../CP/index.html">成品查询</button>
+    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../bom/index.html">产品BOM</button>
+    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../kc/index.html">库存查询</button>
+    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../tz/index.html">物料查询</button>
+    <button class="nav-btn px-4 py-2 rounded-lg" data-url="../supplier/index.html">供应商查询</button>
     <button class="nav-btn px-4 py-2 rounded-lg" data-url="https://trtjkqh.github.io/tools/" data-target="_blank">工具库</button>
   </nav>
 
   <!-- 内容区 -->
-  <section id="contentArea" class="flex-1 bg-gray-50 overflow-auto">
+  <section id="contentArea" class="flex-1 bg-gray-50 overflow-auto p-4">
     <div class="flex flex-wrap justify-center gap-8 mt-10">
       <div class="card bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
         <div class="text-5xl mb-3">📦</div>
@@ -121,11 +124,20 @@
   // 顶部导航按钮点击事件
   const buttons = document.querySelectorAll('.nav-btn');
   const contentArea = document.getElementById('contentArea');
+  const footer = document.querySelector('footer');
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       const url = btn.getAttribute('data-url');
       const target = btn.getAttribute('data-target');
+
+      // 高亮当前按钮
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // 改变底部背景色
+      footer.classList.add('highlight');
+
       if(target === "_blank") {
         window.open(url, "_blank");
       } else {
