@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>库存查询</title>
+<title>库存查询系统</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
@@ -14,28 +14,15 @@
 
 <body class="bg-gray-50 font-sans text-gray-800">
 
-<!-- 主内容 -->
 <div id="mainContent" class="transition-opacity duration-500">
 
-  <!-- 顶部卡片（标题+导航） -->
-  <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 flex items-center justify-between my-6">
-    <div class="flex-1 min-w-[300px]">
-      <h1 class="text-3xl font-bold text-red-600">库存查询系统</h1>
-      <p class="text-lg text-gray-700 mt-1">一体化库存数据查询平台</p>
-    </div>
-    <div class="flex gap-2 flex-wrap">
-      <button class="nav-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition" data-url="#">成品查询</button>
-      <button class="nav-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition" data-url="#">产品BOM</button>
-      <button class="nav-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition" data-url="#">库存查询</button>
-      <button class="nav-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition" data-url="#">物料查询</button>
-      <button class="nav-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition" data-url="#">供应商查询</button>
-      <button class="nav-btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition" data-url="#" target="_blank">工具库</button>
-    </div>
-  </div>
-
-  <!-- 查询区域卡片 -->
+  <!-- 查询区域：和物料查询页面一致 -->
   <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 mb-6 flex flex-wrap gap-3 items-center fade-in">
     <span class="text-gray-500 text-sm w-full">数据基于2025年10月</span>
+
+    <input id="itemId" type="number" placeholder="物料项目号（精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+    <input id="itemName" type="text" placeholder="物料名称（模糊）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+
     <select id="warehouse" class="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-red-400">
       <option value="">选择仓库</option>
       <option>包材库</option>
@@ -44,24 +31,73 @@
       <option>5号库</option>
       <option>包材库-D</option>
     </select>
-    <input id="itemId" type="number" placeholder="物料项目号（精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
-    <input id="itemName" type="text" placeholder="物料名称（模糊）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400" />
+
     <button id="searchBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow">查询</button>
     <button id="resetBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow">重置</button>
   </div>
 
   <!-- 汇总区 -->
-  <div id="stats" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in">
-    <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow" id="countArea">
+  <div id="summary" class="max-w-7xl mx-auto hidden mb-4 flex gap-4 fade-in">
+    <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-4 font-semibold text-red-700 text-center shadow">
       匹配结果：<span id="count"></span> 条
     </div>
-    <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow" id="totalArea">
+    <div class="flex-1 bg-green-50 border border-green-200 rounded-lg p-4 font-semibold text-green-700 text-center shadow">
       金额总计：<span id="total"></span> 元
     </div>
   </div>
 
   <!-- 查询结果 -->
-  <div id="resultArea" class="max-w-7xl mx-auto overflow-x-auto fade-in hidden">
+  <div id="loading" class="text-center text-red-600 font-medium my-6 fade-in">⏳ 数据加载中...</div>
+  <div id="result" class="max-w-7xl mx-auto overflow-x-auto fade-in"></div>
+
+</div>
+
+<script>
+let dataCache = [];
+
+fetch('data.json')
+  .then(res => res.json())
+  .then(data => {
+    dataCache = data;
+    document.getElementById("loading").style.display = "none";
+  })
+  .catch(err => {
+    console.error("❌ 数据加载失败:", err);
+    document.getElementById("loading").textContent = "❌ 无法加载数据，请检查 data.json 文件路径。";
+  });
+
+// 查询
+function searchData() {
+  const warehouse = document.getElementById('warehouse').value.trim();
+  const itemId = document.getElementById('itemId').value.trim();
+  const itemName = document.getElementById('itemName').value.trim();
+
+  if (!warehouse && !itemId && !itemName) {
+    alert("请输入至少一项查询条件！");
+    return;
+  }
+
+  let filtered = dataCache.filter(item => (
+    (!warehouse || item['所在库'] === warehouse) &&
+    (!itemId || String(item['物料项目号']) === itemId) &&
+    (!itemName || item['物料名称'].includes(itemName))
+  ));
+
+  filtered.sort((a,b) => b['物料项目号'].localeCompare(a['物料项目号']));
+
+  if (filtered.length === 0) {
+    document.getElementById("summary").classList.add("hidden");
+    document.getElementById("result").innerHTML = "<p class='text-center text-gray-500'>未找到匹配的数据。</p>";
+    return;
+  }
+
+  let total = filtered.reduce((sum,item) => sum + Number(item["金额"]||0), 0);
+
+  document.getElementById("summary").classList.remove("hidden");
+  document.getElementById("count").textContent = filtered.length;
+  document.getElementById("total").textContent = total.toLocaleString(undefined,{minimumFractionDigits:2});
+
+  let tableHTML = `
     <table class="w-full text-sm text-center border border-gray-200 rounded-lg shadow-sm">
       <thead class="bg-gray-100 font-semibold sticky top-0">
         <tr>
@@ -76,84 +112,38 @@
           <th class="p-2 border-b">金额</th>
         </tr>
       </thead>
-      <tbody id="tableBody"></tbody>
+      <tbody>
+        ${filtered.map((row,i) => `
+          <tr class="${i%2===0?'bg-gray-50':'bg-white'} hover:bg-red-50 transition">
+            <td class="p-2 border-b">${i+1}</td>
+            <td class="p-2 border-b">${row['所在库']||''}</td>
+            <td class="p-2 border-b">${row['物料项目号']||''}</td>
+            <td class="p-2 border-b">${row['物料名称']||''}</td>
+            <td class="p-2 border-b">${row['说明']||''}</td>
+            <td class="p-2 border-b">${row['计量单位']||''}</td>
+            <td class="p-2 border-b text-red-600 font-semibold">${row['数量']||''}</td>
+            <td class="p-2 border-b">${row['采购单价']||''}</td>
+            <td class="p-2 border-b">${row['金额']||''}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+      <tfoot class="bg-gray-100 font-semibold">
+        <tr>
+          <td colspan="7" class="p-2 text-right">金额总计：</td>
+          <td colspan="2" class="p-2 text-red-700">${total.toFixed(2)}</td>
+        </tr>
+      </tfoot>
     </table>
-  </div>
+  `;
+  document.getElementById("result").innerHTML = tableHTML;
+}
 
-</div>
-
-<script>
-  const searchBtn = document.getElementById('searchBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const tableBody = document.getElementById('tableBody');
-  const resultArea = document.getElementById('resultArea');
-  const stats = document.getElementById('stats');
-  const countSpan = document.getElementById('count');
-  const totalSpan = document.getElementById('total');
-
-  let data = [];
-  async function loadData() {
-    const res = await fetch('data.json');
-    data = await res.json();
-  }
-  loadData();
-
-  function renderTable(filtered) {
-    if (filtered.length === 0) {
-      resultArea.classList.add('hidden');
-      stats.classList.add('hidden');
-      return;
-    }
-
-    tableBody.innerHTML = '';
-    let totalAmount = 0;
-
-    filtered.forEach((item, index) => {
-      const amount = Number(item['数量'] || 0) * Number(item['采购单价'] || 0);
-      totalAmount += amount;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="p-2 border-b">${index+1}</td>
-        <td class="p-2 border-b">${item['所在库']||''}</td>
-        <td class="p-2 border-b">${item['物料项目号']||''}</td>
-        <td class="p-2 border-b">${item['物料名称']||''}</td>
-        <td class="p-2 border-b">${item['说明']||''}</td>
-        <td class="p-2 border-b">${item['计量单位']||''}</td>
-        <td class="p-2 border-b font-semibold bg-yellow-100">${item['数量']||0}</td>
-        <td class="p-2 border-b">${item['采购单价']||0}</td>
-        <td class="p-2 border-b text-red-600 font-semibold">${amount.toFixed(2)}</td>
-      `;
-      tableBody.appendChild(tr);
-    });
-
-    resultArea.classList.remove('hidden');
-    stats.classList.remove('hidden');
-    countSpan.textContent = filtered.length;
-    totalSpan.textContent = totalAmount.toFixed(2);
-  }
-
-  searchBtn.addEventListener('click', () => {
-    const warehouse = document.getElementById('warehouse').value.trim();
-    const itemId = document.getElementById('itemId').value.trim();
-    const itemName = document.getElementById('itemName').value.trim();
-
-    const filtered = data.filter(item => 
-      (!warehouse || item['所在库'] === warehouse) &&
-      (!itemId || String(item['物料项目号']) === itemId) &&
-      (!itemName || item['物料名称'].includes(itemName))
-    );
-
-    renderTable(filtered);
-  });
-
-  resetBtn.addEventListener('click', () => {
-    document.getElementById('warehouse').value = '';
-    document.getElementById('itemId').value = '';
-    document.getElementById('itemName').value = '';
-    resultArea.classList.add('hidden');
-    stats.classList.add('hidden');
-  });
+document.getElementById('searchBtn').addEventListener('click', searchData);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  ['warehouse','itemId','itemName'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById("result").innerHTML = '';
+  document.getElementById("summary").classList.add("hidden");
+});
 </script>
 
 </body>
