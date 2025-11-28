@@ -24,6 +24,14 @@
     100% {transform: translateX(0);}
   }
   .shake { animation: shake 0.4s ease; }
+
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+  .delay-0 { animation: fadeIn 0.6s forwards; animation-delay: 0.2s; transform: translateY(20px); opacity: 0;}
+  .delay-1 { animation: fadeIn 0.6s forwards; animation-delay: 0.5s; transform: translateY(20px); opacity: 0;}
+  .delay-2 { animation: fadeIn 0.6s forwards; animation-delay: 0.8s; transform: translateY(20px); opacity: 0;}
+
+  .card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .card:hover { transform: scale(1.05); box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4); }
 </style>
 </head>
 
@@ -41,15 +49,15 @@
   </div>
 </div>
 
-<main class="flex-1">
+<main class="flex-1 flex flex-col">
 
-  <!-- 顶部卡片：标题+导航（保持不改动） -->
+  <!-- 顶部卡片：标题+导航 -->
   <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-4 flex items-center justify-between my-6">
     <div>
       <h1 class="text-3xl font-bold text-red-600">采购管理系统</h1>
       <p class="text-lg text-gray-700 mt-1">一体化采购数据查询平台</p>
     </div>
-    <div class="flex space-x-3">
+    <div class="flex space-x-3 flex-wrap">
       <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../CP/index.html">成品查询</button>
       <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../bom/index.html">产品BOM</button>
       <button class="nav-btn bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" data-url="../kc/index.html">库存查询</button>
@@ -59,9 +67,25 @@
     </div>
   </div>
 
-  <!-- 查询内容区域（自适应，无宽高限制，不滚动） -->
-  <section id="contentArea" class="bg-white shadow rounded-xl p-4 flex-1 min-h-[60vh]">
-    <p class="text-center text-gray-500">请选择左侧导航打开查询页面</p>
+  <!-- 内容区 -->
+  <section id="contentArea" class="flex-1 bg-gray-50 flex flex-col items-center justify-start p-6 gap-8">
+    <div class="flex flex-wrap justify-center gap-8">
+      <div class="card delay-0 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
+        <div class="text-5xl mb-3">📦</div>
+        <div class="text-red-600 font-bold text-lg">保障供应</div>
+        <div class="text-gray-700 text-sm mt-2 text-center">确保物料稳定供应，满足生产需求</div>
+      </div>
+      <div class="card delay-1 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
+        <div class="text-5xl mb-3">💰</div>
+        <div class="text-red-600 font-bold text-lg">控制成本</div>
+        <div class="text-gray-700 text-sm mt-2 text-center">在保证质量前提下，降低采购成本</div>
+      </div>
+      <div class="card delay-2 bg-red-50 rounded-2xl shadow-lg p-6 w-60 flex flex-col items-center">
+        <div class="text-5xl mb-3">✅</div>
+        <div class="text-red-600 font-bold text-lg">保证质量</div>
+        <div class="text-gray-700 text-sm mt-2 text-center">严格把控采购物料质量，降低风险</div>
+      </div>
+    </div>
   </section>
 
 </main>
@@ -98,14 +122,13 @@
   }
   input.addEventListener("keydown", e => { if (e.key === "Enter") checkPassword(); });
 
-  // 导航按钮点击事件
   navButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const url = btn.getAttribute('data-url');
       if(btn.getAttribute('data-target') === "_blank") {
         window.open(url,'_blank');
       } else {
-        contentArea.innerHTML = `<iframe src="${url}" class="w-full h-full"></iframe>`;
+        contentArea.innerHTML = `<iframe src="${url}" class="w-full h-[80vh]"></iframe>`;
       }
 
       // 高亮点击按钮
