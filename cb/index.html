@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="argin-scale=1.0"/>
   <title>成本核算</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -10,24 +10,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
   <style>
     .input-row { @apply flex flex-wrap gap-4 mb-5; }
-    .input-col { @apply flex-1 min-w-[130px]; }
+    .input-col { @apply flex-1 min-w-[120px]; }
     .label { @apply block text-sm font-medium text-gray-700 mb-1; }
     .result-box { @apply mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg; }
     .result-row { @apply flex justify-between py-1.5; }
     .result-label { @apply font-medium text-gray-700; }
     .result-value { @apply font-bold text-blue-700; }
     .error { @apply text-red-600 font-semibold mt-2; }
+    .export-btn {
+      @apply mt-6 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium;
+    }
   </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
 <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 my-6">
+  <h1 class="text-2xl font-bold text-blue-600 mb-6">成本核算系统</h1>
 
-  <!-- 成本核算小标题 -->
-  <h2 class="text-xl font-bold text-blue-600 mb-4">成本核算</h2>
-
-  <!-- 项目号 & 产品名称 -->
-  <div class="input-row mb-6">
+  <!-- 第1行：项目号 & 产品名称 -->
+  <div class="input-row">
     <div class="input-col">
       <label class="label">项目号</label>
       <input type="text" id="projectNumber"
@@ -40,7 +41,7 @@
     </div>
   </div>
 
-  <!-- 第1行：制费系数、原料、包材、其他运费 -->
+  <!-- 第2行：制费系数、原料、包材、其他运费 -->
   <div class="input-row">
     <div class="input-col">
       <label class="label">制费系数 (%)</label>
@@ -64,7 +65,7 @@
     </div>
   </div>
 
-  <!-- 第2行：制造费用合计（人工+折旧+制费） -->
+  <!-- 第3行：制造费用合计（只读） -->
   <div class="input-row">
     <div class="input-col">
       <label class="label">制造费用合计<br><span class="text-xs text-gray-500">(人工+折旧+制费)</span></label>
@@ -73,7 +74,7 @@
     </div>
   </div>
 
-  <!-- 第3行：市场定价毛利率、折扣 -->
+  <!-- 第4行：市场定价毛利率、折扣 -->
   <div class="input-row">
     <div class="input-col">
       <label class="label">市场定价毛利率 (%)</label>
@@ -90,7 +91,7 @@
   <!-- 错误提示 -->
   <div id="errorMessage" class="error hidden"></div>
 
-  <!-- 计算结果区 -->
+  <!-- 结果展示 -->
   <div class="result-box">
     <div class="result-row">
       <span class="result-label">合计成本（不含税）：</span>
@@ -111,21 +112,14 @@
   </div>
 
   <!-- 导出按钮 -->
-  <div class="mt-6 flex justify-end">
-    <button id="exportButton"
-      class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none">
-      导出为 Excel
-    </button>
-  </div>
+  <button id="exportButton" class="export-btn">导出为 Excel</button>
 </div>
 
 <script>
   const el = id => document.getElementById(id);
-
-  // 输入元素
   const inputs = {
-    projectNumber: el('projectNumber'),
-    productName: el('productName'),
+    project: el('projectNumber'),
+    product: el('productName'),
     r: el('overheadRate'),
     raw: el('rawMaterial'),
     pack: el('packaging'),
@@ -133,8 +127,6 @@
     margin: el('profitMargin'),
     disc: el('discount')
   };
-
-  // 输出元素
   const outputs = {
     manu: el('manufacturingCost'),
     cost: el('totalCost'),
@@ -144,51 +136,40 @@
     error: el('errorMessage')
   };
 
-  // 安全转数字
-  function toNum(input) {
+  function getNum(input) {
     const v = parseFloat(input.value);
     return isNaN(v) ? 0 : v;
   }
 
-  // 核心计算函数
   function recalculate() {
-    const r = toNum(inputs.r) / 100;           // 制费系数（小数）
-    const raw = toNum(inputs.raw);             // 原料
-    const pack = toNum(inputs.pack);           // 包材
-    const freight = toNum(inputs.freight);     // 其他运费
-    const margin = toNum(inputs.margin) / 100; // 毛利率（小数）
-    const disc = toNum(inputs.disc) / 100;     // 折扣率（小数）
+    const r = getNum(inputs.r) / 100;
+    const raw = getNum(inputs.raw);
+    const pack = getNum(inputs.pack);
+    const freight = getNum(inputs.freight);
+    const margin = getNum(inputs.margin) / 100;
+    const disc = getNum(inputs.disc) / 100;
 
-    // 清除错误
     outputs.error.classList.add('hidden');
 
-    // 出厂价公式（你提供的）
+    // 计算出厂价（按你提供的公式）
     const numerator = (raw + pack) / (1 + r) + freight;
     const denominator = (1 - margin) / (1 + r) - r;
 
-    if (Math.abs(denominator) < 1e-8) {
-      outputs.error.textContent = '计算错误：分母接近零，请检查毛利率与制费系数设置';
+    if (Math.abs(denominator) < 1e-8 || denominator <= 0) {
+      outputs.error.textContent = '参数无效：分母 ≤ 0，无法计算出厂价';
       outputs.error.classList.remove('hidden');
       return;
     }
 
     const factoryPrice = numerator / denominator;
-
-    // 制造费用合计 = 出厂价 × 制费系数
     const manufacturingCost = factoryPrice * r;
-
-    // 合计成本（不含税） = (原料+包材)/(1+r) + 其他运费 + 制造费用合计
     const totalCost = (raw + pack) / (1 + r) + freight + manufacturingCost;
-
-    // 市场零售价 = 出厂价 / (1 - 折扣率) —— 更符合商业逻辑（45%折扣 = 打55折）
     const retailPrice = disc < 1 ? factoryPrice / (1 - disc) : Infinity;
-
-    // 实际毛利率 = [出厂价/(1+r) - 合计成本] / 出厂价 * (1+r)
-    const actualMargin = factoryPrice !== 0
-      ? ((factoryPrice / (1 + r) - totalCost) / factoryPrice) * (1 + r)
+    const actualMargin = factoryPrice !== 0 
+      ? ((factoryPrice / (1 + r) - totalCost) / factoryPrice) * (1 + r) 
       : 0;
 
-    // 更新界面
+    // 更新 UI
     outputs.manu.value = manufacturingCost.toFixed(2);
     outputs.cost.textContent = totalCost.toFixed(2);
     outputs.price.textContent = factoryPrice.toFixed(2);
@@ -198,16 +179,13 @@
 
   // 绑定实时计算
   Object.values(inputs).forEach(inp => inp.addEventListener('input', recalculate));
-
-  // 初始化
   recalculate();
 
   // 导出 Excel
   el('exportButton').addEventListener('click', () => {
     const data = [
-      ['字段', '值'],
-      ['项目号', inputs.projectNumber.value || '—'],
-      ['产品名称', inputs.productName.value || '—'],
+      ['项目号', inputs.project.value],
+      ['产品名称', inputs.product.value],
       ['制费系数 (%)', inputs.r.value],
       ['原料（含税）', inputs.raw.value],
       ['包材（含税）', inputs.pack.value],
@@ -223,8 +201,8 @@
 
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '成本核算结果');
-    const filename = (inputs.productName.value || '成本核算') + '.xlsx';
+    XLSX.utils.book_append_sheet(wb, ws, '成本核算');
+    const filename = (inputs.product.value || '成本核算') + '.xlsx';
     XLSX.writeFile(wb, filename);
   });
 </script>
