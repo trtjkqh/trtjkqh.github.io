@@ -110,7 +110,7 @@
   </div>
 
   <!-- 导出按钮 -->
-  <button id="exportButton" class="export-btn">导出为 Excel</button>
+  <button id="exportButton" class="export-btn bg-green-500 hover:bg-green-600">导出为 Excel</button>
 </div>
 
 <script>
@@ -163,7 +163,6 @@
     const totalCost = (raw + pack) / (1 + r) + freight + manufacturingCost;
 
     let retailPrice = discPercent > 0 ? factoryPrice / (discPercent / 100) : Infinity;
-
     let actualMargin = factoryPrice !== 0 ? ((factoryPrice / (1 + r) - totalCost) / factoryPrice) * (1 + r) : 0;
 
     outputs.manu.value = manufacturingCost.toFixed(2);
@@ -176,7 +175,6 @@
   Object.values(inputs).forEach(inp => inp.addEventListener('input', recalculate));
   recalculate();
 
-  // 导出 Excel
   el('exportButton').addEventListener('click', () => {
     const data = [
       ['项目号', inputs.project.value],
@@ -196,7 +194,7 @@
 
     const ws = XLSX.utils.aoa_to_sheet(data);
 
-    // 表格美化：首行加粗居中
+    // 美化首行
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const cell = ws[XLSX.utils.encode_cell({r:0, c:C})];
@@ -206,10 +204,11 @@
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, '成本核算');
 
+    // 文件名：项目号-产品名称-成本核算.xlsx
     let filename = '';
     if (inputs.project.value) filename += inputs.project.value + '-';
     filename += inputs.product.value || '成本核算';
-    filename += '.xlsx';
+    filename += '-成本核算.xlsx';
 
     XLSX.writeFile(wb, filename);
   });
