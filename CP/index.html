@@ -26,16 +26,17 @@
 <!-- Search box -->
 <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-xl p-6 fade-in mb-6 space-y-4">
 
-<div class="flex flex-wrap gap-3">
-  <select id="channelSelect" class="border rounded-lg p-2 min-w-[150px]">
+<div class="flex flex-wrap gap-3 bg-white shadow rounded-lg p-4">
+  <select id="channelSelect" class="border border-gray-300 rounded-lg p-2 flex-1 min-w-[150px]">
     <option value="">所有渠道</option>
   </select>
-  <input id="projectInput" placeholder="项目号（精准）" class="border rounded-lg p-2 flex-1 min-w-[150px]">
-  <input id="nameInput" placeholder="品名（模糊搜索）" class="border rounded-lg p-2 flex-1 min-w-[150px]">
+  <input id="projectInput" placeholder="项目号（精准）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+  <input id="nameInput" placeholder="品名（模糊搜索）" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
 
-  <button id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">查询</button>
-  <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">导出Excel</button>
+  <button id="searchBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">查询</button>
+  <button id="exportBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">导出Excel</button>
 </div>
+
 
 <!-- Result table -->
 <div class="overflow-auto max-h-[70vh] border rounded-lg">
