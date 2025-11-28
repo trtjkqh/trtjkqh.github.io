@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成本核算</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800">
+    <div class="max-w-7xl mx-auto bg-white shadow rounded-xl p-6 my-6">
+        <h1 class="text-2xl font-bold text-red-600 mb-4">成本核算系统</h1>
+        <form id="costForm" class="space-y-4">
+            <!-- 制费系数 -->
+            <div class="flex items-center space-x-2">
+                <label for="overheadRate" class="w-32">制费系数：</label>
+                <input type="number" step="0.01" id="overheadRate" value="12" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                <span>%</span>
+            </div>
+
+            <!-- 原料（含税） -->
+            <div class="flex items-center space-x-2">
+                <label for="rawMaterialCost" class="w-32">原料（含税）：</label>
+                <input type="number" step="0.01" id="rawMaterialCost" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+            </div>
+
+            <!-- 包材（含税） -->
+            <div class="flex items-center space-x-2">
+                <label for="packagingCost" class="w-32">包材（含税）：</label>
+                <input type="number" step="0.01" id="packagingCost" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+            </div>
+
+            <!-- 其他费用 -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center space-x-2">
+                    <label for="otherFreight" class="w-24">其他运费：</label>
+                    <input type="number" step="0.01" id="otherFreight" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="laborCost" class="w-24">人工：</label>
+                    <input type="number" step="0.01" id="laborCost" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="depreciationCost" class="w-24">折旧：</label>
+                    <input type="number" step="0.01" id="depreciationCost" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label for="overheadCost" class="w-24">制费：</label>
+                    <input type="number" step="0.01" id="overheadCost" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                </div>
+            </div>
+
+            <!-- 市场定价毛利率 -->
+            <div class="flex items-center space-x-2">
+                <label for="profitMargin" class="w-32">市场定价毛利率：</label>
+                <input type="number" step="0.01" id="profitMargin" value="15" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                <span>%</span>
+            </div>
+
+            <!-- 折扣 -->
+            <div class="flex items-center space-x-2">
+                <label for="discount" class="w-32">折扣：</label>
+                <input type="number" step="0.01" id="discount" value="45" class="border border-gray-300 rounded-lg p-2 flex-1 focus:ring-2 focus:ring-red-400">
+                <span>%</span>
+            </div>
+
+            <button type="button" onclick="calculateCosts()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition shadow w-full">计算</button>
+        </form>
+
+        <!-- 结果展示 -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg shadow">
+            <p><strong>合计成本（不含税）：</strong><span id="totalCostWithoutTax"></span></p>
+            <p><strong>出厂价：</strong><span id="factoryPrice"></span></p>
+            <p><strong>市场零售价：</strong><span id="retailPrice"></span></p>
+            <p><strong>实际毛利率：</strong><span id="actualGrossMargin"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function calculateCosts() {
+            const overheadRate = parseFloat(document.getElementById('overheadRate').value) / 100;
+            const rawMaterialCost = parseFloat(document.getElementById('rawMaterialCost').value);
+            const packagingCost = parseFloat(document.getElementById('packagingCost').value);
+            const otherFreight = parseFloat(document.getElementById('otherFreight').value);
+            const laborCost = parseFloat(document.getElementById('laborCost').value);
+            const depreciationCost = parseFloat(document.getElementById('depreciationCost').value);
+            const overheadCost = parseFloat(document.getElementById('overheadCost').value);
+            const profitMargin = parseFloat(document.getElementById('profitMargin').value) / 100;
+            const discount = parseFloat(document.getElementById('discount').value) / 100;
+
+            // 计算合计成本（不含税）
+            const totalCostWithoutTax = (rawMaterialCost + packagingCost) / (1 + overheadRate) + otherFreight + laborCost + depreciationCost + overheadCost;
+            document.getElementById('totalCostWithoutTax').textContent = totalCostWithoutTax.toFixed(2);
+
+            // 计算出厂价
+            const factoryPrice = ((rawMaterialCost + packagingCost) / (1 + overheadRate) + otherFreight) / ((1 - profitMargin) / (1 + overheadRate) - laborCost - depreciationCost - overheadCost);
+            document.getElementById('factoryPrice').textContent = factoryPrice.toFixed(2);
+
+            // 计算市场零售价
+            const retailPrice = factoryPrice / (1 - discount);
+            document.getElementById('retailPrice').textContent = retailPrice.toFixed(2);
+
+            // 计算实际毛利率
+            const actualGrossMargin = (factoryPrice / (1 + overheadRate) - totalCostWithoutTax) / factoryPrice * (1 + overheadRate);
+            document.getElementById('actualGrossMargin').textContent = (actualGrossMargin * 100).toFixed(2) + '%';
+        }
+    </script>
+</body>
+
+</html>
